@@ -159,27 +159,38 @@
             </div>
         </div>
 
-        <!-- 중앙 영역: 상단 마법공학 상자 & 열쇠 일러스트 + 1대1 및 2대2 검색창 (lg:col-span-6) -->
+        <!-- 중앙 영역: 상단 마법공학 상자 감성 MVPLOL 로고 패널 + 1대1 및 2대2 검색창 (lg:col-span-6) -->
         <div class="lg:col-span-6 flex flex-col justify-center space-y-5 py-2">
             
-            <!-- 중앙 상단 마법공학 상자/열쇠 & 정수 장식 패널 -->
-            <div class="hextech-card rounded-3xl p-4 flex items-center justify-around relative overflow-hidden shadow-2xl">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-950/60 via-amber-950/30 to-blue-950/60 pointer-events-none"></div>
-                <!-- 주황 정수 / 열쇠 / 마법공학 상자 / 파랑 정수 감성 일러스트 -->
-                <div class="flex items-center justify-center gap-4 py-1 text-3xl sm:text-4xl select-none relative z-10">
-                    <span title="주황 정수" class="transform -rotate-12 hover:scale-110 transition-transform cursor-pointer">🟧</span>
-                    <span title="마법공학 열쇠" class="transform hover:scale-110 transition-transform cursor-pointer">🔑</span>
-                    <span title="마법공학 상자" class="transform scale-110 hover:scale-125 transition-transform cursor-pointer animate-pulse">📦</span>
-                    <span title="파랑 정수" class="transform rotate-12 hover:scale-110 transition-transform cursor-pointer">💎</span>
+            <!-- 중앙 상단 마법공학 상자 감성 & 커다란 MVPLOL 로고 패널 -->
+            <div class="hextech-card rounded-3xl p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl text-center">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-950/70 via-amber-950/40 to-blue-950/70 pointer-events-none"></div>
+                
+                <div class="relative z-10 flex flex-col items-center gap-2">
+                    <!-- 마법공학 상자 및 정수 감성 일러스트 아이콘 -->
+                    <div class="flex items-center gap-3 text-2xl sm:text-3xl select-none mb-1">
+                        <span title="주황 정수" class="transform -rotate-12 hover:scale-110 transition-transform cursor-pointer">🟧</span>
+                        <span title="마법공학 열쇠" class="transform hover:scale-110 transition-transform cursor-pointer">🔑</span>
+                        <span title="마법공학 상자" class="transform scale-125 hover:scale-140 transition-transform cursor-pointer animate-pulse">📦</span>
+                        <span title="파랑 정수" class="transform rotate-12 hover:scale-110 transition-transform cursor-pointer">💎</span>
+                    </div>
+                    
+                    <!-- 큼직하게 박아넣은 MVPLOL 브랜드 타이틀 -->
+                    <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-white drop-shadow-lg flex items-center gap-2">
+                        <span>✨</span> MVP<span class="text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.5)]">.LOL</span>
+                    </h1>
+                    <p class="text-xs sm:text-sm text-amber-200/80 font-medium tracking-wide">
+                        로딩 창 30초 안에 끝내는 맞춤형 라인전 매치업 솔루션
+                    </p>
                 </div>
             </div>
 
             <!-- 1. 라인전 1대1 구도 섹션 -->
             <div class="w-full flex flex-col items-center">
                 <div class="text-center mb-2.5">
-                    <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow">
+                    <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow">
                         라인전 1대1 구도
-                    </h1>
+                    </h2>
                 </div>
 
                 <div class="w-full relative">
