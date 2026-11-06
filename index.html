@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="로딩 창 30초 안에 확인하는 맞춤형 롤 라인전 매치업 솔루션">
+    <title>Mvp.lol - 로딩 창 30초 맞춤형 라인전 솔루션</title>
+
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #3b42c4;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism Card Style */
+        .glass-card {
+            background-color: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1.5px solid rgba(255, 255, 255, 0.28);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 255, 255, 0.7);
+            background-color: rgba(255, 255, 255, 0.18);
+            transform: translateY(-2px);
+        }
+
+        .glass-card:focus-visible,
+        button:focus-visible {
+            outline: 3px solid #fde047;
+            outline-offset: 2px;
+        }
+
+        .search-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Modal Overlay & Animation */
+        .modal-overlay {
+            background-color: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(6px);
+        }
+
+        .modal-body {
+            animation: modalSlide 0.25s ease-out forwards;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes modalSlide {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .modal-body { animation: none; }
+            .glass-card:hover { transform: none; }
+        }
+    </style>
+</head>
+<body class="flex flex-col justify-between min-h-screen px-4 py-6 md:px-8">
+
+    <!-- Header Section -->
+    <header class="w-full max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 pb-4 border-b border-white/20">
+        <a href="#" id="brand-logo" class="text-3xl font-black tracking-tight text-white hover:opacity-90 transition-opacity cursor-pointer">
+            Mvp<span class="text-yellow-300">.lol</span>
+        </a>
+
+        <nav class="flex flex-wrap justify-center gap-1 sm:gap-2 text-sm font-bold" aria-label="주요 메뉴">
+            <button type="button" data-page="ranking" class="px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/15 transition-all flex items-center gap-1.5 cursor-pointer">
+                <span aria-hidden="true">🏆</span> 챔피언 랭킹
+            </button>
+            <button type="button" data-page="matchup_all" class="px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/15 transition-all flex items-center gap-1.5 cursor-pointer">
+                <span aria-hidden="true">⚔️</span> 전체 구도
+            </button>
+            <button type="button" data-page="patch" class="px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/15 transition-all flex items-center gap-1.5 cursor-pointer">
+                <span aria-hidden="true">📢</span> 패치노트
+            </button>
+            <button type="button" data-page="feedback" class="px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/15 transition-all flex items-center gap-1.5 cursor-pointer">
+                <span aria-hidden="true">💬</span> 공략 제보
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Container (메인 홈 화면) -->
+    <main id="main-view" class="w-full max-w-4xl mx-auto my-auto py-6 flex flex-col items-center">
+        <div class="text-center mb-6">
+            <h1 class="text-xl sm:text-2xl font-bold text-white/90 tracking-tight">
+                로딩 창 30초 맞춤형 라인전 구도 솔루션
+            </h1>
+        </div>
+
+        <!-- Search Bar with Interactive Draft Status & Autocomplete -->
+        <div class="w-full max-w-2xl mx-auto mb-8 relative">
+            <!-- 드래프트 현황 바 (내 챔피언 / 상대 챔피언 구분) -->
+            <div id="draft-status" class="flex items-center justify-center gap-3 mb-3 text-xs sm:text-sm font-bold">
+                <div class="px-3.5 py-1.5 rounded-xl bg-indigo-900/70 border border-indigo-400/50 text-indigo-200 flex items-center gap-2 shadow-md">
+                    <span>⚔️ 내 챔피언:</span> 
+                    <span id="badge-mine-text" class="text-yellow-300 font-black">선택 안됨</span>
+                    <button type="button" id="clear-mine" class="text-indigo-300 hover:text-white hidden ml-1 cursor-pointer">✕</button>
+                </div>
+                <span class="text-yellow-300 font-black italic">VS</span>
+                <div class="px-3.5 py-1.5 rounded-xl bg-rose-900/70 border border-rose-400/50 text-rose-200 flex items-center gap-2 shadow-md">
+                    <span>🛡️ 상대 챔피언:</span> 
+                    <span id="badge-opp-text" class="text-yellow-300 font-black">선택 안됨</span>
+                    <button type="button" id="clear-opp" class="text-rose-300 hover:text-white hidden ml-1 cursor-pointer">✕</button>
+                </div>
+            </div>
+
+            <form id="search-form" class="w-full relative" role="search">
+                <div class="relative">
+                    <label for="search-input" class="sr-only">챔피언 매치업 검색</label>
+                    <input
+                        id="search-input"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="챔피언 검색 또는 구도 입력 (예: 트타, 바루스 / 리신 제드)"
+                        class="w-full py-4 px-20 text-center text-slate-800 font-bold text-base sm:text-lg bg-white rounded-2xl outline-none search-shadow placeholder:text-slate-400 placeholder:font-normal focus:ring-4 focus:ring-yellow-300 transition-all"
+                    />
+                    <button
+                        type="submit"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-sm transition-all cursor-pointer shadow"
+                    >
+                        검색
+                    </button>
+                </div>
+            </form>
+
+            <!-- 실시간 자동완성 추천 드롭다운 -->
+            <div id="search-suggestions" class="absolute left-0 right-0 top-full mt-2 bg-slate-900/95 border border-slate-700 rounded-2xl shadow-2xl max-h-72 overflow-y-auto z-50 hidden p-2 space-y-1 backdrop-blur-md"></div>
+        </div>
+
+        <!-- 2x2 Grid Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+            <!-- Card 1 -->
+            <div data-page="hot" role="button" tabindex="0" class="glass-card rounded-2xl p-5 transition-all duration-200">
+                <h2 class="text-base font-bold pb-2 mb-3 border-b border-white/20 flex items-center justify-between pointer-events-none">
+                    <span class="flex items-center gap-2"><span aria-hidden="true">🔥</span> 오늘의 인기 구도</span>
+                    <span class="text-xs text-yellow-300 font-normal">더보기 ➔</span>
+                </h2>
+                <p class="text-sm text-white/90 mb-3 leading-relaxed pointer-events-none">
+                    지금 유저들이 가장 많이 검색 중인 핫한 탑/미드 라이너 구도입니다.
+                </p>
+                <div class="flex flex-wrap gap-2 pt-1">
+                    <button type="button" data-query="트런들 vs 베인" class="bg-white/20 hover:bg-white/30 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-white/30 transition-all cursor-pointer">
+                        트런들 vs 베인
+                    </button>
+                    <button type="button" data-query="탈론 vs 제드" class="bg-white/20 hover:bg-white/30 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-white/30 transition-all cursor-pointer">
+                        탈론 vs 제드
+                    </button>
+                    <button type="button" data-query="사일러스 vs 야스오" class="bg-white/20 hover:bg-white/30 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-white/30 transition-all cursor-pointer">
+                        사일러스 vs 야스오
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div data-page="guide" role="button" tabindex="0" class="glass-card rounded-2xl p-5 transition-all duration-200">
+                <h2 class="text-base font-bold pb-2 mb-3 border-b border-white/20 flex items-center justify-between pointer-events-none">
+                    <span class="flex items-center gap-2"><span aria-hidden="true">💡</span> 30초 사용 가이드</span>
+                    <span class="text-xs text-yellow-300 font-normal">더보기 ➔</span>
+                </h2>
+                <ul class="text-sm text-white/90 space-y-1.5 leading-relaxed pointer-events-none">
+                    <li class="flex items-start gap-2">
+                        <span class="text-yellow-300 font-bold">1.</span> 게임 로딩 창에서 내/상대 챔피언 검색
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-yellow-300 font-bold">2.</span> 1렙, 3렙, 6렙 핵심 라인전 꿀팁 즉시 체크
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-yellow-300 font-bold">3.</span> 상대 맞춤 추천 템트리와 스펠로 승리 쟁취!
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Card 3 -->
+            <div data-page="patch" role="button" tabindex="0" class="glass-card rounded-2xl p-5 transition-all duration-200">
+                <h2 class="text-base font-bold pb-2 mb-3 border-b border-white/20 flex items-center justify-between pointer-events-none">
+                    <span class="flex items-center gap-2"><span aria-hidden="true">🏆</span> 최신 패치 공략 데이터</span>
+                    <span class="text-xs text-yellow-300 font-normal">더보기 ➔</span>
+                </h2>
+                <ul class="text-sm text-white/90 space-y-1.5 leading-relaxed pointer-events-none">
+                    <li class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-yellow-300"></span> 최신 패치노트 데이터 전수 반영 완료
+                    </li>
+                    <li class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-yellow-300"></span> 탑/미드/바텀 핵심 상성 DB 대량 수록
+                    </li>
+                    <li class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-yellow-300"></span> 챌린저 장인 유저 실전 팁 가공 완료
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Card 4 (공략 제보) -->
+            <div data-page="feedback" role="button" tabindex="0" class="glass-card rounded-2xl p-5 transition-all duration-200 flex flex-col justify-between">
+                <div class="pointer-events-none">
+                    <h2 class="text-base font-bold pb-2 mb-3 border-b border-white/20 flex items-center justify-between">
+                        <span class="flex items-center gap-2"><span aria-hidden="true">💬</span> 공략 제보 & 요청</span>
+                        <span class="text-xs text-yellow-300 font-normal">작성하기 ➔</span>
+                    </h2>
+                    <p class="text-sm text-white/90 leading-relaxed">
+                        찾으시는 챔피언 구도가 없으신가요?<br>
+                        장인 유저분들의 디테일한 꿀팁 제보나 신규 공략 등록을 언제든 환영합니다!
+                    </p>
+                </div>
+                <div class="mt-3 pointer-events-none">
+                    <span class="block w-full text-center bg-yellow-300 text-slate-900 font-bold text-xs py-2 px-3 rounded-lg shadow">
+                        제보 및 문의하기
+                    </span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Detail Container (새롭게 디자인된 전용 상세 페이지) -->
+    <main id="detail-view" class="w-full max-w-4xl mx-auto py-4 hidden flex-col items-center">
+        <!-- 상단 내비게이션 & 재검색 바 -->
+        <div class="w-full flex flex-col sm:flex-row items-center justify-between gap-3 mb-6 bg-slate-900/70 p-4 rounded-2xl border border-white/20 backdrop-blur-md shadow-xl">
+            <button id="back-to-home" type="button" class="flex items-center gap-2 text-yellow-300 hover:text-yellow-400 font-bold text-sm transition-colors self-start sm:self-auto cursor-pointer">
+                <span>←</span> 메인으로 돌아가기
+            </button>
+            <form id="detail-search-form" class="w-full sm:w-auto flex-1 max-w-md">
+                <div class="relative">
+                    <input
+                        id="detail-search-input"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="다른 매치업 검색 (예: 트타, 바루스)"
+                        class="w-full py-2 px-4 pr-16 text-slate-900 font-bold text-sm bg-white rounded-xl outline-none focus:ring-2 focus:ring-yellow-300 shadow"
+                    />
+                    <button type="submit" class="absolute right-1 top-1/2 -translate-y-1/2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1 rounded-lg text-xs cursor-pointer">
+                        검색
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 새롭게 디자인된 동적 콘텐츠 영역 -->
+        <div id="detail-dynamic-content" class="w-full space-y-4"></div>
+    </main>
+
+    <footer class="w-full max-w-5xl mx-auto text-center text-xs text-white/60 pt-4 border-t border-white/10">
+        © 2026 Mvp.lol - Fast & Smart LoL Matchup Guide
+    </footer>
+
+    <!-- 알림 모달 -->
+    <div id="modal-container" class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-body bg-slate-900 text-slate-100 rounded-2xl max-w-lg p-6 shadow-2xl border border-slate-700 relative w-full">
+            <button type="button" id="modal-close" aria-label="닫기" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold p-1 cursor-pointer">
+                ✕
+            </button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <!-- 각 라인별 상성 자바스크립트 파일 연결 -->
+    <!-- 탑 라인: top 폴더의 챔피언이름.js 파일은 검색할 때 자동으로 불러옵니다 (목록 등록 불필요) -->
+    <script src="jungle.js"></script>
+    <script src="mid.js"></script>
+    <script src="adc.js"></script>
+    <script src="support.js"></script>
+
+    <script>
+        // 구글 앱스 스크립트 웹 앱 주소 (배포 후 받은 /exec 주소로 바꾸세요)
+        const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxkXHYKd7e96pSRuOXsOAIHQsWyYmuKTwDFoYBsXUAkTCLZ3hbq64XADFK2AlJhFSLw/exec';
+
+        const mainView = document.getElementById('main-view');
+        const detailView = document.getElementById('detail-view');
+        const detailDynamicContent = document.getElementById('detail-dynamic-content');
+        const brandLogo = document.getElementById('brand-logo');
+        const backToHomeBtn = document.getElementById('back-to-home');
+
+        const searchForm = document.getElementById('search-form');
+        const searchInput = document.getElementById('search-input');
+        const detailSearchForm = document.getElementById('detail-search-form');
+        const detailSearchInput = document.getElementById('detail-search-input');
+        const searchSuggestions = document.getElementById('search-suggestions');
+
+        const badgeMineText = document.getElementById('badge-mine-text');
+        const badgeOppText = document.getElementById('badge-opp-text');
+        const clearMineBtn = document.getElementById('clear-mine');
+        const clearOppBtn = document.getElementById('clear-opp');
+
+        const modalContainer = document.getElementById('modal-container');
+        const modalContent = document.getElementById('modal-content');
+        let lastFocused = null;
+
+        // 드래프트 상태 관리 (검색창 내 아군/적군 지정용)
+        let draftMine = null;
+        let draftOpp = null;
+
+        let ddragonVersion = '14.1.1';
+        let champDataList = {}; // 공식 이름 -> 영어 ID
+        let normalizedChampMap = {}; // 공백 제거된 이름 -> 공식 이름
+
+        const champAliases = {
+            "갱플": "갱플랭크",
+            "글가": "그라가스",
+            "그브": "그레이브즈",
+            "노틸": "노틸러스",
+            "누누": "누누와 윌럼프",
+            "다리": "다리우스",
+            "드븐": "드레이븐",
+            "레넥": "레넥톤",
+            "레나타": "레나타 글라스크",
+            "리산": "리산드라",
+            "마이": "마스터 이",
+            "마오": "마오카이",
+            "말파": "말파이트",
+            "모데": "모데카이저",
+            "몰가": "모르가나",
+            "문도": "문도 박사",
+            "미포": "미스 포츈",
+            "볼베": "볼리베어",
+            "브라": "브라이어",
+            "블라디": "블라디미르",
+            "블츠": "블리츠크랭크",
+            "블랭": "블리츠크랭크",
+            "사일": "사일러스",
+            "세주": "세주아니",
+            "짜오": "신 짜오",
+            "신드": "신지드",
+            "쓸쉬": "쓰레쉬",
+            "무무": "아무무",
+            "아우솔": "아우렐리온 솔",
+            "아트": "아트록스",
+            "아펠": "아펠리오스",
+            "알리": "알리스타",
+            "야소": "야스오",
+            "오리": "오리아나",
+            "이렐": "이렐리아",
+            "이즈": "이즈리얼",
+            "일라": "일라오이",
+            "자르반": "자르반 4세",
+            "징키": "징크스",
+            "가스": "초가스",
+            "카시": "카시오페아",
+            "카타": "카타리나",
+            "칼리": "칼리스타",
+            "케틀": "케이틀린",
+            "킨드": "킨드레드",
+            "켄치": "탐 켄치",
+            "런들": "트런들",
+            "트타": "트리스타나",
+            "트린": "트린다미어",
+            "트페": "트위스티드 페이트",
+            "판테": "판테온",
+            "피들": "피들스틱",
+            "하딩": "하이머딩거"
+        };
+
+        async function initDataDragon() {
+            try {
+                const verRes = await fetch('https://ddragon.leagueoflegends.com/api/versions.json');
+                const versions = await verRes.json();
+                ddragonVersion = versions[0];
+
+                const champRes = await fetch(`https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/data/ko_KR/champion.json`);
+                const champJson = await champRes.json();
+                
+                Object.values(champJson.data).forEach(champ => {
+                    champDataList[champ.name] = champ.id;
+                    const normalized = champ.name.replace(/\s+/g, '');
+                    normalizedChampMap[normalized] = champ.name;
+                });
+            } catch (err) {
+                console.error("DataDragon 연동 실패, 백업 실행:", err);
+                const backupList = ['마스터 이', '신 짜오', '리 신', '미스 포츈', '아우렐리온 솔', '트위스티드 페이트', '탐 켄치', '누누와 윌럼프', '트런들', '베인', '탈론', '제드', '사일러스', '야스오', '케이틀린', '트리스타나', '블리츠크랭크'];
+                backupList.forEach(name => {
+                    champDataList[name] = name.replace(/\s+/g, '');
+                    normalizedChampMap[name.replace(/\s+/g, '')] = name;
+                });
+            }
+        }
+        initDataDragon();
+
+        function getChampImgUrl(champName) {
+            const key = champDataList[champName];
+            if (key) {
+                return `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${key}.png`;
+            }
+            return `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/Trundle.png`;
+        }
+
+        function getValidChampName(input) {
+            const clean = input.trim().replace(/\s+/g, '');
+            if (champAliases[clean]) {
+                return champAliases[clean];
+            }
+            if (normalizedChampMap[clean]) {
+                return normalizedChampMap[clean];
+            }
+            return null;
+        }
+
+        // 각 라인별 자바스크립트 파일에 정의된 상성 데이터 병합
+        const MATCHUP_DATABASE = {
+            ...(window.TOP_MATCHUPS || {}),
+            ...(window.JUNGLE_MATCHUPS || {}),
+            ...(window.MID_MATCHUPS || {}),
+            ...(window.ADC_MATCHUPS || {}),
+            ...(window.SUPPORT_MATCHUPS || {})
+        };
+
+        // 콤마, 슬래시, 콜론, vs, 대 등 다양한 구분 기호 파싱 지원
+        function parseMatchup(raw) {
+            let text = raw.trim().replace(/\s+/g, ' ');
+            if (!text) return null;
+
+            let parts = text.split(/\s*vs\.?\s*|\s+versus\s+|\s*[,/:]\s*|\s+대\s+/i)
+                .map(s => s.trim())
+                .filter(Boolean);
+
+            if (parts.length === 2) {
+                let m = getValidChampName(parts[0]);
+                let o = getValidChampName(parts[1]);
+                if (m && o) return { mine: m, opp: o };
+            }
+
+            let words = text.split(' ');
+            if (words.length >= 2) {
+                for (let i = 1; i < words.length; i++) {
+                    let part1 = words.slice(0, i).join(' ');
+                    let part2 = words.slice(i).join(' ');
+                    let m = getValidChampName(part1);
+                    let o = getValidChampName(part2);
+                    if (m && o) return { mine: m, opp: o };
+                }
+            }
+
+            return null;
+        }
+
+        // 드래프트 배지 UI 업데이트 헬퍼
+        function updateDraftUI() {
+            if (draftMine) {
+                badgeMineText.textContent = draftMine;
+                clearMineBtn.classList.remove('hidden');
+            } else {
+                badgeMineText.textContent = '선택 안됨';
+                clearMineBtn.classList.add('hidden');
+            }
+
+            if (draftOpp) {
+                badgeOppText.textContent = draftOpp;
+                clearOppBtn.classList.remove('hidden');
+            } else {
+                badgeOppText.textContent = '선택 안됨';
+                clearOppBtn.classList.add('hidden');
+            }
+
+            if (draftMine && draftOpp) {
+                const m = draftMine;
+                const o = draftOpp;
+                draftMine = null;
+                draftOpp = null;
+                updateDraftUI();
+                runSearch(`${m} vs ${o}`, true);
+            }
+        }
+
+        clearMineBtn.addEventListener('click', () => {
+            draftMine = null;
+            updateDraftUI();
+        });
+
+        clearOppBtn.addEventListener('click', () => {
+            draftOpp = null;
+            updateDraftUI();
+        });
+
+        // 실시간 자동완성 추천 드롭다운 로직
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim().toLowerCase();
+            if (!query) {
+                searchSuggestions.classList.add('hidden');
+                searchSuggestions.innerHTML = '';
+                return;
+            }
+
+            let matches = [];
+            const seen = new Set();
+
+            Object.entries(champAliases).forEach(([alias, official]) => {
+                if (alias.toLowerCase().includes(query) || official.toLowerCase().includes(query)) {
+                    if (!seen.has(official)) {
+                        seen.add(official);
+                        matches.push({ display: `${alias} (${official})`, name: official });
+                    }
+                }
+            });
+
+            Object.values(normalizedChampMap).forEach(official => {
+                if (official.toLowerCase().includes(query) && !seen.has(official)) {
+                    seen.add(official);
+                    matches.push({ display: official, name: official });
+                }
+            });
+
+            matches = matches.slice(0, 6);
+
+            if (matches.length === 0) {
+                searchSuggestions.classList.add('hidden');
+                searchSuggestions.innerHTML = '';
+                return;
+            }
+
+            searchSuggestions.innerHTML = matches.map(item => `
+                <div class="flex items-center justify-between p-2.5 hover:bg-slate-800 rounded-xl transition-all border border-transparent hover:border-slate-700">
+                    <div class="flex items-center gap-3">
+                        <img src="${getChampImgUrl(item.name)}" alt="${item.name}" class="w-10 h-10 rounded-xl object-cover border border-slate-700 bg-slate-800">
+                        <span class="font-bold text-sm text-white">${item.display}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" onclick="selectDraftChamp('${item.name}', 'mine')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition-all cursor-pointer shadow">
+                            ⚔️ MY
+                        </button>
+                        <button type="button" onclick="selectDraftChamp('${item.name}', 'opp')" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg transition-all cursor-pointer shadow">
+                            🛡️ ENEMY
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            searchSuggestions.classList.remove('hidden');
+        });
+
+        window.selectDraftChamp = function(champName, side) {
+            if (side === 'mine') {
+                draftMine = champName;
+            } else {
+                draftOpp = champName;
+            }
+            searchInput.value = '';
+            searchSuggestions.classList.add('hidden');
+            updateDraftUI();
+        };
+
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+                searchSuggestions.classList.add('hidden');
+            }
+        });
+
+        // 탑 라인 데이터: 검색한 내 챔피언의 top/챔피언이름.js 파일을 처음 한 번만 불러옴
+       // 탑 라인 데이터: API 로딩 전이라도 영문 파일명으로 정확히 로드
+        const topFileLoads = {};
+        function loadTopFile(name) {
+            if (!topFileLoads[name]) {
+                topFileLoads[name] = new Promise(resolve => {
+                    const s = document.createElement('script');
+                    // 탑 챔피언 이름(띄어쓰기 없이) → 파일 영어 이름
+                    const directMap = {
+                        "가렌": "garen",
+                        "갱플랭크": "gangplank",
+                        "그라가스": "gragas",
+                        "그웬": "gwen",
+                        "나르": "gnar",
+                        "나서스": "nasus",
+                        "다리우스": "darius",
+                        "라이즈": "ryze",
+                        "럼블": "rumble",
+                        "레넥톤": "renekton",
+                        "리븐": "riven",
+                        "리산드라": "lissandra",
+                        "마스터이": "masteryi",
+                        "마오카이": "maokai",
+                        "말자하": "malzahar",
+                        "말파이트": "malphite",
+                        "모데카이저": "mordekaiser",
+                        "문도박사": "drmundo",
+                        "바루스": "varus",
+                        "베인": "vayne",
+                        "볼리베어": "volibear",
+                        "블라디미르": "vladimir",
+                        "뽀삐": "poppy",
+                        "사이온": "sion",
+                        "사일러스": "sylas",
+                        "세트": "sett",
+                        "쉔": "shen",
+                        "스웨인": "swain",
+                        "신지드": "singed",
+                        "아칼리": "akali",
+                        "아트록스": "aatrox",
+                        "암베사": "ambessa",
+                        "애니비아": "anivia",
+                        "야스오": "yasuo",
+                        "오공": "wukong",
+                        "오로라": "aurora",
+                        "오른": "ornn",
+                        "올라프": "olaf",
+                        "요네": "yone",
+                        "요릭": "yorick",
+                        "우디르": "udyr",
+                        "우르곳": "urgot",
+                        "워윅": "warwick",
+                        "이렐리아": "irelia",
+                        "일라오이": "illaoi",
+                        "자크": "zac",
+                        "자헨": "zaahen",
+                        "잭스": "jax",
+                        "제이스": "jayce",
+                        "초가스": "chogath",
+                        "카밀": "camille",
+                        "케넨": "kennen",
+                        "케일": "kayle",
+                        "퀸": "quinn",
+                        "크산테": "ksante",
+                        "클레드": "kled",
+                        "탐켄치": "tahmkench",
+                        "트런들": "trundle",
+                        "트린다미어": "tryndamere",
+                        "티모": "teemo",
+                        "판테온": "pantheon",
+                        "피오라": "fiora",
+                        "하이머딩거": "heimerdinger",
+                        "탈론": "talon",
+                        "제드": "zed"
+                    };
+                    const key = name.replace(/\s+/g, '');
+                    const fileId = directMap[key] || (champDataList[name] ? champDataList[name].toLowerCase() : key);
+                    s.src = 'top/top_' + encodeURIComponent(fileId) + '.js';
+                    s.onload = resolve;
+                    s.onerror = resolve;
+                    document.head.appendChild(s);
+                });
+            }
+            return topFileLoads[name];
+        }
+
+        async function runSearch(query, pushHistory = true) {
+            const val = query.trim();
+            if (!val) return;
+
+            const matchup = parseMatchup(val);
+            if (!matchup) {
+                showAlertModal(`
+                    <div class="text-center py-4">
+                        <span class="text-4xl mb-3 block" aria-hidden="true">⚠️</span>
+                        <h3 id="modal-title" class="text-lg font-bold text-yellow-400 mb-2">정보가 없습니다</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            등록되지 않은 챔피언이거나 올바르지 않은 구도입니다.<br>
+                            (예: <span class="text-white font-bold">트타, 바루스</span>, <span class="text-white font-bold">리신 vs 제드</span>)
+                        </p>
+                    </div>
+                `);
+                return;
+            }
+
+            const mine = matchup.mine;
+            const opp = matchup.opp;
+
+            const dbKey = `${mine}_${opp}`;
+            await loadTopFile(mine);
+            const topKey = `${mine}_${opp}`.replace(/\s+/g, '');
+            const data = (window.TOP_MATCHUPS || {})[topKey] || (window.TOP_MATCHUPS || {})[dbKey] || MATCHUP_DATABASE[dbKey] || {
+                lvl1: `${mine}의 핵심 견제 스킬 범위를 유지하며 ${opp}의 초기 주도권을 파악하세요.`,
+                lvl3: `${opp}의 주요 핵심 스킬이 빠진 직후를 노려 딜교환 타이밍을 포착하세요.`,
+                lvl6: `${mine}과 ${opp}의 궁극기 타이밍 맞대결 및 정글러 갱승 유도를 준비하세요.`,
+                item: `상대 ${opp} 맞춤 1코어 방어/공격 빌드 추천`,
+                spell: `라인전 점화 또는 운영 순간이동`
+            };
+
+            detailDynamicContent.innerHTML = `
+                <div class="w-full bg-slate-900/85 rounded-3xl p-6 sm:p-8 mb-4 border border-slate-700 shadow-2xl flex flex-col md:flex-row items-center justify-around gap-6">
+                    <div class="flex flex-col items-center text-center">
+                        <div class="relative w-24 h-24 mb-3 rounded-2xl overflow-hidden border-2 border-indigo-400 shadow-lg bg-slate-800">
+                            <img src="${getChampImgUrl(mine)}" alt="${mine}" class="w-full h-full object-cover">
+                        </div>
+                        <span class="text-xs text-indigo-300 font-bold mb-1">MY CHAMPION</span>
+                        <h2 class="text-xl font-black text-white">${mine}</h2>
+                    </div>
+                    <div class="flex flex-col items-center justify-center">
+                        <span class="text-3xl font-black text-yellow-300 italic tracking-wider">VS</span>
+                        <span class="text-xs text-white/60 font-semibold mt-1">라인전 매치업</span>
+                    </div>
+                    <div class="flex flex-col items-center text-center">
+                        <div class="relative w-24 h-24 mb-3 rounded-2xl overflow-hidden border-2 border-rose-400 shadow-lg bg-slate-800">
+                            <img src="${getChampImgUrl(opp)}" alt="${opp}" class="w-full h-full object-cover">
+                        </div>
+                        <span class="text-xs text-rose-300 font-bold mb-1">ENEMY CHAMPION</span>
+                        <h2 class="text-xl font-black text-white">${opp}</h2>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-xl mb-4">
+                    <h3 class="text-lg font-black text-yellow-300 mb-4 flex items-center gap-2">
+                        <span>🎯</span> 30초 로딩 창 라인전 핵심 노하우
+                    </h3>
+                    <div class="space-y-3.5 text-sm">
+                        <div class="p-4 bg-slate-800/90 rounded-2xl border border-slate-700">
+                            <span class="text-yellow-400 font-bold block mb-1">1레벨 타이밍</span>
+                            <p class="text-slate-200 leading-relaxed">${data.lvl1}</p>
+                        </div>
+                        <div class="p-4 bg-slate-800/90 rounded-2xl border border-slate-700">
+                            <span class="text-cyan-400 font-bold block mb-1">3레벨 타이밍</span>
+                            <p class="text-slate-200 leading-relaxed">${data.lvl3}</p>
+                        </div>
+                        <div class="p-4 bg-slate-800/90 rounded-2xl border border-slate-700">
+                            <span class="text-rose-400 font-bold block mb-1">6레벨 (궁극기) 타이밍</span>
+                            <p class="text-slate-200 leading-relaxed">${data.lvl6}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-900/90 rounded-3xl p-6 border border-slate-700 shadow-xl">
+                        <h4 class="text-sm font-black text-emerald-400 mb-2 flex items-center gap-2">
+                            <span>🛡️</span> 상대 카운터 템트리 추천
+                        </h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">${data.item}</p>
+                    </div>
+                    <div class="bg-slate-900/90 rounded-3xl p-6 border border-slate-700 shadow-xl">
+                        <h4 class="text-sm font-black text-indigo-300 mb-2 flex items-center gap-2">
+                            <span>⚡</span> 추천 스펠
+                        </h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">${data.spell}</p>
+                    </div>
+                </div>
+            `;
+
+            switchToDetailView('search', query, pushHistory);
+        }
+
+        function renderPage(type, pushHistory = true) {
+            if (type === 'hot') {
+                const rows = [
+                    ['트런들 vs 베인', '난이도 상', 'text-rose-400', '탑 라인전 카운터 구도의 정석'],
+                    ['탈론 vs 제드', '난이도 중', 'text-yellow-400', '눈 깜짝할 사이에 갈리는 손싸움 구도'],
+                    ['사일러스 vs 야스오', '난이도 하', 'text-emerald-400', '궁극기 탈취를 통한 변수 창출'],
+                    ['아트록스 vs 요네', '난이도 중', 'text-yellow-400', '스킬 적중 여부에 따른 승패 갈림길'],
+                    ['오리아나 vs 아칼리', '난이도 상', 'text-rose-400', '견제와 암살의 팽팽한 두뇌 싸움'],
+                ];
+                const listHtml = rows.map(([q, level, color, desc], i) => `
+                    <button type="button" data-query="${q}" class="w-full text-left p-5 bg-slate-800/90 hover:bg-slate-800 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 transition-all border border-slate-700 cursor-pointer shadow-md">
+                        <div>
+                            <span class="font-black text-base text-white mr-2">${i + 1}. ${q}</span>
+                            <span class="text-xs text-slate-400 block sm:inline mt-0.5 sm:mt-0">${desc}</span>
+                        </div>
+                        <span class="text-xs px-3 py-1.5 rounded-xl bg-slate-900 ${color} font-bold border border-slate-700">${level}</span>
+                    </button>`).join('');
+
+                detailDynamicContent.innerHTML = `
+                    <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-2xl">
+                        <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+                            <span class="text-3xl">🔥</span>
+                            <div>
+                                <h2 class="text-xl sm:text-2xl font-black text-yellow-300">실시간 인기 매치업 TOP 5</h2>
+                                <p class="text-xs sm:text-sm text-slate-400 mt-0.5">현재 소환사의 협곡에서 가장 검색량이 높은 탑/미드 핵심 구도입니다.</p>
+                            </div>
+                        </div>
+                        <div class="space-y-3.5">${listHtml}</div>
+                    </div>
+                `;
+            } else if (type === 'guide') {
+                detailDynamicContent.innerHTML = `
+                    <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-2xl">
+                        <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+                            <span class="text-3xl">💡</span>
+                            <div>
+                                <h2 class="text-xl sm:text-2xl font-black text-yellow-300">30초 로딩 창 맞춤 활용 가이드</h2>
+                                <p class="text-xs sm:text-sm text-slate-400 mt-0.5">게임 진입 직전 30초 동안 승률을 극대화하는 3단계 실전 매뉴얼입니다.</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-slate-200">
+                            <div class="p-6 bg-slate-800/90 rounded-3xl border border-slate-700 flex flex-col justify-between shadow-lg">
+                                <div>
+                                    <span class="text-xs text-yellow-400 font-extrabold block mb-1">STEP 01</span>
+                                    <h3 class="text-lg font-black text-white mb-2">챔피언 검색</h3>
+                                    <p class="text-xs text-slate-300 leading-relaxed">로딩 창에서 내 챔피언과 상대 라이너 이름을 검색창에 띄어쓰기로 입력하세요.</p>
+                                </div>
+                                <span class="mt-6 text-3xl">🔍</span>
+                            </div>
+                            <div class="p-6 bg-slate-800/90 rounded-3xl border border-slate-700 flex flex-col justify-between shadow-lg">
+                                <div>
+                                    <span class="text-xs text-cyan-400 font-extrabold block mb-1">STEP 02</span>
+                                    <h3 class="text-lg font-black text-white mb-2">레벨별 체크</h3>
+                                    <p class="text-xs text-slate-300 leading-relaxed">1렙, 3렙, 6렙 타이밍에 교전 승패 여부와 거리 조절 팁을 빠르게 파악합니다.</p>
+                                </div>
+                                <span class="mt-6 text-3xl">⚡</span>
+                            </div>
+                            <div class="p-6 bg-slate-800/90 rounded-3xl border border-slate-700 flex flex-col justify-between shadow-lg">
+                                <div>
+                                    <span class="text-xs text-emerald-400 font-extrabold block mb-1">STEP 03</span>
+                                    <h3 class="text-lg font-black text-white mb-2">아이템 적용</h3>
+                                    <p class="text-xs text-slate-300 leading-relaxed">상대 카운터에 맞는 추천 1코어와 스펠을 확인한 뒤 게임에 돌입합니다.</p>
+                                </div>
+                                <span class="mt-6 text-3xl">🛡️</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'patch') {
+                detailDynamicContent.innerHTML = `
+                    <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-2xl">
+                        <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+                            <span class="text-3xl">📢</span>
+                            <div>
+                                <h2 class="text-xl sm:text-2xl font-black text-yellow-300">최신 패치노트 & 공략 데이터</h2>
+                                <p class="text-xs sm:text-sm text-slate-400 mt-0.5">최신 롤 패치노트 변경 사항과 메타 트렌드를 실시간으로 반영하고 있습니다.</p>
+                            </div>
+                        </div>
+                        <div class="space-y-4 text-sm">
+                            <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 relative overflow-hidden">
+                                <div class="absolute top-0 right-0 bg-yellow-400 text-slate-900 text-[10px] font-black px-3 py-1 rounded-bl-xl">VERSION 14.22</div>
+                                <span class="font-black text-white text-base block mb-1">1. 최신 패치노트 데이터 전수 반영 완료</span>
+                                <p class="text-slate-300 text-xs leading-relaxed">탑/미드 매치업 데이터 30여 종 레벨별 대처법 보완 및 수치 검증 완료</p>
+                            </div>
+                            <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700">
+                                <span class="font-black text-white text-base block mb-1">2. 탑/미드/바텀 핵심 상성 DB 대량 수록</span>
+                                <p class="text-slate-300 text-xs leading-relaxed">전 라인 주요 카운터 상성 및 스킬 타이밍 계산 데이터베이스 실시간 구축</p>
+                            </div>
+                            <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700">
+                                <span class="font-black text-white text-base block mb-1">3. 챌린저 장인 유저 실전 팁 가공 완료</span>
+                                <p class="text-slate-300 text-xs leading-relaxed">원챔 장인들의 인베이드 방어 및 1렙 부시 주도권 확보 꿀팁 전수 수록</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'feedback') {
+                detailDynamicContent.innerHTML = `
+                    <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-2xl max-w-2xl mx-auto">
+                        <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+                            <span class="text-3xl">💬</span>
+                            <div>
+                                <h2 class="text-xl sm:text-2xl font-black text-yellow-300">공략 제보 및 꿀팁 등록</h2>
+                                <p class="text-xs sm:text-sm text-slate-400 mt-0.5">나만 알고 있는 디테일한 노하우를 제보해 주시면 검수 후 사이트에 수록됩니다.</p>
+                            </div>
+                        </div>
+                        <form id="feedback-form" class="space-y-4 text-sm" novalidate>
+                            <div>
+                                <label for="fb-matchup" class="block text-slate-200 font-bold mb-1.5 text-xs">상성 구도 (예: 트런들 vs 베인)</label>
+                                <input id="fb-matchup" name="matchup" type="text" maxlength="60" placeholder="내 챔피언 vs 상대 챔피언" class="w-full bg-slate-800 text-white p-3 rounded-2xl border border-slate-700 focus:border-yellow-300 outline-none">
+                            </div>
+                            <div>
+                                <label for="fb-tip" class="block text-slate-200 font-bold mb-1.5 text-xs">장인의 라인전 꿀팁</label>
+                                <textarea id="fb-tip" name="tip" rows="4" maxlength="500" placeholder="1렙, 3렙, 6렙 핵심 노하우를 상세히 공유해 주세요." class="w-full bg-slate-800 text-white p-3 rounded-2xl border border-slate-700 focus:border-yellow-300 outline-none"></textarea>
+                            </div>
+                            <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true">
+                            <p id="fb-error" class="text-rose-400 font-semibold text-xs hidden" role="alert">구도와 꿀팁을 모두 입력해 주세요.</p>
+                            <button id="fb-submit" type="submit" class="w-full bg-yellow-300 hover:bg-yellow-400 disabled:opacity-60 disabled:cursor-not-allowed text-slate-900 font-bold py-3.5 rounded-2xl transition-colors text-sm shadow-lg cursor-pointer">
+                                제보 등록하기
+                            </button>
+                        </form>
+                    </div>
+                `;
+            } else if (type === 'ranking') {
+                detailDynamicContent.innerHTML = `
+                    <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-2xl">
+                        <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+                            <span class="text-3xl">🏆</span>
+                            <div>
+                                <h2 class="text-xl sm:text-2xl font-black text-yellow-300">라인별 1티어 챔피언 랭킹</h2>
+                                <p class="text-xs sm:text-sm text-slate-400 mt-0.5">소환사의 협곡 솔로랭크 승률 및 픽률을 기반으로 집계된 티어표입니다.</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="p-6 bg-slate-800/90 rounded-3xl border border-slate-700 shadow-md">
+                                <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-700">
+                                    <span class="font-black text-yellow-400 text-base">⚔️ TOP 라인 랭킹</span>
+                                    <span class="text-xs text-slate-400">솔로랭크 기준</span>
+                                </div>
+                                <div class="space-y-3 text-xs sm:text-sm text-slate-300">
+                                    <div class="flex justify-between items-center p-3 bg-slate-900/70 rounded-2xl border border-slate-700/60">
+                                        <span class="font-black text-white flex items-center gap-2"><span class="text-yellow-400">1</span> 아트록스</span>
+                                        <span class="text-emerald-400 font-bold">승률 52.1%</span>
+                                    </div>
+                                    <div class="flex justify-between items-center p-3 bg-slate-900/70 rounded-2xl border border-slate-700/60">
+                                        <span class="font-black text-white flex items-center gap-2"><span class="text-slate-400">2</span> 잭스</span>
+                                        <span class="text-cyan-400 font-bold">승률 51.4%</span>
+                                    </div>
+                                    <div class="flex justify-between items-center p-3 bg-slate-900/70 rounded-2xl border border-slate-700/60">
+                                        <span class="font-black text-white flex items-center gap-2"><span class="text-amber-600">3</span> 트런들</span>
+                                        <span class="text-yellow-300 font-bold">승률 50.9%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-6 bg-slate-800/90 rounded-3xl border border-slate-700 shadow-md">
+                                <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-700">
+                                    <span class="font-black text-cyan-400 text-base">🔮 MID 라인 랭킹</span>
+                                    <span class="text-xs text-slate-400">솔로랭크 기준</span>
+                                </div>
+                                <div class="space-y-3 text-xs sm:text-sm text-slate-300">
+                                    <div class="flex justify-between items-center p-3 bg-slate-900/70 rounded-2xl border border-slate-700/60">
+                                        <span class="font-black text-white flex items-center gap-2"><span class="text-yellow-400">1</span> 아칼리</span>
+                                        <span class="text-emerald-400 font-bold">승률 51.8%</span>
+                                    </div>
+                                    <div class="flex justify-between items-center p-3 bg-slate-900/70 rounded-2xl border border-slate-700/60">
+                                        <span class="font-black text-white flex items-center gap-2"><span class="text-slate-400">2</span> 탈론</span>
+                                        <span class="text-cyan-400 font-bold">승률 51.2%</span>
+                                    </div>
+                                    <div class="flex justify-between items-center p-3 bg-slate-900/70 rounded-2xl border border-slate-700/60">
+                                        <span class="font-black text-white flex items-center gap-2"><span class="text-amber-600">3</span> 야스오</span>
+                                        <span class="text-yellow-300 font-bold">승률 50.3%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'matchup_all') {
+                detailDynamicContent.innerHTML = `
+                    <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-2xl">
+                        <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+                            <span class="text-3xl">⚔️</span>
+                            <div>
+                                <h2 class="text-xl sm:text-2xl font-black text-yellow-300">전체 라인 상성 요약표</h2>
+                                <p class="text-xs sm:text-sm text-slate-400 mt-0.5">핵심 매치업 구도별 유불리와 핵심 대처 요약 데이터입니다.</p>
+                            </div>
+                        </div>
+                        <div class="space-y-3.5 text-xs sm:text-sm text-slate-300">
+                            <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                <div>
+                                    <span class="font-black text-white text-base block mb-0.5">탑: 트런들 ➔ 베인</span>
+                                    <span class="text-xs text-slate-400">초반 부시 플레이 및 E 기둥 활용 거리 조절 필수</span>
+                                </div>
+                                <span class="text-xs px-3 py-1.5 rounded-xl bg-slate-900 text-rose-400 font-bold border border-slate-700">열세 구도</span>
+                            </div>
+                            <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                <div>
+                                    <span class="font-black text-white text-base block mb-0.5">미드: 탈론 ➔ 제드</span>
+                                    <span class="text-xs text-slate-400">W 그림자 빠진 타이밍 Q 진입 및 R 은신 딜 씹기</span>
+                                </div>
+                                <span class="text-xs px-3 py-1.5 rounded-xl bg-slate-900 text-yellow-400 font-bold border border-slate-700">손싸움 호각</span>
+                            </div>
+                            <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                <div>
+                                    <span class="font-black text-white text-base block mb-0.5">미드: 사일러스 ➔ 야스오</span>
+                                    <span class="text-xs text-slate-400">패시브 보호막 평타로 제거 후 바람장막 각도 주의</span>
+                                </div>
+                                <span class="text-xs px-3 py-1.5 rounded-xl bg-slate-900 text-emerald-400 font-bold border border-slate-700">우세 구도</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            switchToDetailView(type, pushHistory);
+        }
+
+        function switchToDetailView(type, subType, pushHistory = true) {
+            mainView.classList.add('hidden');
+            mainView.classList.remove('flex');
+            detailView.classList.remove('hidden');
+            detailView.classList.add('flex');
+            searchSuggestions.classList.add('hidden');
+            if (pushHistory) {
+                history.pushState({ view: 'detail', type, subType }, '', '');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showMainView(pushHistory = true) {
+            detailView.classList.add('hidden');
+            detailView.classList.remove('flex');
+            mainView.classList.remove('hidden');
+            mainView.classList.add('flex');
+            searchInput.value = '';
+            searchSuggestions.classList.add('hidden');
+            if (pushHistory) {
+                history.pushState({ view: 'main' }, '', '');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.addEventListener('popstate', (e) => {
+            if (e.state && e.state.view === 'detail') {
+                if (e.state.type === 'search') {
+                    runSearch(e.state.subType, false);
+                } else {
+                    renderPage(e.state.type, false);
+                }
+            } else {
+                showMainView(false);
+            }
+        });
+
+        backToHomeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showMainView(true);
+        });
+
+        brandLogo.addEventListener('click', (e) => {
+            e.preventDefault();
+            showMainView(true);
+        });
+
+        searchForm.addEventListener('submit', e => {
+            e.preventDefault();
+            searchSuggestions.classList.add('hidden');
+            runSearch(searchInput.value, true);
+        });
+
+        detailSearchForm.addEventListener('submit', e => {
+            e.preventDefault();
+            runSearch(detailSearchInput.value, true);
+        });
+
+        function showAlertModal(html) {
+            if (modalContainer.classList.contains('hidden')) {
+                lastFocused = document.activeElement;
+            }
+            modalContent.innerHTML = html;
+            modalContainer.classList.remove('hidden');
+            modalContainer.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+            document.getElementById('modal-close').focus();
+        }
+
+        function closeAlertModal() {
+            modalContainer.classList.add('hidden');
+            modalContainer.classList.remove('flex');
+            document.body.style.overflow = '';
+            if (lastFocused) lastFocused.focus();
+        }
+
+        document.addEventListener('click', e => {
+            const queryEl = e.target.closest('[data-query]');
+            if (queryEl) {
+                e.stopPropagation();
+                closeAlertModal();
+                runSearch(queryEl.dataset.query, true);
+                return;
+            }
+
+            const pageEl = e.target.closest('[data-page]');
+            if (pageEl) {
+                renderPage(pageEl.dataset.page, true);
+                return;
+            }
+
+            if (e.target === modalContainer || e.target.closest('#modal-close')) {
+                closeAlertModal();
+            }
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && !modalContainer.classList.contains('hidden')) {
+                closeAlertModal();
+            }
+            if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) {
+                e.preventDefault();
+                renderPage(e.target.dataset.page, true);
+            }
+        });
+
+        document.addEventListener('submit', async e => {
+            if (e.target.id !== 'feedback-form') return;
+            e.preventDefault();
+
+            const form = e.target;
+            const errorEl = form.querySelector('#fb-error');
+            const submitBtn = form.querySelector('#fb-submit');
+            const matchup = form.matchup.value.trim();
+            const tip = form.tip.value.trim();
+
+            if (!matchup || !tip) {
+                errorEl.textContent = '구도와 꿀팁을 모두 입력해 주세요.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            errorEl.classList.add('hidden');
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = '전송 중...';
+
+            try {
+                // 단순 요청(폼 인코딩)으로 보내야 브라우저 사전 요청(CORS) 없이 앱스 스크립트로 전달돼요
+                const body = new URLSearchParams({
+                    matchup,
+                    tip,
+                    _gotcha: form._gotcha ? form._gotcha.value : '',
+                    page: location.href
+                });
+                const res = await fetch(SHEET_URL, { method: 'POST', body });
+                if (!res.ok) {
+                    throw new Error('HTTP ' + res.status);
+                }
+                const result = await res.json();
+                if (!result.ok) {
+                    throw new Error(result.error || 'save failed');
+                }
+
+                detailDynamicContent.innerHTML = `
+                    <div class="bg-slate-900/90 rounded-3xl p-8 border border-slate-700 shadow-xl text-center max-w-xl mx-auto py-16">
+                        <span class="text-5xl mb-4 block" aria-hidden="true">✅</span>
+                        <h2 class="text-2xl font-black text-yellow-300 mb-2">공략 제보가 완료되었습니다!</h2>
+                        <p class="text-slate-300 text-sm mb-6">소중한 꿀팁 제보 감사드리며, 검수 후 수록됩니다.</p>
+                        <button type="button" onclick="showMainView(true)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 rounded-2xl text-sm transition-all cursor-pointer shadow-lg">
+                            메인으로 돌아가기
+                        </button>
+                    </div>
+                `;
+            } catch (err) {
+                console.error('구글 시트 전송 실패:', err);
+                errorEl.textContent = '전송에 실패했어요. 다시 시도해 주세요.';
+                errorEl.classList.remove('hidden');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '제보 등록하기';
+            }
+        });
+    </script>
+</body>
+</html>
