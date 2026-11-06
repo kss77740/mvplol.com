@@ -272,14 +272,13 @@
     </div>
 
     <!-- 각 라인별 상성 자바스크립트 파일 연결 -->
-    <!-- 탑 라인: top 폴더의 챔피언이름.js 파일은 검색할 때 자동으로 불러옵니다 (목록 등록 불필요) -->
     <script src="jungle.js"></script>
     <script src="mid.js"></script>
     <script src="adc.js"></script>
     <script src="support.js"></script>
 
     <script>
-        // 구글 앱스 스크립트 웹 앱 주소 (배포 후 받은 /exec 주소로 바꾸세요)
+        // 구글 앱스 스크립트 웹 앱 주소
         const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwNFf8z4QMR5D31aAT8hwIfYjnZzKPRXA_fpAfYVUnfOsZwT1o2_J7x0MTjENkHeXU/exec';
 
         const mainView = document.getElementById('main-view');
@@ -303,13 +302,12 @@
         const modalContent = document.getElementById('modal-content');
         let lastFocused = null;
 
-        // 드래프트 상태 관리 (검색창 내 아군/적군 지정용)
         let draftMine = null;
         let draftOpp = null;
 
         let ddragonVersion = '14.1.1';
-        let champDataList = {}; // 공식 이름 -> 영어 ID
-        let normalizedChampMap = {}; // 공백 제거된 이름 -> 공식 이름
+        let champDataList = {}; 
+        let normalizedChampMap = {}; 
 
         const champAliases = {
             "갱플": "갱플랭크",
@@ -382,7 +380,7 @@
                     normalizedChampMap[normalized] = champ.name;
                 });
             } catch (err) {
-                console.error("DataDragon 연동 실패, 백업 실행:", err);
+                console.error("DataDragon 연동 실패:", err);
                 const backupList = ['마스터 이', '신 짜오', '리 신', '미스 포츈', '아우렐리온 솔', '트위스티드 페이트', '탐 켄치', '누누와 윌럼프', '트런들', '베인', '탈론', '제드', '사일러스', '야스오', '케이틀린', '트리스타나', '블리츠크랭크'];
                 backupList.forEach(name => {
                     champDataList[name] = name.replace(/\s+/g, '');
@@ -411,7 +409,6 @@
             return null;
         }
 
-        // 각 라인별 자바스크립트 파일에 정의된 상성 데이터 병합
         const MATCHUP_DATABASE = {
             ...(window.TOP_MATCHUPS || {}),
             ...(window.JUNGLE_MATCHUPS || {}),
@@ -420,7 +417,6 @@
             ...(window.SUPPORT_MATCHUPS || {})
         };
 
-        // 콤마, 슬래시, 콜론, vs, 대 등 다양한 구분 기호 파싱 지원
         function parseMatchup(raw) {
             let text = raw.trim().replace(/\s+/g, ' ');
             if (!text) return null;
@@ -449,7 +445,6 @@
             return null;
         }
 
-        // 드래프트 배지 UI 업데이트 헬퍼
         function updateDraftUI() {
             if (draftMine) {
                 badgeMineText.textContent = draftMine;
@@ -487,7 +482,6 @@
             updateDraftUI();
         });
 
-        // 실시간 자동완성 추천 드롭다운 로직
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.trim().toLowerCase();
             if (!query) {
@@ -560,14 +554,11 @@
             }
         });
 
-        // 탑 라인 데이터: 검색한 내 챔피언의 top/챔피언이름.js 파일을 처음 한 번만 불러옴
-       // 탑 라인 데이터: API 로딩 전이라도 영문 파일명으로 정확히 로드
         const topFileLoads = {};
         function loadTopFile(name) {
             if (!topFileLoads[name]) {
                 topFileLoads[name] = new Promise(resolve => {
                     const s = document.createElement('script');
-                    // 탑 챔피언 이름(띄어쓰기 없이) → 파일 영어 이름
                     const directMap = {
                         "가렌": "garen",
                         "갱플랭크": "gangplank",
@@ -929,21 +920,21 @@
                         <div class="space-y-3.5 text-xs sm:text-sm text-slate-300">
                             <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                                 <div>
-                                    <span class="font-black text-white text-base block mb-0.5">탑: 트런들 ➔ 베인</span>
+                                    <span class="font-black text-white text-base block mb-0.5">탑: 트런들 vs 베인</span>
                                     <span class="text-xs text-slate-400">초반 부시 플레이 및 E 기둥 활용 거리 조절 필수</span>
                                 </div>
                                 <span class="text-xs px-3 py-1.5 rounded-xl bg-slate-900 text-rose-400 font-bold border border-slate-700">열세 구도</span>
                             </div>
                             <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                                 <div>
-                                    <span class="font-black text-white text-base block mb-0.5">미드: 탈론 ➔ 제드</span>
+                                    <span class="font-black text-white text-base block mb-0.5">미드: 탈론 vs 제드</span>
                                     <span class="text-xs text-slate-400">W 그림자 빠진 타이밍 Q 진입 및 R 은신 딜 씹기</span>
                                 </div>
                                 <span class="text-xs px-3 py-1.5 rounded-xl bg-slate-900 text-yellow-400 font-bold border border-slate-700">손싸움 호각</span>
                             </div>
                             <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                                 <div>
-                                    <span class="font-black text-white text-base block mb-0.5">미드: 사일러스 ➔ 야스오</span>
+                                    <span class="font-black text-white text-base block mb-0.5">미드: 사일러스 vs 야스오</span>
                                     <span class="text-xs text-slate-400">패시브 보호막 평타로 제거 후 바람장막 각도 주의</span>
                                 </div>
                                 <span class="text-xs px-3 py-1.5 rounded-xl bg-slate-900 text-emerald-400 font-bold border border-slate-700">우세 구도</span>
@@ -1061,6 +1052,7 @@
             }
         });
 
+        // 폼 제출 이벤트 (CORS 오류 방지를 위해 mode: 'no-cors' 적용)
         document.addEventListener('submit', async e => {
             if (e.target.id !== 'feedback-form') return;
             e.preventDefault();
@@ -1082,21 +1074,15 @@
             submitBtn.textContent = '전송 중...';
 
             try {
-                // 단순 요청(폼 인코딩)으로 보내야 브라우저 사전 요청(CORS) 없이 앱스 스크립트로 전달돼요
                 const body = new URLSearchParams({
                     matchup,
                     tip,
                     _gotcha: form._gotcha ? form._gotcha.value : '',
                     page: location.href
                 });
-                const res = await fetch(SHEET_URL, { method: 'POST', body });
-                if (!res.ok) {
-                    throw new Error('HTTP ' + res.status);
-                }
-                const result = await res.json();
-                if (!result.ok) {
-                    throw new Error(result.error || 'save failed');
-                }
+
+                // no-cors 모드로 전송하여 브라우저 fetch 차단 방지
+                await fetch(SHEET_URL, { method: 'POST', body, mode: 'no-cors' });
 
                 detailDynamicContent.innerHTML = `
                     <div class="bg-slate-900/90 rounded-3xl p-8 border border-slate-700 shadow-xl text-center max-w-xl mx-auto py-16">
