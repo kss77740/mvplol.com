@@ -1,7 +1,7 @@
 const top_gangplank = {
   champion: '갱플랭크',
   lane: 'top',
-  patch: '16.22.1',
+  patch: '26.22',
   matchups: {
     '가렌': {
       lv1: '첫 웨이브부터 '협상'으로 체력을 압박하며 상대의 '결정타' 접근을 경계합니다. 미니언을 치며 경험치를 선취하고 '화약통'으로 견제한다.',
@@ -439,3 +439,14 @@ const top_gangplank = {
     },
   }
 };
+// 사이트 등록: window.TOP_MATCHUPS['내챔피언_상대'] = { lvl1, lvl3, lvl6, item, spell } (이름의 띄어쓰기는 제거)
+(function (d) {
+  var g = typeof window !== 'undefined' ? window : globalThis;
+  g.TOP_MATCHUPS = g.TOP_MATCHUPS || {};
+  var me = d.champion.replace(/\s+/g, '');
+  Object.keys(d.matchups).forEach(function (opp) {
+    var m = d.matchups[opp];
+    g.TOP_MATCHUPS[me + '_' + opp.replace(/\s+/g, '')] = { lvl1: m.lv1, lvl3: m.lv3, lvl6: m.lv6, item: m.item, spell: m.spell };
+  });
+})(top_darius);
+if (typeof module !== 'undefined') module.exports = top_darius;
