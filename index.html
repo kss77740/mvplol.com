@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="로딩 창 30초 안에 확인하는 맞춤형 롤 라인전 매치업 솔루션">
-    <title>Mvp.lol - 로딩 창 30초 맞춤형 라인전 솔루션</title>
+    <title>MVP.LOL - 로딩 창 30초 맞춤형 라인전 솔루션</title>
 
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
@@ -15,19 +15,17 @@
         }
 
         body {
-            /* 리그오브레전드 마법공학 느낌의 신비로운 다크 블루 그라데이션 배경 */
             background: radial-gradient(circle at center, #1b2845 0%, #0d111a 100%);
             color: #ffffff;
             min-height: 100vh;
             overflow-x: hidden;
         }
 
-        /* 마법공학 테두리 및 글래스모피즘 스타일 */
         .hextech-card {
             background: rgba(16, 24, 40, 0.75);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1.5px solid rgba(212, 175, 55, 0.35); /* 마법공학 골드 빛 테두리 */
+            border: 1.5px solid rgba(212, 175, 55, 0.35);
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(56, 189, 248, 0.08);
             cursor: pointer;
             transition: all 0.25s ease;
@@ -50,7 +48,6 @@
             outline-offset: 2px;
         }
 
-        /* 중앙 로고 전용 묵직한 히어로 패널 */
         .hextech-hero-card {
             background: rgba(16, 24, 40, 0.85);
             backdrop-filter: blur(12px);
@@ -71,7 +68,6 @@
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
         }
 
-        /* Modal Overlay & Animation */
         .modal-overlay {
             background-color: rgba(11, 15, 25, 0.85);
             backdrop-filter: blur(8px);
@@ -93,20 +89,15 @@
                 transform: scale(1) translateY(0);
             }
         }
-
-        @media (prefers-reduced-motion: reduce) {
-            .modal-body { animation: none; }
-            .hextech-card:hover, .hextech-hero-card:hover { transform: none; }
-        }
     </style>
 </head>
 <body class="flex flex-col justify-between min-h-screen px-4 py-6 md:px-8">
 
-    <!-- Header Section (로고 2배, 메뉴 1.7배 크기 업그레이드) -->
+    <!-- Header Section -->
     <header class="w-full max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 pb-4 border-b border-amber-500/30">
         <a href="#" id="brand-logo" class="text-4xl sm:text-5xl font-black tracking-tight text-white hover:opacity-95 transition-opacity cursor-pointer flex items-center gap-3">
-            <img src="https://image.pngaaa.com/650/6797650-middle.png" alt="마법공학 상자" class="w-12 h-12 object-contain drop-shadow-[0_0_10px_rgba(250,204,21,0.7)]">
-            <span>Mvp<span class="text-yellow-400">.lol</span></span>
+            <img src="명예5렙.webp" alt="명예 5렙 상자" class="w-12 h-12 object-contain drop-shadow-[0_0_10px_rgba(250,204,21,0.7)]">
+            <span>MVP<span class="text-yellow-400">LOL</span></span>
         </a>
 
         <nav class="flex flex-wrap justify-center gap-2 sm:gap-3 text-base sm:text-lg font-bold" aria-label="주요 메뉴">
@@ -125,10 +116,10 @@
         </nav>
     </header>
 
-    <!-- Main Container (메인 홈 화면) -->
+    <!-- Main Container -->
     <main id="main-view" class="w-full max-w-7xl mx-auto my-auto py-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
         
-        <!-- 좌측 영역: 대칭 맞춘 가로 카드 3개 -->
+        <!-- 좌측 영역 -->
         <div class="lg:col-span-3 flex flex-col gap-4 w-full">
             <div data-page="hot" role="button" tabindex="0" class="hextech-card rounded-2xl px-4 py-3">
                 <h3 class="text-sm font-bold pb-1.5 mb-1.5 border-b border-amber-500/30 flex items-center justify-between pointer-events-none">
@@ -162,35 +153,16 @@
             </div>
         </div>
 
-        <!-- 중앙 영역: 2배 커진 로고 텍스트 & 1번(파랑정수) / 2번(마법공학상자) / 3번(마법공학열쇠) 배치 -->
+        <!-- 중앙 영역 -->
         <div class="lg:col-span-6 flex flex-col justify-center space-y-6 py-1 -mt-2">
             
-            <!-- 중앙 히어로 로고 패널 (좌우 이미지 배치: 왼쪽 1번 파랑정수 / 오른쪽 2번 상자 & 3번 열쇠) -->
             <div class="hextech-hero-card p-6 text-center">
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-950/70 via-amber-950/40 to-blue-950/70 pointer-events-none"></div>
-                
-                <!-- 왼쪽 영역: 1번 파랑 정수 & 2번 마법공학 상자 -->
-                <div class="absolute left-3 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-2 select-none">
-                    <div class="flex flex-col items-center">
-                        <img src="https://static.wikia.nocookie.net/leagueoflegends/images/e/e0/Blue_Essence.png" alt="파랑 정수" class="w-11 h-11 object-contain drop-shadow-[0_0_10px_rgba(56,189,248,0.8)] animate-bounce" title="1번: 파랑 정수">
-                        <span class="text-[9px] text-cyan-300 font-bold mt-0.5">1.정수</span>
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <img src="https://image.pngaaa.com/650/6797650-middle.png" alt="마법공학 상자" class="w-14 h-14 object-contain drop-shadow-[0_0_12px_rgba(250,204,21,0.8)] transform -rotate-6 hover:rotate-0 transition-transform" title="2번: 마법공학 상자">
-                        <span class="text-[9px] text-yellow-300 font-bold mt-0.5">2.상자</span>
-                    </div>
-                </div>
 
-                <!-- 오른쪽 영역: 3번 마법공학 열쇠 -->
-                <div class="absolute right-4 top-1/2 -translate-y-1/2 hidden sm:flex flex-col items-center select-none">
-                    <img src="https://www.pngarts.com/files/3/League-Of-Legends-Key-PNG-Background-Image.png" alt="마법공학 열쇠" class="w-14 h-14 object-contain drop-shadow-[0_0_12px_rgba(56,189,248,0.8)] transform rotate-12 hover:rotate-0 transition-transform" onerror="this.src='https://image.pngaaa.com/650/6797650-middle.png'" title="3번: 마법공학 열쇠">
-                    <span class="text-[9px] text-cyan-300 font-bold mt-0.5">3.열쇠</span>
-                </div>
-
-                <!-- 로고 글자 크기 2배 정도 큼직하게 확대 -->
                 <div class="relative z-10 flex flex-col items-center gap-2 px-14">
-                    <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] flex items-center gap-1">
-                        <span>Mvp</span><span class="text-yellow-400 drop-shadow-[0_0_20px_rgba(250,204,21,0.7)]">.lol</span>
+                    <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] flex items-center gap-3">
+                        <img src="명예5렙.webp" alt="명예 5렙 상자" class="w-12 h-12 sm:w-16 sm:h-16 object-contain drop-shadow-[0_0_12px_rgba(250,204,21,0.8)]">
+                        <span>MVP</span><span class="text-yellow-400 drop-shadow-[0_0_20px_rgba(250,204,21,0.7)]">LOL</span>
                     </h1>
                     <p class="text-xs sm:text-sm text-amber-200/90 font-bold tracking-wide">
                         로딩 창 30초 안에 끝내는 맞춤형 라인전 매치업 솔루션
@@ -244,10 +216,9 @@
                 </div>
             </div>
 
-            <!-- 검색창끼리 거리를 넉넉하게 띄움 (mt-6 추가) -->
             <div class="w-full my-6"></div>
 
-            <!-- 2. 바텀 2대2 구도 섹션 (입력창 4개 인식 스마트 패치) -->
+            <!-- 2. 바텀 2대2 구도 섹션 -->
             <div class="w-full flex flex-col items-center">
                 <div class="text-center mb-2.5">
                     <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow">
@@ -299,7 +270,7 @@
 
         </div>
 
-        <!-- 우측 영역: 대칭 맞춘 가로 카드 3개 -->
+        <!-- 우측 영역 -->
         <div class="lg:col-span-3 flex flex-col gap-4 w-full">
             <div class="hextech-card rounded-2xl px-4 py-3 items-center text-center">
                 <span class="text-sm font-black text-yellow-300 tracking-wider flex items-center gap-2">
@@ -359,8 +330,8 @@
         </div>
     </section>
 
-    <!-- Detail Container (상세 페이지) -->
-    <main id="detail-view" class="w-full max-w-4xl mx-auto py-4 hidden flex-col items-center">
+    <!-- Detail Container -->
+    <main id="detail-view" class="w-full max-w-5xl mx-auto py-4 hidden flex-col items-center">
         <div class="w-full flex flex-col sm:flex-row items-center justify-between gap-3 mb-6 bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl">
             <button id="back-to-home" type="button" class="flex items-center gap-2 text-yellow-300 hover:text-yellow-400 font-bold text-sm transition-colors self-start sm:self-auto cursor-pointer">
                 <span>←</span> 메인으로 돌아가기
@@ -381,11 +352,11 @@
             </form>
         </div>
 
-        <div id="detail-dynamic-content" class="w-full space-y-4"></div>
+        <div id="detail-dynamic-content" class="w-full space-y-6"></div>
     </main>
 
     <footer class="w-full max-w-7xl mx-auto text-center text-xs text-white/60 pt-4 border-t border-amber-500/20 mt-6">
-        © 2026 Mvp.lol - Fast & Smart LoL Matchup Guide
+        © 2026 MVP.LOL - Fast & Smart LoL Matchup Guide
     </footer>
 
     <!-- 알림 모달 -->
@@ -497,6 +468,27 @@
             return `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/Trundle.png`;
         }
 
+        function getSpellImgUrl(spellName) {
+            let spellMap = {
+                '점멸': 'SummonerFlash.png',
+                '점화': 'SummonerDot.png',
+                '순간이동': 'SummonerTeleport.png',
+                '텔레포트': 'SummonerTeleport.png',
+                '회복': 'SummonerHeal.png',
+                '정화': 'SummonerBoost.png',
+                '강타': 'SummonerSmite.png',
+                '탈진': 'SummonerExhaust.png',
+                '보호막': 'SummonerBarrier.png',
+                '유체화': 'SummonerHaste.png'
+            };
+            let fileName = spellMap[spellName] || 'SummonerFlash.png';
+            return `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/${fileName}`;
+        }
+
+        function getItemImgUrl(itemId) {
+            return `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/item/${itemId}.png`;
+        }
+
         function getValidChampName(input) {
             const clean = input.trim().replace(/\s+/g, '');
             if (champAliases[clean]) return champAliases[clean];
@@ -539,12 +531,10 @@
             return null;
         }
 
-        // 4개 연속 입력 파싱 함수 (예: "이즈 레오나 징크스 쓰레쉬")
         function parseBottom4Matchup(raw) {
             let text = raw.trim().replace(/\s+/g, ' ');
             if (!text) return null;
 
-            // vs나 쉼표 기호 등으로 나뉘어 있거나 공백으로 나뉜 토큰 추출
             let tokens = text.split(/\s*vs\.?\s*|\s*[,/]\s*|\s+/i)
                 .map(s => s.trim())
                 .filter(Boolean);
@@ -561,7 +551,6 @@
             return null;
         }
 
-        // 검색창 클릭 시 화면 중앙으로 스크롤
         function scrollToCenter(element) {
             const rect = element.getBoundingClientRect();
             const absoluteElementTop = rect.top + window.pageYOffset;
@@ -781,48 +770,85 @@
                 lvl1: `${mine}의 견제 스킬 범위를 유지하며 ${opp}의 주도권을 파악하세요.`,
                 lvl3: `${opp}의 주요 스킬이 빠진 직후를 노려 교전 타이밍을 포착하세요.`,
                 lvl6: `${mine}과 ${opp}의 궁극기 타이밍 맞대결 및 갱승 유도를 준비하세요.`,
-                item: `상대 ${opp} 맞춤 1코어 방어/공격 빌드 추천`,
-                spell: `라인전 점화 또는 순간이동`
+                item: `3078`,
+                spell: `점멸 / 점화`
             };
 
             detailDynamicContent.innerHTML = `
-                <div class="w-full bg-slate-900/85 rounded-3xl p-6 sm:p-8 mb-4 border border-amber-500/40 shadow-2xl flex flex-col md:flex-row items-center justify-around gap-6">
+                <div class="w-full bg-slate-900/90 rounded-3xl p-8 mb-6 border-2 border-amber-500/50 shadow-2xl flex flex-col md:flex-row items-center justify-around gap-6">
                     <div class="flex flex-col items-center text-center">
-                        <div class="relative w-24 h-24 mb-3 rounded-2xl overflow-hidden border-2 border-indigo-400 shadow-lg bg-slate-800">
+                        <div class="relative w-36 h-36 mb-4 rounded-3xl overflow-hidden border-4 border-indigo-400 shadow-2xl bg-slate-800">
                             <img src="${getChampImgUrl(mine)}" alt="${mine}" class="w-full h-full object-cover">
                         </div>
-                        <span class="text-xs text-indigo-300 font-bold mb-1">MY CHAMPION</span>
-                        <h2 class="text-xl font-black text-white">${mine}</h2>
+                        <span class="text-sm text-indigo-300 font-extrabold tracking-wider mb-1">MY CHAMPION</span>
+                        <h2 class="text-3xl sm:text-4xl font-black text-white">${mine}</h2>
                     </div>
-                    <div class="flex flex-col items-center justify-center">
-                        <span class="text-3xl font-black text-yellow-300 italic tracking-wider">VS</span>
-                        <span class="text-xs text-white/60 font-semibold mt-1">라인전 매치업</span>
+
+                    <div class="flex flex-col items-center justify-center my-2 md:my-0">
+                        <span class="text-6xl sm:text-7xl font-black text-yellow-400 italic tracking-widest drop-shadow-[0_0_20px_rgba(250,204,21,0.6)]">VS</span>
+                        <span class="text-xs text-white/70 font-bold mt-2">라이벌 라인전 매치업</span>
                     </div>
+
                     <div class="flex flex-col items-center text-center">
-                        <div class="relative w-24 h-24 mb-3 rounded-2xl overflow-hidden border-2 border-rose-400 shadow-lg bg-slate-800">
+                        <div class="relative w-36 h-36 mb-4 rounded-3xl overflow-hidden border-4 border-rose-400 shadow-2xl bg-slate-800">
                             <img src="${getChampImgUrl(opp)}" alt="${opp}" class="w-full h-full object-cover">
                         </div>
-                        <span class="text-xs text-rose-300 font-bold mb-1">ENEMY CHAMPION</span>
-                        <h2 class="text-xl font-black text-white">${opp}</h2>
+                        <span class="text-sm text-rose-300 font-extrabold tracking-wider mb-1">ENEMY CHAMPION</span>
+                        <h2 class="text-3xl sm:text-4xl font-black text-white">${opp}</h2>
                     </div>
                 </div>
 
-                <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-xl mb-4">
-                    <h3 class="text-lg font-black text-yellow-300 mb-4 flex items-center gap-2">
-                        <span>🎯</span> 30초 로딩 창 라인전 핵심 노하우
+                <div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl mb-6">
+                    <h3 class="text-xl font-black text-yellow-300 mb-6 flex items-center gap-3">
+                        <span class="text-2xl">🎯</span> 30초 로딩 창 라인전 핵심 노하우
                     </h3>
-                    <div class="space-y-3.5 text-sm">
-                        <div class="p-4 bg-slate-800/90 rounded-2xl border border-slate-700">
-                            <span class="text-yellow-400 font-bold block mb-1">1레벨 타이밍</span>
-                            <p class="text-slate-200 leading-relaxed">${data.lvl1}</p>
+                    <div class="space-y-5 text-base sm:text-lg">
+                        <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 shadow-md">
+                            <span class="text-yellow-400 font-black text-lg block mb-2">⚡ 1레벨 타이밍 구도</span>
+                            <p class="text-slate-100 leading-relaxed font-medium">${data.lvl1}</p>
                         </div>
-                        <div class="p-4 bg-slate-800/90 rounded-2xl border border-slate-700">
-                            <span class="text-cyan-400 font-bold block mb-1">3레벨 타이밍</span>
-                            <p class="text-slate-200 leading-relaxed">${data.lvl3}</p>
+                        <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 shadow-md">
+                            <span class="text-cyan-400 font-black text-lg block mb-2">⚡ 3레벨 타이밍 구도</span>
+                            <p class="text-slate-100 leading-relaxed font-medium">${data.lvl3}</p>
                         </div>
-                        <div class="p-4 bg-slate-800/90 rounded-2xl border border-slate-700">
-                            <span class="text-rose-400 font-bold block mb-1">6레벨 (궁극기) 타이밍</span>
-                            <p class="text-slate-200 leading-relaxed">${data.lvl6}</p>
+                        <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 shadow-md">
+                            <span class="text-rose-400 font-black text-lg block mb-2">⚡ 6레벨 궁극기 타이밍 구도</span>
+                            <p class="text-slate-100 leading-relaxed font-medium">${data.lvl6}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-900/90 rounded-3xl p-6 border border-amber-500/40 shadow-xl flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-base font-black text-emerald-400 mb-4 flex items-center gap-2">
+                                <span>🛡️</span> 상대 맞춤 카운터 템트리 추천
+                            </h4>
+                            <div class="flex items-center gap-4 bg-slate-800/90 p-4 rounded-2xl border border-slate-700">
+                                <img src="${getItemImgUrl(data.item || '3078')}" alt="추천 아이템" class="w-16 h-16 rounded-xl border border-amber-500/50 shadow-md object-cover bg-slate-900">
+                                <div>
+                                    <span class="text-white font-bold text-base block mb-1">추천 핵심 1코어 장비</span>
+                                    <span class="text-xs text-slate-300 leading-relaxed">상대 ${opp}의 유지력과 딜교환에 맞춤화된 핵심 아이템입니다.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/90 rounded-3xl p-6 border border-amber-500/40 shadow-xl flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-base font-black text-indigo-300 mb-4 flex items-center gap-2">
+                                <span>⚡</span> 추천 소환사 스펠
+                            </h4>
+                            <div class="flex items-center gap-4 bg-slate-800/90 p-4 rounded-2xl border border-slate-700">
+                                <div class="flex items-center gap-2">
+                                    <img src="${getSpellImgUrl('점멸')}" alt="점멸" class="w-12 h-12 rounded-xl border border-indigo-400/50 shadow-md object-cover bg-slate-900">
+                                    <img src="${getSpellImgUrl('점화')}" alt="점화" class="w-12 h-12 rounded-xl border border-rose-400/50 shadow-md object-cover bg-slate-900">
+                                </div>
+                                <div>
+                                    <span class="text-white font-bold text-base block mb-1">점멸 / 점화 (또는 순간이동)</span>
+                                    <span class="text-xs text-slate-300 leading-relaxed">초반 교전 킬 각 및 라인 복귀력 극대화 스펠 조합</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -832,49 +858,65 @@
 
         function runBottom2v2Search(mAdc, mSup, oAdc, oSup, query, pushHistory = true) {
             detailDynamicContent.innerHTML = `
-                <div class="w-full bg-slate-900/85 rounded-3xl p-6 sm:p-8 mb-4 border border-amber-500/40 shadow-2xl">
-                    <div class="text-center mb-6">
-                        <h2 class="text-2xl font-black text-yellow-300 mb-1">⚔️ 바텀 2대2 매치업 분석 솔루션</h2>
-                        <p class="text-xs text-slate-400">아군 듀오와 상대 듀오 조합의 상성 분석 결과입니다.</p>
+                <div class="w-full bg-slate-900/90 rounded-3xl p-8 mb-6 border-2 border-amber-500/50 shadow-2xl">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-black text-yellow-300 mb-2">⚔️ 바텀 2대2 매치업 분석 솔루션</h2>
+                        <p class="text-sm text-slate-300">아군 듀오와 상대 듀오 조합의 상성 분석 결과입니다.</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-11 gap-4 items-center">
-                        <div class="md:col-span-5 bg-indigo-950/60 p-5 rounded-2xl border border-indigo-400/40 flex flex-col items-center">
-                            <span class="text-xs text-indigo-300 font-bold mb-3">🛡️ 아군 듀오 (MY TEAM)</span>
-                            <div class="flex items-center gap-4">
+                        <div class="md:col-span-5 bg-indigo-950/70 p-6 rounded-3xl border-2 border-indigo-400/50 flex flex-col items-center shadow-xl">
+                            <span class="text-sm text-indigo-300 font-extrabold mb-4">🛡️ 아군 듀오 (MY TEAM)</span>
+                            <div class="flex items-center gap-5">
                                 <div class="flex flex-col items-center">
-                                    <img src="${getChampImgUrl(mAdc)}" alt="${mAdc}" class="w-16 h-16 rounded-xl object-cover border border-indigo-400 bg-slate-800 shadow">
-                                    <span class="text-xs font-bold text-white mt-1">${mAdc}</span>
-                                    <span class="text-[10px] text-indigo-300">원딜</span>
+                                    <img src="${getChampImgUrl(mAdc)}" alt="${mAdc}" class="w-20 h-20 rounded-2xl object-cover border-2 border-indigo-400 bg-slate-800 shadow-lg">
+                                    <span class="text-sm font-black text-white mt-2">${mAdc}</span>
+                                    <span class="text-xs text-indigo-300 font-bold">원딜</span>
                                 </div>
-                                <span class="text-lg font-bold text-indigo-300">+</span>
+                                <span class="text-2xl font-bold text-indigo-300">+</span>
                                 <div class="flex flex-col items-center">
-                                    <img src="${getChampImgUrl(mSup)}" alt="${mSup}" class="w-16 h-16 rounded-xl object-cover border border-indigo-400 bg-slate-800 shadow">
-                                    <span class="text-xs font-bold text-white mt-1">${mSup}</span>
-                                    <span class="text-[10px] text-indigo-300">서포터</span>
+                                    <img src="${getChampImgUrl(mSup)}" alt="${mSup}" class="w-20 h-20 rounded-2xl object-cover border-2 border-indigo-400 bg-slate-800 shadow-lg">
+                                    <span class="text-sm font-black text-white mt-2">${mSup}</span>
+                                    <span class="text-xs text-indigo-300 font-bold">서포터</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="md:col-span-1 text-center">
-                            <span class="text-2xl font-black text-yellow-400 italic">VS</span>
+                        <div class="md:col-span-1 text-center my-2 md:my-0">
+                            <span class="text-5xl font-black text-yellow-400 italic drop-shadow-[0_0_15px_rgba(250,204,21,0.6)]">VS</span>
                         </div>
 
-                        <div class="md:col-span-5 bg-rose-950/60 p-5 rounded-2xl border border-rose-400/40 flex flex-col items-center">
-                            <span class="text-xs text-rose-300 font-bold mb-3">🛡️ 상대 듀오 (ENEMY TEAM)</span>
-                            <div class="flex items-center gap-4">
+                        <div class="md:col-span-5 bg-rose-950/70 p-6 rounded-3xl border-2 border-rose-400/50 flex flex-col items-center shadow-xl">
+                            <span class="text-sm text-rose-300 font-extrabold mb-4">🛡️ 상대 듀오 (ENEMY TEAM)</span>
+                            <div class="flex items-center gap-5">
                                 <div class="flex flex-col items-center">
-                                    <img src="${getChampImgUrl(oAdc)}" alt="${oAdc}" class="w-16 h-16 rounded-xl object-cover border border-rose-400 bg-slate-800 shadow">
-                                    <span class="text-xs font-bold text-white mt-1">${oAdc}</span>
-                                    <span class="text-[10px] text-rose-300">원딜</span>
+                                    <img src="${getChampImgUrl(oAdc)}" alt="${oAdc}" class="w-20 h-20 rounded-2xl object-cover border-2 border-rose-400 bg-slate-800 shadow-lg">
+                                    <span class="text-sm font-black text-white mt-2">${oAdc}</span>
+                                    <span class="text-xs text-rose-300 font-bold">원딜</span>
                                 </div>
-                                <span class="text-lg font-bold text-rose-300">+</span>
+                                <span class="text-2xl font-bold text-rose-300">+</span>
                                 <div class="flex flex-col items-center">
-                                    <img src="${getChampImgUrl(oSup)}" alt="${oSup}" class="w-16 h-16 rounded-xl object-cover border border-rose-400 bg-slate-800 shadow">
-                                    <span class="text-xs font-bold text-white mt-1">${oSup}</span>
-                                    <span class="text-[10px] text-rose-300">서포터</span>
+                                    <img src="${getChampImgUrl(oSup)}" alt="${oSup}" class="w-20 h-20 rounded-2xl object-cover border-2 border-rose-400 bg-slate-800 shadow-lg">
+                                    <span class="text-sm font-black text-white mt-2">${oSup}</span>
+                                    <span class="text-xs text-rose-300 font-bold">서포터</span>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl">
+                    <h3 class="text-xl font-black text-yellow-300 mb-6 flex items-center gap-3">
+                        <span class="text-2xl">🎯</span> 바텀 2대2 교전 및 라인전 핵심 가이드
+                    </h3>
+                    <div class="space-y-5 text-base sm:text-lg">
+                        <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 shadow-md">
+                            <span class="text-yellow-400 font-black text-lg block mb-2">⚡ 2레벨 선찍 & 초반 주도권 구도</span>
+                            <p class="text-slate-100 leading-relaxed font-medium">${mAdc}&${mSup} 듀오가 ${oAdc}&${oSup} 상대로 미니언 선푸시를 통해 2렙을 먼저 찍는 타이밍을 적극 노리세요.</p>
+                        </div>
+                        <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 shadow-md">
+                            <span class="text-cyan-400 font-black text-lg block mb-2">⚡ 갱킹 회피 포인트</span>
+                            <p class="text-slate-100 leading-relaxed font-medium">상대 ${oSup}의 갱 호응 스킬 타이밍에 맞춰 거리 조절 및 삼거리 시야 확보가 필수적입니다.</p>
                         </div>
                     </div>
                 </div>
@@ -884,51 +926,26 @@
 
         function renderPage(type, pushHistory = true) {
             if (type === 'hot') {
-                detailDynamicContent.innerHTML = `
-                    <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-2xl">
-                        <h2 class="text-xl font-black text-yellow-300 mb-4">🔥 실시간 인기 매치업 TOP 5</h2>
-                        <p class="text-xs text-slate-400">현재 가장 검색량이 많은 핵심 구도입니다.</p>
-                    </div>
-                `;
+                detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">🔥 실시간 인기 매치업 TOP 5</h2></div>`;
             } else if (type === 'guide') {
-                detailDynamicContent.innerHTML = `
-                    <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-2xl">
-                        <h2 class="text-xl font-black text-yellow-300 mb-4">💡 30초 로딩 창 활용 가이드</h2>
-                        <p class="text-xs text-slate-400">게임 진입 전 승률을 극대화하는 실전 매뉴얼.</p>
-                    </div>
-                `;
+                detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">💡 30초 로딩 창 활용 가이드</h2></div>`;
             } else if (type === 'patch') {
-                detailDynamicContent.innerHTML = `
-                    <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-2xl">
-                        <h2 class="text-xl font-black text-yellow-300 mb-4">📢 최신 패치노트 & 공략 데이터</h2>
-                        <p class="text-xs text-slate-400">최신 메타 트렌드를 반영한 상성 DB.</p>
-                    </div>
-                `;
+                detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">📢 최신 패치노트 & 공략 데이터</h2></div>`;
             } else if (type === 'feedback') {
                 detailDynamicContent.innerHTML = `
-                    <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-2xl max-w-2xl mx-auto">
-                        <h2 class="text-xl font-black text-yellow-300 mb-4">💬 공략 제보 및 꿀팁 등록</h2>
-                        <form id="feedback-form" class="space-y-4 text-sm" novalidate>
-                            <input name="matchup" type="text" placeholder="구도 (예: 트런들 vs 베인)" class="w-full bg-slate-800 text-white p-3 rounded-2xl border border-slate-700 outline-none">
-                            <textarea name="tip" rows="4" placeholder="꿀팁 내용을 입력하세요." class="w-full bg-slate-800 text-white p-3 rounded-2xl border border-slate-700 outline-none"></textarea>
-                            <button type="submit" class="w-full bg-amber-400 text-slate-950 font-black py-3 rounded-2xl cursor-pointer">제보 등록하기</button>
+                    <div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl max-w-2xl mx-auto">
+                        <h2 class="text-2xl font-black text-yellow-300 mb-4 text-center">💬 공략 제보 및 꿀팁 등록</h2>
+                        <form id="feedback-form" class="space-y-4 text-base" novalidate>
+                            <input name="matchup" type="text" placeholder="구도 (예: 트런들 vs 베인)" class="w-full bg-slate-800 text-white p-4 rounded-2xl border border-slate-700 outline-none">
+                            <textarea name="tip" rows="4" placeholder="꿀팁 내용을 입력하세요." class="w-full bg-slate-800 text-white p-4 rounded-2xl border border-slate-700 outline-none"></textarea>
+                            <button type="submit" class="w-full bg-amber-400 text-slate-950 font-black py-4 rounded-2xl cursor-pointer shadow-lg">제보 등록하기</button>
                         </form>
                     </div>
                 `;
             } else if (type === 'ranking') {
-                detailDynamicContent.innerHTML = `
-                    <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-2xl">
-                        <h2 class="text-xl font-black text-yellow-300 mb-4">🏆 라인별 1티어 챔피언 랭킹</h2>
-                        <p class="text-xs text-slate-400">솔로랭크 승률 기준 집계된 티어표입니다.</p>
-                    </div>
-                `;
+                detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">🏆 라인별 1티어 챔피언 랭킹</h2></div>`;
             } else if (type === 'matchup_all') {
-                detailDynamicContent.innerHTML = `
-                    <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-2xl">
-                        <h2 class="text-xl font-black text-yellow-300 mb-4">⚔️ 전체 라인 상성 요약표</h2>
-                        <p class="text-xs text-slate-400">핵심 매치업 구도별 요약 데이터입니다.</p>
-                    </div>
-                `;
+                detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">⚔️ 전체 라인 상성 요약표</h2></div>`;
             }
             switchToDetailView(type, pushHistory);
         }
@@ -968,14 +985,12 @@
             runSearch(searchInput1.value, true);
         });
 
-        // 아래쪽 검색창 폼 제출 이벤트: 4개 연속 입력 자동 파싱 감지
         searchForm2.addEventListener('submit', e => {
             e.preventDefault();
             searchSuggestions2.classList.add('hidden');
             const val = searchInput2.value.trim();
             if (!val) return;
 
-            // 4개 챔피언 연속 입력인지 확인 (예: 이즈 레오나 징크스 쓰레쉬)
             const fourMatch = parseBottom4Matchup(val);
             if (fourMatch) {
                 runBottom2v2Search(fourMatch.myAdc, fourMatch.mySup, fourMatch.oppAdc, fourMatch.oppSup, val, true);
