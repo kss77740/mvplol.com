@@ -448,5 +448,5 @@ const top_gangplank = {
     var m = d.matchups[opp];
     g.TOP_MATCHUPS[me + '_' + opp.replace(/\s+/g, '')] = { lvl1: m.lv1, lvl3: m.lv3, lvl6: m.lv6, item: m.item, spell: m.spell };
   });
-})(top_darius);
-if (typeof module !== 'undefined') module.exports = top_darius;
+})(top_gangplank);
+if (typeof module !== 'undefined') module.exports = top_gangplank;
