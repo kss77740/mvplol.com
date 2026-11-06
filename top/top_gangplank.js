@@ -439,3 +439,15 @@ const top_gangplank = {
     },
   }
 };
+
+// 사이트 등록: window.TOP_MATCHUPS['내챔피언_상대'] = { lvl1, lvl3, lvl6, item, spell } (이름의 띄어쓰기는 제거)
+(function (d) {
+  var g = typeof window !== 'undefined' ? window : globalThis;
+  g.TOP_MATCHUPS = g.TOP_MATCHUPS || {};
+  var me = d.champion.replace(/\s+/g, '');
+  Object.keys(d.matchups).forEach(function (opp) {
+    var m = d.matchups[opp];
+    g.TOP_MATCHUPS[me + '_' + opp.replace(/\s+/g, '')] = { lvl1: m.lv1, lvl3: m.lv3, lvl6: m.lv6, item: m.item, spell: m.spell };
+  });
+})(top_gangplank);
+if (typeof module !== 'undefined') module.exports = top_gangplank;
