@@ -1,0 +1,33 @@
+name: Auto Update Ranking Data
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # 매일 한국 시간 아침 9시에 자동 실행
+  workflow_dispatch: # 깃허브 웹사이트에서 수동으로 '지금 실행' 버튼을 누를 수 있게 허용
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+
+    steps:
+      - name: 1. 소스코드 다운로드
+        uses: actions/checkout@v3
+
+      - name: 2. 파이썬 환경 세팅
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: 3. 파이썬 스크립트 실행
+        run: python update_ranking.py
+
+      - name: 4. 변경된 파일 깃허브에 자동 저장(커밋·푸시)
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add ranking_data.js
+          git commit -m "🤖 [자동화] 최신 챔피언 승률 랭킹 데이터 갱신 완료" || echo "변경 사항 없음"
+          git push
