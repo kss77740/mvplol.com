@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="로딩 창 30초 안에 확인하는 맞춤형 롤 라인전 매치업 솔루션">
-    <title>MVP.LOL - 로딩 창 30초 맞춤형 라인전 솔루션</title>
+    <title>MVP LOL - 로딩 창 30초 맞춤형 라인전 솔루션</title>
 
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
@@ -95,9 +95,10 @@
 
     <!-- Header Section -->
     <header class="w-full max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 pb-4 border-b border-amber-500/30">
-        <a href="#" id="brand-logo" class="text-4xl sm:text-5xl font-black tracking-tight text-white hover:opacity-95 transition-opacity cursor-pointer flex items-center gap-3">
-            <img src="명예5렙.webp" alt="명예 5렙 상자" class="w-12 h-12 object-contain drop-shadow-[0_0_10px_rgba(250,204,21,0.7)]">
-            <span>MVP<span class="text-yellow-400">LOL</span></span>
+        <a href="#" id="brand-logo" class="text-2xl sm:text-3xl font-black tracking-tight text-white hover:opacity-95 transition-opacity cursor-pointer flex items-center justify-center gap-2">
+            <span class="leading-none">MVP</span>
+            <img src="명예5렙.webp" alt="명예 5렙 상자" class="w-8 h-8 object-contain drop-shadow-[0_0_8px_rgba(250,204,21,0.7)] flex-shrink-0">
+            <span class="text-yellow-400 leading-none">LOL</span>
         </a>
 
         <nav class="flex flex-wrap justify-center gap-2 sm:gap-3 text-base sm:text-lg font-bold" aria-label="주요 메뉴">
@@ -159,22 +160,24 @@
             <div class="hextech-hero-card p-6 text-center">
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-950/70 via-amber-950/40 to-blue-950/70 pointer-events-none"></div>
 
+                <!-- 완벽한 중앙 대칭 및 왼쪽 미세 보정 적용 영역 -->
                 <div class="relative z-10 flex flex-col items-center gap-2 px-14">
-                    <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] flex items-center gap-3">
-                        <img src="명예5렙.webp" alt="명예 5렙 상자" class="w-12 h-12 sm:w-16 sm:h-16 object-contain drop-shadow-[0_0_12px_rgba(250,204,21,0.8)]">
-                        <span>MVP</span><span class="text-yellow-400 drop-shadow-[0_0_20px_rgba(250,204,21,0.7)]">LOL</span>
+                    <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] flex items-center justify-center gap-4 m-0 p-0 leading-none -translate-x-3">
+                        <span class="leading-none m-0">MVP</span>
+                        <img src="명예5렙.webp" alt="명예 5렙 상자" class="w-16 h-16 sm:w-24 sm:h-24 object-contain drop-shadow-[0_0_15px_rgba(250,204,21,0.9)] flex-shrink-0 m-0">
+                        <span class="text-yellow-400 drop-shadow-[0_0_20px_rgba(250,204,21,0.7)] leading-none m-0">LOL</span>
                     </h1>
-                    <p class="text-xs sm:text-sm text-amber-200/90 font-bold tracking-wide">
+                    <p class="text-xs sm:text-sm text-amber-200/90 font-bold tracking-wide mt-2">
                         로딩 창 30초 안에 끝내는 맞춤형 라인전 매치업 솔루션
                     </p>
                 </div>
             </div>
 
-            <!-- 1. 라인전 1대1 구도 섹션 -->
+            <!-- 1. 1vs1 구도 섹션 -->
             <div class="w-full flex flex-col items-center">
                 <div class="text-center mb-2.5">
                     <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow">
-                        라인전 1대1 구도
+                        1vs1 구도
                     </h2>
                 </div>
 
@@ -218,11 +221,11 @@
 
             <div class="w-full my-6"></div>
 
-            <!-- 2. 바텀 2대2 구도 섹션 -->
+            <!-- 2. 바텀 2vs2 구도 섹션 -->
             <div class="w-full flex flex-col items-center">
                 <div class="text-center mb-2.5">
                     <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow">
-                        바텀 2대2 구도 (4개 입력 지원)
+                        바텀 2vs2 구도
                     </h2>
                 </div>
 
@@ -330,33 +333,19 @@
         </div>
     </section>
 
-    <!-- Detail Container -->
+    <!-- Detail Container (상단 추가메뉴 완전 제거 및 뒤로가기 버튼만 유지) -->
     <main id="detail-view" class="w-full max-w-5xl mx-auto py-4 hidden flex-col items-center">
-        <div class="w-full flex flex-col sm:flex-row items-center justify-between gap-3 mb-6 bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl">
-            <button id="back-to-home" type="button" class="flex items-center gap-2 text-yellow-300 hover:text-yellow-400 font-bold text-sm transition-colors self-start sm:self-auto cursor-pointer">
+        <div class="w-full flex items-center justify-start mb-6 bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl">
+            <button id="back-to-home" type="button" class="flex items-center gap-2 text-yellow-300 hover:text-yellow-400 font-bold text-sm transition-colors cursor-pointer">
                 <span>←</span> 메인으로 돌아가기
             </button>
-            <form id="detail-search-form" class="w-full sm:w-auto flex-1 max-w-md">
-                <div class="relative">
-                    <input
-                        id="detail-search-input"
-                        type="text"
-                        autocomplete="off"
-                        placeholder="다른 매치업 검색 (예: 트타, 바루스)"
-                        class="w-full py-2 px-4 pr-16 text-slate-900 font-bold text-sm bg-white rounded-xl outline-none focus:ring-2 focus:ring-yellow-400 shadow"
-                    />
-                    <button type="submit" class="absolute right-1 top-1/2 -translate-y-1/2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1 rounded-lg text-xs cursor-pointer">
-                        검색
-                    </button>
-                </div>
-            </form>
         </div>
 
         <div id="detail-dynamic-content" class="w-full space-y-6"></div>
     </main>
 
     <footer class="w-full max-w-7xl mx-auto text-center text-xs text-white/60 pt-4 border-t border-amber-500/20 mt-6">
-        © 2026 MVP.LOL - Fast & Smart LoL Matchup Guide
+        © 2026 MVP LOL - Fast & Smart LoL Matchup Guide
     </footer>
 
     <!-- 알림 모달 -->
@@ -401,9 +390,6 @@
         const badgeOppSup = document.getElementById('badge-opp-sup');
         const clearMyBtn2 = document.getElementById('clear-my-2');
         const clearOppBtn2 = document.getElementById('clear-opp-2');
-
-        const detailSearchForm = document.getElementById('detail-search-form');
-        const detailSearchInput = document.getElementById('detail-search-input');
 
         const modalContainer = document.getElementById('modal-container');
         const modalContent = document.getElementById('modal-content');
@@ -451,7 +437,7 @@
                 });
             } catch (err) {
                 console.error("DataDragon 연동 실패:", err);
-                const backupList = ['마스터 이', '신 짜오', '리 신', '미스 포츈', '아우렐리온 솔', '트위스티드 페이트', '탐 켄치', '누누와 윌럼프', '트런들', '베인', '탈론', '제드', '사일러스', '야스오', '케이틀린', '트리스타나', '블리츠크랭크', '이즈리얼', '레오나', '징크스', '쓰레쉬'];
+                const backupList = ['마스터 이', '신 짜오', '리 신', '미스 포츈', '아우렐리온 솔', '트위스티드 페이트', '탐 켄치', '누누와 윌럼프', '트런들', '베인', '탈론', '제드', '사일러스', '야스오', '케이틀린', '트리스타나', '블리츠크랭크', '이즈리얼', '레오나', '징크스', '쓰레쉬', '가렌'];
                 backupList.forEach(name => {
                     champDataList[name] = name.replace(/\s+/g, '');
                     normalizedChampMap[name.replace(/\s+/g, '')] = name;
@@ -623,7 +609,7 @@
         clearMyBtn2.addEventListener('click', () => { draftMyAdc = null; draftMySup = null; updateDraftUI2(); });
         clearOppBtn2.addEventListener('click', () => { draftOppAdc = null; draftOppSup = null; updateDraftUI2(); });
 
-        function setupAutocomplete1(inputEl, suggestionsEl) {
+        function setupAutocomplete(inputEl, suggestionsEl, isDetail = false) {
             inputEl.addEventListener('input', (e) => {
                 const query = e.target.value.trim().toLowerCase();
                 if (!query) { suggestionsEl.classList.add('hidden'); suggestionsEl.innerHTML = ''; return; }
@@ -643,18 +629,30 @@
                 matches = matches.slice(0, 6);
                 if (matches.length === 0) { suggestionsEl.classList.add('hidden'); suggestionsEl.innerHTML = ''; return; }
 
-                suggestionsEl.innerHTML = matches.map(item => `
-                    <div class="flex items-center justify-between p-2.5 hover:bg-slate-900 rounded-xl transition-all border border-transparent hover:border-amber-500/40">
-                        <div class="flex items-center gap-3">
-                            <img src="${getChampImgUrl(item.name)}" alt="${item.name}" class="w-10 h-10 rounded-xl object-cover border border-slate-700 bg-slate-800">
-                            <span class="font-bold text-sm text-white">${item.display}</span>
+                if (isDetail) {
+                    suggestionsEl.innerHTML = matches.map(item => `
+                        <div class="flex items-center justify-between p-2.5 hover:bg-slate-900 rounded-xl transition-all border border-transparent hover:border-amber-500/40 cursor-pointer" onclick="runSearch('${item.name} vs 갱플랭크', true)">
+                            <div class="flex items-center gap-3">
+                                <img src="${getChampImgUrl(item.name)}" alt="${item.name}" class="w-10 h-10 rounded-xl object-cover border border-slate-700 bg-slate-800">
+                                <span class="font-bold text-sm text-white">${item.display}</span>
+                            </div>
+                            <span class="text-xs text-amber-400 font-bold">선택하기 ➔</span>
                         </div>
-                        <div class="flex items-center gap-1.5">
-                            <button type="button" onclick="selectDraftChamp1('${item.name}', 'mine')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition-all cursor-pointer shadow">⚔️ MY</button>
-                            <button type="button" onclick="selectDraftChamp1('${item.name}', 'opp')" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg transition-all cursor-pointer shadow">🛡️ ENEMY</button>
+                    `).join('');
+                } else {
+                    suggestionsEl.innerHTML = matches.map(item => `
+                        <div class="flex items-center justify-between p-2.5 hover:bg-slate-900 rounded-xl transition-all border border-transparent hover:border-amber-500/40">
+                            <div class="flex items-center gap-3">
+                                <img src="${getChampImgUrl(item.name)}" alt="${item.name}" class="w-10 h-10 rounded-xl object-cover border border-slate-700 bg-slate-800">
+                                <span class="font-bold text-sm text-white">${item.display}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="selectDraftChamp1('${item.name}', 'mine')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition-all cursor-pointer shadow">⚔️ MY</button>
+                                <button type="button" onclick="selectDraftChamp1('${item.name}', 'opp')" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg transition-all cursor-pointer shadow">🛡️ ENEMY</button>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `).join('');
+                }
                 suggestionsEl.classList.remove('hidden');
             });
         }
@@ -697,7 +695,7 @@
             });
         }
 
-        setupAutocomplete1(searchInput1, searchSuggestions1);
+        setupAutocomplete(searchInput1, searchSuggestions1, false);
         setupAutocomplete2(searchInput2, searchSuggestions2);
 
         window.selectDraftChamp1 = function(champName, side) {
@@ -721,6 +719,11 @@
         document.addEventListener('click', (e) => {
             if (!searchInput1.contains(e.target) && !searchSuggestions1.contains(e.target)) searchSuggestions1.classList.add('hidden');
             if (!searchInput2.contains(e.target) && !searchSuggestions2.contains(e.target)) searchSuggestions2.classList.add('hidden');
+            const detailSearchInput = document.getElementById('detail-search-input');
+            const detailSuggestions = document.getElementById('detail-search-suggestions');
+            if (detailSearchInput && detailSuggestions && !detailSearchInput.contains(e.target) && !detailSuggestions.contains(e.target)) {
+                detailSuggestions.classList.add('hidden');
+            }
         });
 
         const topFileLoads = {};
@@ -775,6 +778,26 @@
             };
 
             detailDynamicContent.innerHTML = `
+                <!-- 상세 페이지 내부에 챔피언 초상화 자동완성이 포함된 검색 바 추가 -->
+                <div class="w-full bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl mb-6 relative">
+                    <form id="detail-search-form" class="w-full relative" role="search">
+                        <div class="relative">
+                            <label for="detail-search-input" class="sr-only">다른 매치업 검색</label>
+                            <input
+                                id="detail-search-input"
+                                type="text"
+                                autocomplete="off"
+                                placeholder="다른 매치업 검색 (예: 가렌, 트타 / 리신 제드)"
+                                class="w-full py-3 px-16 text-center text-slate-900 font-bold text-sm bg-white rounded-xl outline-none focus:ring-4 focus:ring-yellow-400 shadow"
+                            />
+                            <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs cursor-pointer">
+                                검색
+                            </button>
+                        </div>
+                    </form>
+                    <div id="detail-search-suggestions" class="absolute left-4 right-4 top-full mt-2 bg-slate-950/95 border border-amber-500/40 rounded-2xl shadow-2xl max-h-72 overflow-y-auto z-50 hidden p-2 space-y-1 backdrop-blur-md"></div>
+                </div>
+
                 <div class="w-full bg-slate-900/90 rounded-3xl p-8 mb-6 border-2 border-amber-500/50 shadow-2xl flex flex-col md:flex-row items-center justify-around gap-6">
                     <div class="flex flex-col items-center text-center">
                         <div class="relative w-36 h-36 mb-4 rounded-3xl overflow-hidden border-4 border-indigo-400 shadow-2xl bg-slate-800">
@@ -854,10 +877,42 @@
                 </div>
             `;
             switchToDetailView('search', query, pushHistory);
+
+            // 상세 페이지 내 검색창 자동완성 바인딩
+            const dInput = document.getElementById('detail-search-input');
+            const dSugg = document.getElementById('detail-search-suggestions');
+            const dForm = document.getElementById('detail-search-form');
+            if (dInput && dSugg) {
+                setupAutocomplete(dInput, dSugg, true);
+                dForm.addEventListener('submit', (ev) => {
+                    ev.preventDefault();
+                    dSugg.classList.add('hidden');
+                    runSearch(dInput.value, true);
+                });
+            }
         }
 
         function runBottom2v2Search(mAdc, mSup, oAdc, oSup, query, pushHistory = true) {
             detailDynamicContent.innerHTML = `
+                <div class="w-full bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl mb-6 relative">
+                    <form id="detail-search-form" class="w-full relative" role="search">
+                        <div class="relative">
+                            <label for="detail-search-input" class="sr-only">다른 매치업 검색</label>
+                            <input
+                                id="detail-search-input"
+                                type="text"
+                                autocomplete="off"
+                                placeholder="다른 매치업 검색 (예: 가렌, 트타 / 리신 제드)"
+                                class="w-full py-3 px-16 text-center text-slate-900 font-bold text-sm bg-white rounded-xl outline-none focus:ring-4 focus:ring-yellow-400 shadow"
+                            />
+                            <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs cursor-pointer">
+                                검색
+                            </button>
+                        </div>
+                    </form>
+                    <div id="detail-search-suggestions" class="absolute left-4 right-4 top-full mt-2 bg-slate-950/95 border border-amber-500/40 rounded-2xl shadow-2xl max-h-72 overflow-y-auto z-50 hidden p-2 space-y-1 backdrop-blur-md"></div>
+                </div>
+
                 <div class="w-full bg-slate-900/90 rounded-3xl p-8 mb-6 border-2 border-amber-500/50 shadow-2xl">
                     <div class="text-center mb-8">
                         <h2 class="text-3xl font-black text-yellow-300 mb-2">⚔️ 바텀 2대2 매치업 분석 솔루션</h2>
@@ -922,6 +977,18 @@
                 </div>
             `;
             switchToDetailView('search', query, pushHistory);
+
+            const dInput = document.getElementById('detail-search-input');
+            const dSugg = document.getElementById('detail-search-suggestions');
+            const dForm = document.getElementById('detail-search-form');
+            if (dInput && dSugg) {
+                setupAutocomplete(dInput, dSugg, true);
+                dForm.addEventListener('submit', (ev) => {
+                    ev.preventDefault();
+                    dSugg.classList.add('hidden');
+                    runSearch(dInput.value, true);
+                });
+            }
         }
 
         function renderPage(type, pushHistory = true) {
@@ -997,11 +1064,6 @@
             } else {
                 runSearch(val, true);
             }
-        });
-
-        detailSearchForm.addEventListener('submit', e => {
-            e.preventDefault();
-            runSearch(detailSearchInput.value, true);
         });
 
         function showAlertModal(html) {
