@@ -95,10 +95,11 @@
 
     <!-- Header Section -->
     <header class="w-full max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 pb-4 border-b border-amber-500/30">
-        <a href="#" id="brand-logo" class="text-2xl sm:text-3xl font-black tracking-tight text-white hover:opacity-95 transition-opacity cursor-pointer flex items-center justify-center gap-2">
+        <!-- 상단 로고: 미세한 시각적 중심 정렬 보정 적용 -->
+        <a href="#" id="brand-logo" class="text-2xl sm:text-3xl font-black tracking-tight text-white hover:opacity-95 transition-opacity cursor-pointer flex items-center justify-center gap-2 pr-1">
             <span class="leading-none">MVP</span>
             <img src="image/5level.webp" alt="명예 5렙 상자" class="w-8 h-8 object-contain drop-shadow-[0_0_8px_rgba(250,204,21,0.7)] flex-shrink-0">
-            <span class="text-yellow-400 leading-none ml-0.5">LOL</span>
+            <span class="text-yellow-400 leading-none">LOL</span>
         </a>
 
         <nav class="flex flex-wrap justify-center gap-2 sm:gap-3 text-base sm:text-lg font-bold" aria-label="주요 메뉴">
@@ -160,11 +161,12 @@
             <div class="hextech-hero-card p-6 text-center">
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-950/70 via-amber-950/40 to-blue-950/70 pointer-events-none"></div>
 
+                <!-- 중앙 히어로 로고: 불필요한 마이너스 이동을 제거하고 좌우 간격 및 이미지 마진을 균형 있게 재조정 -->
                 <div class="relative z-10 flex flex-col items-center gap-2 px-14">
-                    <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] flex items-center justify-center gap-4 m-0 p-0 leading-none -translate-x-3">
+                    <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] flex items-center justify-center gap-3 sm:gap-4 m-0 p-0 leading-none">
                         <span class="leading-none m-0">MVP</span>
-                        <img src="image/5level.webp" alt="명예 5렙 상자" class="w-16 h-16 sm:w-24 sm:h-24 object-contain drop-shadow-[0_0_15px_rgba(250,204,21,0.9)] flex-shrink-0 m-0">
-                        <span class="text-yellow-400 drop-shadow-[0_0_20px_rgba(250,204,21,0.7)] leading-none m-0 ml-1">LOL</span>
+                        <img src="image/5level.webp" alt="명예 5렙 상자" class="w-16 h-16 sm:w-24 sm:h-24 object-contain drop-shadow-[0_0_15px_rgba(250,204,21,0.9)] flex-shrink-0 mx-1 m-0">
+                        <span class="text-yellow-400 drop-shadow-[0_0_20px_rgba(250,204,21,0.7)] leading-none m-0">LOL</span>
                     </h1>
                     <p class="text-xs sm:text-sm text-amber-200/90 font-bold tracking-wide mt-2">
                         로딩 창 30초 안에 끝내는 맞춤형 라인전 매치업 솔루션
@@ -609,7 +611,6 @@
         clearMyBtn2.addEventListener('click', () => { draftMyAdc = null; draftMySup = null; updateDraftUI2(); });
         clearOppBtn2.addEventListener('click', () => { draftOppAdc = null; draftOppSup = null; updateDraftUI2(); });
 
-        // 범용 자동완성 함수 (모든 검색창에 초상화 + 클릭 검색 기능 적용)
         function setupUniversalAutocomplete(inputEl, suggestionsEl, onSelectCallback) {
             inputEl.addEventListener('input', (e) => {
                 const query = e.target.value.trim().toLowerCase();
@@ -641,7 +642,6 @@
                 `).join('');
                 suggestionsEl.classList.remove('hidden');
 
-                // 항목 클릭 이벤트 연결
                 suggestionsEl.querySelectorAll('.suggestion-item').forEach(el => {
                     el.addEventListener('click', () => {
                         const selectedName = el.dataset.name;
@@ -653,7 +653,6 @@
             });
         }
 
-        // 메인 1vs1 검색창 자동완성 (MY / ENEMY 드래프트 선택)
         searchInput1.addEventListener('input', (e) => {
             const query = e.target.value.trim().toLowerCase();
             if (!query) { searchSuggestions1.classList.add('hidden'); searchSuggestions1.innerHTML = ''; return; }
@@ -688,7 +687,6 @@
             searchSuggestions1.classList.remove('hidden');
         });
 
-        // 메인 바텀 2vs2 검색창 자동완성
         searchInput2.addEventListener('input', (e) => {
             const query = e.target.value.trim().toLowerCase();
             if (!query) { searchSuggestions2.classList.add('hidden'); searchSuggestions2.innerHTML = ''; return; }
@@ -722,7 +720,6 @@
                     </div>
                 </div>
             `).join('');
-            searchSuggestions2.classList.add('hidden'); // 주석 해제용
             searchSuggestions2.classList.remove('hidden');
         });
 
@@ -1043,7 +1040,6 @@
             switchToDetailView(type, pushHistory);
         }
 
-        // 라인별 10개씩 풍성하게 확장된 데이터베이스
         const EXPANDED_RANKING_DATABASE = {
             "top": [
                 { rank: 1, name: "아트록스", tier: "OP", winRate: "52.4%", pickRate: "12.1%", banRate: "8.5%" },
@@ -1183,7 +1179,6 @@
             switchToDetailView('ranking', true);
         }
 
-        // [요청 4번] 상성 보기 클릭 시 뜨는 전용 검색 모달창 함수
         window.openMatchupModal = function(champName) {
             showAlertModal(`
                 <div class="text-center py-2">
