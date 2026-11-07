@@ -95,10 +95,9 @@
 
     <!-- Header Section -->
     <header class="w-full max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 pb-4 border-b border-amber-500/30">
-        <!-- 상단 로고: 미세한 시각적 중심 정렬 보정 적용 -->
-        <a href="#" id="brand-logo" class="text-2xl sm:text-3xl font-black tracking-tight text-white hover:opacity-95 transition-opacity cursor-pointer flex items-center justify-center gap-2 pr-1">
+        <a href="#" id="brand-logo" class="text-2xl sm:text-3xl font-black tracking-tight text-white hover:opacity-95 transition-opacity cursor-pointer flex items-center justify-center gap-2">
             <span class="leading-none">MVP</span>
-            <img src="image/5level.webp" alt="명예 5렙 상자" class="w-8 h-8 object-contain drop-shadow-[0_0_8px_rgba(250,204,21,0.7)] flex-shrink-0">
+            <img src="image/5level.webp" alt="명예 5렙 상자" class="w-8 h-8 object-contain drop-shadow-[0_0_8px_rgba(250,204,21,0.7)] flex-shrink-0 -ml-1.5">
             <span class="text-yellow-400 leading-none">LOL</span>
         </a>
 
@@ -161,11 +160,10 @@
             <div class="hextech-hero-card p-6 text-center">
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-950/70 via-amber-950/40 to-blue-950/70 pointer-events-none"></div>
 
-                <!-- 중앙 히어로 로고: 불필요한 마이너스 이동을 제거하고 좌우 간격 및 이미지 마진을 균형 있게 재조정 -->
                 <div class="relative z-10 flex flex-col items-center gap-2 px-14">
-                    <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] flex items-center justify-center gap-3 sm:gap-4 m-0 p-0 leading-none">
+                    <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] flex items-center justify-center gap-4 m-0 p-0 leading-none">
                         <span class="leading-none m-0">MVP</span>
-                        <img src="image/5level.webp" alt="명예 5렙 상자" class="w-16 h-16 sm:w-24 sm:h-24 object-contain drop-shadow-[0_0_15px_rgba(250,204,21,0.9)] flex-shrink-0 mx-1 m-0">
+                        <img src="image/5level.webp" alt="명예 5렙 상자" class="w-16 h-16 sm:w-24 sm:h-24 object-contain drop-shadow-[0_0_15px_rgba(250,204,21,0.9)] flex-shrink-0 m-0 -ml-2.5">
                         <span class="text-yellow-400 drop-shadow-[0_0_20px_rgba(250,204,21,0.7)] leading-none m-0">LOL</span>
                     </h1>
                     <p class="text-xs sm:text-sm text-amber-200/90 font-bold tracking-wide mt-2">
@@ -793,7 +791,7 @@
                 lvl1: `${mine}의 견제 스킬 범위를 유지하며 ${opp}의 주도권을 파악하세요.`,
                 lvl3: `${opp}의 주요 스킬이 빠진 직후를 노려 교전 타이밍을 포착하세요.`,
                 lvl6: `${mine}과 ${opp}의 궁극기 타이밍 맞대결 및 갱승 유도를 준비하세요.`,
-                item: `3078`,
+                item: `3152`,
                 spell: `점멸 / 점화`
             };
 
@@ -867,10 +865,10 @@
                                 <span>🛡️</span> 상대 맞춤 카운터 템트리 추천
                             </h4>
                             <div class="flex items-center gap-4 bg-slate-800/90 p-4 rounded-2xl border border-slate-700">
-                                <img src="${getItemImgUrl(data.item || '3078')}" alt="추천 아이템" class="w-16 h-16 rounded-xl border border-amber-500/50 shadow-md object-cover bg-slate-900">
+                                <img src="${getItemImgUrl(String(data.item).match(/^\d+/) ? String(data.item).match(/^\d+/)[0] : '3152')}" alt="추천 아이템" class="w-16 h-16 rounded-xl border border-amber-500/50 shadow-md object-cover bg-slate-900 flex-shrink-0" onerror="this.src='https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/3152.png'">
                                 <div>
-                                    <span class="text-white font-bold text-base block mb-1">추천 핵심 1코어 장비</span>
-                                    <span class="text-xs text-slate-300 leading-relaxed">상대 ${opp}의 유지력과 딜교환에 맞춤화된 핵심 아이템입니다.</span>
+                                    <span class="text-white font-bold text-sm block mb-1 leading-snug">${data.item}</span>
+                                    <span class="text-[11px] text-slate-400 leading-relaxed">상대방의 유지력과 딜교환에 맞춘 핵심 장비 및 빌드업 팁입니다.</span>
                                 </div>
                             </div>
                         </div>
@@ -887,7 +885,7 @@
                                     <img src="${getSpellImgUrl('점화')}" alt="점화" class="w-12 h-12 rounded-xl border border-rose-400/50 shadow-md object-cover bg-slate-900">
                                 </div>
                                 <div>
-                                    <span class="text-white font-bold text-base block mb-1">점멸 / 점화 (또는 순간이동)</span>
+                                    <span class="text-white font-bold text-base block mb-1">${data.spell || '점멸 / 점화'}</span>
                                     <span class="text-xs text-slate-300 leading-relaxed">초반 교전 킬 각 및 라인 복귀력 극대화 스펠 조합</span>
                                 </div>
                             </div>
