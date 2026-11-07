@@ -4,7 +4,1126 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="로딩 창 30초 안에 확인하는 맞춤형 롤 라인전 매치업 솔루션">
+    <title>MVP LOL - 로딩 창 30초 맞춤형 라인전 솔루션</title<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="로딩 창 30초 안에 확인하는 맞춤형 롤 라인전 매치업 솔루션">
     <title>MVP LOL - 로딩 창 30초 맞춤형 라인전 솔루션</title>
+
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #1b2845 0%, #0d111a 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .hextech-card {
+            background: rgba(16, 24, 40, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1.5px solid rgba(212, 175, 55, 0.35);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(56, 189, 248, 0.08);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            height: 105px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .hextech-card:hover {
+            border-color: rgba(212, 175, 55, 0.8);
+            background: rgba(22, 33, 56, 0.85);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(212, 175, 55, 0.15);
+        }
+
+        .hextech-card:focus-visible,
+        button:focus-visible {
+            outline: 3px solid #fde047;
+            outline-offset: 2px;
+        }
+
+        .hextech-hero-card {
+            background: rgba(16, 24, 40, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(212, 175, 55, 0.5);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5), inset 0 0 25px rgba(212, 175, 55, 0.15);
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            border-radius: 1.5rem;
+        }
+
+        .search-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-overlay {
+            background-color: rgba(11, 15, 25, 0.85);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-body {
+            animation: modalSlide 0.25s ease-out forwards;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes modalSlide {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col justify-between min-h-screen px-4 py-6 md:px-8">
+
+    <!-- Header Section -->
+    <header class="w-full max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 pb-4 border-b border-amber-500/30">
+        <a href="#" id="brand-logo" class="text-2xl sm:text-3xl font-black tracking-tight text-white hover:opacity-95 transition-opacity cursor-pointer flex items-center justify-center gap-2">
+            <span class="leading-none">MVP</span>
+            <img src="image/5level.webp" alt="명예 5렙 상자" class="w-8 h-8 object-contain drop-shadow-[0_0_8px_rgba(250,204,21,0.7)] flex-shrink-0">
+            <span class="text-yellow-400 leading-none">LOL</span>
+        </a>
+
+        <nav class="flex flex-wrap justify-center gap-2 sm:gap-3 text-base sm:text-lg font-bold" aria-label="주요 메뉴">
+            <button type="button" data-page="ranking" class="px-4 py-2.5 rounded-xl text-white/95 hover:text-white hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-2 cursor-pointer shadow">
+                <span aria-hidden="true">🏆</span> 챔피언 랭킹
+            </button>
+            <button type="button" data-page="matchup_all" class="px-4 py-2.5 rounded-xl text-white/95 hover:text-white hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-2 cursor-pointer shadow">
+                <span aria-hidden="true">⚔️</span> 전체 구도
+            </button>
+            <button type="button" data-page="patch" class="px-4 py-2.5 rounded-xl text-white/95 hover:text-white hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-2 cursor-pointer shadow">
+                <span aria-hidden="true">📢</span> 패치노트
+            </button>
+            <button type="button" data-page="feedback" class="px-4 py-2.5 rounded-xl text-white/95 hover:text-white hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-2 cursor-pointer shadow">
+                <span aria-hidden="true">💬</span> 공략 제보
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <main id="main-view" class="w-full max-w-7xl mx-auto my-auto py-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        
+        <!-- 좌측 영역 -->
+        <div class="lg:col-span-3 flex flex-col gap-4 w-full">
+            <div data-page="hot" role="button" tabindex="0" class="hextech-card rounded-2xl px-4 py-3">
+                <h3 class="text-sm font-bold pb-1.5 mb-1.5 border-b border-amber-500/30 flex items-center justify-between pointer-events-none">
+                    <span class="flex items-center gap-1.5 text-yellow-300"><span aria-hidden="true">🔥</span> 오늘의 인기 구도</span>
+                    <span class="text-[11px] text-amber-400 font-normal">더보기 ➔</span>
+                </h3>
+                <div class="flex flex-wrap gap-1.5 pointer-events-none">
+                    <span class="bg-amber-500/15 text-[11px] font-semibold px-2 py-0.5 rounded-lg border border-amber-500/30">트런들 vs 베인</span>
+                    <span class="bg-amber-500/15 text-[11px] font-semibold px-2 py-0.5 rounded-lg border border-amber-500/30">탈론 vs 제드</span>
+                </div>
+            </div>
+
+            <div data-page="guide" role="button" tabindex="0" class="hextech-card rounded-2xl px-4 py-3">
+                <h3 class="text-sm font-bold pb-1.5 mb-1.5 border-b border-amber-500/30 flex items-center justify-between pointer-events-none">
+                    <span class="flex items-center gap-1.5 text-yellow-300"><span aria-hidden="true">💡</span> 30초 사용 가이드</span>
+                    <span class="text-[11px] text-amber-400 font-normal">더보기 ➔</span>
+                </h3>
+                <p class="text-xs text-slate-300 pointer-events-none leading-relaxed">
+                    로딩 창 30초 내에 챔피언 검색 후 핵심 라인전 꿀팁을 확인하세요.
+                </p>
+            </div>
+
+            <div data-page="patch" role="button" tabindex="0" class="hextech-card rounded-2xl px-4 py-3">
+                <h3 class="text-sm font-bold pb-1.5 mb-1.5 border-b border-amber-500/30 flex items-center justify-between pointer-events-none">
+                    <span class="flex items-center gap-1.5 text-yellow-300"><span aria-hidden="true">🏆</span> 최신 패치 공략 데이터</span>
+                    <span class="text-[11px] text-amber-400 font-normal">더보기 ➔</span>
+                </h3>
+                <p class="text-xs text-slate-300 pointer-events-none leading-relaxed">
+                    최신 패치노트 상성 데이터 및 챌린저 장인 노하우 전수 수록
+                </p>
+            </div>
+        </div>
+
+        <!-- 중앙 영역 -->
+        <div class="lg:col-span-6 flex flex-col justify-center space-y-6 py-1 -mt-2">
+            
+            <div class="hextech-hero-card p-6 text-center">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-950/70 via-amber-950/40 to-blue-950/70 pointer-events-none"></div>
+
+                <!-- 완벽한 중앙 대칭 및 왼쪽 미세 보정 적용 영역 -->
+                <div class="relative z-10 flex flex-col items-center gap-2 px-14">
+                    <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] flex items-center justify-center gap-4 m-0 p-0 leading-none -translate-x-3">
+                        <span class="leading-none m-0">MVP</span>
+                        <img src="image/5level.webp" alt="명예 5렙 상자" class="w-16 h-16 sm:w-24 sm:h-24 object-contain drop-shadow-[0_0_15px_rgba(250,204,21,0.9)] flex-shrink-0 m-0">
+                        <span class="text-yellow-400 drop-shadow-[0_0_20px_rgba(250,204,21,0.7)] leading-none m-0">LOL</span>
+                    </h1>
+                    <p class="text-xs sm:text-sm text-amber-200/90 font-bold tracking-wide mt-2">
+                        로딩 창 30초 안에 끝내는 맞춤형 라인전 매치업 솔루션
+                    </p>
+                </div>
+            </div>
+
+            <!-- 1. 1vs1 구도 섹션 -->
+            <div class="w-full flex flex-col items-center">
+                <div class="text-center mb-2.5">
+                    <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow">
+                        1vs1 구도
+                    </h2>
+                </div>
+
+                <div class="w-full relative">
+                    <div id="draft-status-1" class="flex items-center justify-center gap-3 mb-2.5 text-xs sm:text-sm font-bold">
+                        <div class="px-3.5 py-1.5 rounded-xl bg-indigo-950/80 border border-indigo-400/50 text-indigo-200 flex items-center gap-2 shadow-md">
+                            <span>⚔️ 내 챔피언:</span> 
+                            <span id="badge-mine-text-1" class="text-yellow-300 font-black">선택 안됨</span>
+                            <button type="button" id="clear-mine-1" class="text-indigo-300 hover:text-white hidden ml-1 cursor-pointer">✕</button>
+                        </div>
+                        <span class="text-yellow-400 font-black italic">VS</span>
+                        <div class="px-3.5 py-1.5 rounded-xl bg-rose-950/80 border border-rose-400/50 text-rose-200 flex items-center gap-2 shadow-md">
+                            <span>🛡️ 상대 챔피언:</span> 
+                            <span id="badge-opp-text-1" class="text-yellow-300 font-black">선택 안됨</span>
+                            <button type="button" id="clear-opp-1" class="text-rose-300 hover:text-white hidden ml-1 cursor-pointer">✕</button>
+                        </div>
+                    </div>
+
+                    <form id="search-form-1" class="w-full relative" role="search">
+                        <div class="relative">
+                            <label for="search-input-1" class="sr-only">1대1 챔피언 매치업 검색</label>
+                            <input
+                                id="search-input-1"
+                                type="text"
+                                autocomplete="off"
+                                placeholder="챔피언 검색 또는 구도 입력 (예: 트타, 바루스 / 리신 제드)"
+                                class="w-full py-3.5 px-16 text-center text-slate-900 font-bold text-sm sm:text-base bg-white rounded-2xl outline-none search-shadow placeholder:text-slate-400 placeholder:font-normal focus:ring-4 focus:ring-yellow-400 transition-all border-2 border-amber-400/60"
+                            />
+                            <button
+                                type="submit"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-3.5 py-2 rounded-xl text-xs sm:text-sm transition-all cursor-pointer shadow"
+                            >
+                                검색
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="search-suggestions-1" class="absolute left-0 right-0 top-full mt-2 bg-slate-950/95 border border-amber-500/40 rounded-2xl shadow-2xl max-h-72 overflow-y-auto z-50 hidden p-2 space-y-1 backdrop-blur-md"></div>
+                </div>
+            </div>
+
+            <div class="w-full my-6"></div>
+
+            <!-- 2. 바텀 2vs2 구도 섹션 -->
+            <div class="w-full flex flex-col items-center">
+                <div class="text-center mb-2.5">
+                    <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow">
+                        바텀 2vs2 구도
+                    </h2>
+                </div>
+
+                <div class="w-full relative">
+                    <div id="draft-status-2" class="flex flex-wrap items-center justify-center gap-2 mb-2.5 text-xs font-bold">
+                        <div class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-950/80 border border-indigo-400/50 text-indigo-200 shadow-md">
+                            <span>⚔️ 아군:</span>
+                            <span id="badge-my-adc" class="text-yellow-300 font-black">원딜 선택안됨</span>
+                            <span>/</span>
+                            <span id="badge-my-sup" class="text-yellow-300 font-black">서폿 선택안됨</span>
+                            <button type="button" id="clear-my-2" class="text-indigo-300 hover:text-white hidden ml-1 cursor-pointer">✕</button>
+                        </div>
+                        <span class="text-yellow-400 font-black italic">VS</span>
+                        <div class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-rose-950/80 border border-rose-400/50 text-rose-200 shadow-md">
+                            <span>🛡️ 상대:</span>
+                            <span id="badge-opp-adc" class="text-yellow-300 font-black">원딜 선택안됨</span>
+                            <span>/</span>
+                            <span id="badge-opp-sup" class="text-yellow-300 font-black">서폿 선택안됨</span>
+                            <button type="button" id="clear-opp-2" class="text-rose-300 hover:text-white hidden ml-1 cursor-pointer">✕</button>
+                        </div>
+                    </div>
+
+                    <form id="search-form-2" class="w-full relative" role="search">
+                        <div class="relative">
+                            <label for="search-input-2" class="sr-only">2대2 바텀 매치업 검색</label>
+                            <input
+                                id="search-input-2"
+                                type="text"
+                                autocomplete="off"
+                                placeholder="예: 이즈 레오나 징크스 쓰레쉬 (4개 연속 입력 가능)"
+                                class="w-full py-3.5 px-16 text-center text-slate-900 font-bold text-sm sm:text-base bg-white rounded-2xl outline-none search-shadow placeholder:text-slate-400 placeholder:font-normal focus:ring-4 focus:ring-yellow-400 transition-all border-2 border-amber-400/60"
+                            />
+                            <button
+                                type="submit"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-3.5 py-2 rounded-xl text-xs sm:text-sm transition-all cursor-pointer shadow"
+                            >
+                                검색
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="search-suggestions-2" class="absolute left-0 right-0 top-full mt-2 bg-slate-950/95 border border-amber-500/40 rounded-2xl shadow-2xl max-h-72 overflow-y-auto z-50 hidden p-2 space-y-1 backdrop-blur-md"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 우측 영역 -->
+        <div class="lg:col-span-3 flex flex-col gap-4 w-full">
+            <div class="hextech-card rounded-2xl px-4 py-3 items-center text-center">
+                <span class="text-sm font-black text-yellow-300 tracking-wider flex items-center gap-2">
+                    <span>🛡️</span> 챔피언 빌드 & 룬 가이드
+                </span>
+            </div>
+
+            <div class="hextech-card rounded-2xl px-4 py-3 items-center text-center">
+                <span class="text-3xl font-black text-amber-400/50 tracking-widest select-none">? ? ?</span>
+            </div>
+
+            <div data-page="feedback" role="button" tabindex="0" class="hextech-card rounded-2xl px-4 py-3 justify-between">
+                <div class="pointer-events-none w-full">
+                    <h3 class="text-sm font-bold pb-1.5 mb-1.5 border-b border-amber-500/30 flex items-center justify-between text-yellow-300">
+                        <span class="flex items-center gap-1.5"><span aria-hidden="true">💬</span> 공략 제보 & 요청</span>
+                        <span class="text-[11px] text-amber-400 font-normal">작성하기 ➔</span>
+                    </h3>
+                    <p class="text-xs text-slate-300 leading-relaxed truncate">
+                        찾으시는 챔피언 구도가 없으신가요? 꿀팁 제보를 환영합니다!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 하단 스크롤 가능한 빈 카드 4개 섹션 -->
+    <section class="w-full max-w-7xl mx-auto my-8">
+        <div class="flex items-center justify-between mb-4 pb-2 border-b border-amber-500/30">
+            <h2 class="text-lg font-black text-yellow-300 flex items-center gap-2">
+                <span>📦</span> 추가 확장 콘텐츠 구역 (스크롤)
+            </h2>
+            <span class="text-xs text-slate-400">총 4개 슬롯</span>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="hextech-card rounded-2xl p-5 h-36 flex flex-col items-center justify-center text-center group">
+                <span class="text-2xl mb-1 group-hover:scale-110 transition-transform">📄</span>
+                <span class="text-xs font-bold text-slate-300">확장 카드 슬롯 1</span>
+                <span class="text-[10px] text-slate-500 mt-1">추후 내용을 채워넣으세요</span>
+            </div>
+            <div class="hextech-card rounded-2xl p-5 h-36 flex flex-col items-center justify-center text-center group">
+                <span class="text-2xl mb-1 group-hover:scale-110 transition-transform">📊</span>
+                <span class="text-xs font-bold text-slate-300">확장 카드 슬롯 2</span>
+                <span class="text-[10px] text-slate-500 mt-1">추후 내용을 채워넣으세요</span>
+            </div>
+            <div class="hextech-card rounded-2xl p-5 h-36 flex flex-col items-center justify-center text-center group">
+                <span class="text-2xl mb-1 group-hover:scale-110 transition-transform">⚙️</span>
+                <span class="text-xs font-bold text-slate-300">확장 카드 슬롯 3</span>
+                <span class="text-[10px] text-slate-500 mt-1">추후 내용을 채워넣으세요</span>
+            </div>
+            <div class="hextech-card rounded-2xl p-5 h-36 flex flex-col items-center justify-center text-center group">
+                <span class="text-2xl mb-1 group-hover:scale-110 transition-transform">⭐</span>
+                <span class="text-xs font-bold text-slate-300">확장 카드 슬롯 4</span>
+                <span class="text-[10px] text-slate-500 mt-1">추후 내용을 채워넣으세요</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detail Container -->
+    <main id="detail-view" class="w-full max-w-5xl mx-auto py-4 hidden flex-col items-center">
+        <div class="w-full flex items-center justify-start mb-6 bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl">
+            <button id="back-to-home" type="button" class="flex items-center gap-2 text-yellow-300 hover:text-yellow-400 font-bold text-sm transition-colors cursor-pointer">
+                <span>←</span> 메인으로 돌아가기
+            </button>
+        </div>
+
+        <div id="detail-dynamic-content" class="w-full space-y-6"></div>
+    </main>
+
+    <footer class="w-full max-w-7xl mx-auto text-center text-xs text-white/60 pt-4 border-t border-amber-500/20 mt-6">
+        © 2026 MVP LOL - Fast & Smart LoL Matchup Guide
+    </footer>
+
+    <!-- 알림 모달 -->
+    <div id="modal-container" class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-body bg-slate-950 text-slate-100 rounded-2xl max-w-lg p-6 shadow-2xl border border-amber-500/40 relative w-full">
+            <button type="button" id="modal-close" aria-label="닫기" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold p-1 cursor-pointer">
+                ✕
+            </button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <!-- 각 라인별 상성 자바스크립트 파일 연결 -->
+    <script src="jungle.js"></script>
+    <script src="mid.js"></script>
+    <script src="adc.js"></script>
+    <script src="support.js"></script>
+
+    <script>
+        const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwNFf8z4QMR5D31aAT8hwIfYjnZzKPRXA_fpAfYVUnfOsZwT1o2_J7x0MTjENkHeXU/exec';
+
+        const mainView = document.getElementById('main-view');
+        const detailView = document.getElementById('detail-view');
+        const detailDynamicContent = document.getElementById('detail-dynamic-content');
+        const brandLogo = document.getElementById('brand-logo');
+        const backToHomeBtn = document.getElementById('back-to-home');
+
+        const searchForm1 = document.getElementById('search-form-1');
+        const searchInput1 = document.getElementById('search-input-1');
+        const searchSuggestions1 = document.getElementById('search-suggestions-1');
+        const badgeMineText1 = document.getElementById('badge-mine-text-1');
+        const badgeOppText1 = document.getElementById('badge-opp-text-1');
+        const clearMineBtn1 = document.getElementById('clear-mine-1');
+        const clearOppBtn1 = document.getElementById('clear-opp-1');
+
+        const searchForm2 = document.getElementById('search-form-2');
+        const searchInput2 = document.getElementById('search-input-2');
+        const searchSuggestions2 = document.getElementById('search-suggestions-2');
+        const badgeMyAdc = document.getElementById('badge-my-adc');
+        const badgeMySup = document.getElementById('badge-my-sup');
+        const badgeOppAdc = document.getElementById('badge-opp-adc');
+        const badgeOppSup = document.getElementById('badge-opp-sup');
+        const clearMyBtn2 = document.getElementById('clear-my-2');
+        const clearOppBtn2 = document.getElementById('clear-opp-2');
+
+        const modalContainer = document.getElementById('modal-container');
+        const modalContent = document.getElementById('modal-content');
+        let lastFocused = null;
+
+        let draftMine1 = null;
+        let draftOpp1 = null;
+
+        let draftMyAdc = null;
+        let draftMySup = null;
+        let draftOppAdc = null;
+        let draftOppSup = null;
+
+        let ddragonVersion = '14.1.1';
+        let champDataList = {}; 
+        let normalizedChampMap = {}; 
+
+        const champAliases = {
+            "갱플": "갱플랭크", "글가": "그라가스", "그브": "그레이브즈", "노틸": "노틸러스", "누누": "누누와 윌럼프",
+            "다리": "다리우스", "드븐": "드레이븐", "레넥": "레넥톤", "레나타": "레나타 글라스크", "리산": "리산드라",
+            "마이": "마스터 이", "마오": "마오카이", "말파": "말파이트", "모데": "모데카이저", "몰가": "모르가나",
+            "문도": "문도 박사", "미포": "미스 포츈", "볼베": "볼리베어", "브라": "브라이어", "블라디": "블라디미르",
+            "블츠": "블리츠크랭크", "블랭": "블리츠크랭크", "사일": "사일러스", "세주": "세주아니", "짜오": "신 짜오",
+            "신드": "신지드", "쓸쉬": "쓰레쉬", "무무": "아무무", "아우솔": "아우렐리온 솔", "아트": "아트록스",
+            "아펠": "아펠리오스", "알리": "알리스타", "야소": "야스오", "오리": "오리아나", "이렐": "이렐리아",
+            "이즈": "이즈리얼", "일라": "일라오이", "자르반": "자르반 4세", "징키": "징크스", "가스": "초가스",
+            "카시": "카시오페아", "카타": "카타리나", "칼리": "칼리스타", "케틀": "케이틀린", "킨드": "킨드레드",
+            "켄치": "탐 켄치", "런들": "트런들", "트타": "트리스타나", "트린": "트린다미어", "트페": "트위스티드 페이트",
+            "판테": "판테온", "피들": "피들스틱", "하딩": "하이머딩거"
+        };
+
+        async function initDataDragon() {
+            try {
+                const verRes = await fetch('https://ddragon.leagueoflegends.com/api/versions.json');
+                const versions = await verRes.json();
+                ddragonVersion = versions[0];
+
+                const champRes = await fetch(`https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/data/ko_KR/champion.json`);
+                const champJson = await champRes.json();
+                
+                Object.values(champJson.data).forEach(champ => {
+                    champDataList[champ.name] = champ.id;
+                    const normalized = champ.name.replace(/\s+/g, '');
+                    normalizedChampMap[normalized] = champ.name;
+                });
+            } catch (err) {
+                console.error("DataDragon 연동 실패:", err);
+                const backupList = ['마스터 이', '신 짜오', '리 신', '미스 포츈', '아우렐리온 솔', '트위스티드 페이트', '탐 켄치', '누누와 윌럼프', '트런들', '베인', '탈론', '제드', '사일러스', '야스오', '케이틀린', '트리스타나', '블리츠크랭크', '이즈리얼', '레오나', '징크스', '쓰레쉬', '가렌'];
+                backupList.forEach(name => {
+                    champDataList[name] = name.replace(/\s+/g, '');
+                    normalizedChampMap[name.replace(/\s+/g, '')] = name;
+                });
+            }
+        }
+        initDataDragon();
+
+        function getChampImgUrl(champName) {
+            const key = champDataList[champName];
+            if (key) {
+                return `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${key}.png`;
+            }
+            return `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/Trundle.png`;
+        }
+
+        function getSpellImgUrl(spellName) {
+            let spellMap = {
+                '점멸': 'SummonerFlash.png',
+                '점화': 'SummonerDot.png',
+                '순간이동': 'SummonerTeleport.png',
+                '텔레포트': 'SummonerTeleport.png',
+                '회복': 'SummonerHeal.png',
+                '정화': 'SummonerBoost.png',
+                '강타': 'SummonerSmite.png',
+                '탈진': 'SummonerExhaust.png',
+                '보호막': 'SummonerBarrier.png',
+                '유체화': 'SummonerHaste.png'
+            };
+            let fileName = spellMap[spellName] || 'SummonerFlash.png';
+            return `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/${fileName}`;
+        }
+
+        function getItemImgUrl(itemId) {
+            return `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/item/${itemId}.png`;
+        }
+
+        function getValidChampName(input) {
+            const clean = input.trim().replace(/\s+/g, '');
+            if (champAliases[clean]) return champAliases[clean];
+            if (normalizedChampMap[clean]) return normalizedChampMap[clean];
+            return null;
+        }
+
+        const MATCHUP_DATABASE = {
+            ...(window.TOP_MATCHUPS || {}),
+            ...(window.JUNGLE_MATCHUPS || {}),
+            ...(window.MID_MATCHUPS || {}),
+            ...(window.ADC_MATCHUPS || {}),
+            ...(window.SUPPORT_MATCHUPS || {})
+        };
+
+        function parseMatchup(raw) {
+            let text = raw.trim().replace(/\s+/g, ' ');
+            if (!text) return null;
+
+            let parts = text.split(/\s*vs\.?\s*|\s+versus\s+|\s*[,/:]\s*|\s+대\s+/i)
+                .map(s => s.trim())
+                .filter(Boolean);
+
+            if (parts.length === 2) {
+                let m = getValidChampName(parts[0]);
+                let o = getValidChampName(parts[1]);
+                if (m && o) return { mine: m, opp: o };
+            }
+
+            let words = text.split(' ');
+            if (words.length >= 2) {
+                for (let i = 1; i < words.length; i++) {
+                    let part1 = words.slice(0, i).join(' ');
+                    let part2 = words.slice(i).join(' ');
+                    let m = getValidChampName(part1);
+                    let o = getValidChampName(part2);
+                    if (m && o) return { mine: m, opp: o };
+                }
+            }
+            return null;
+        }
+
+        function parseBottom4Matchup(raw) {
+            let text = raw.trim().replace(/\s+/g, ' ');
+            if (!text) return null;
+
+            let tokens = text.split(/\s*vs\.?\s*|\s*[,/]\s*|\s+/i)
+                .map(s => s.trim())
+                .filter(Boolean);
+
+            if (tokens.length >= 4) {
+                let c1 = getValidChampName(tokens[0]);
+                let c2 = getValidChampName(tokens[1]);
+                let c3 = getValidChampName(tokens[2]);
+                let c4 = getValidChampName(tokens[3]);
+                if (c1 && c2 && c3 && c4) {
+                    return { myAdc: c1, mySup: c2, oppAdc: c3, oppSup: c4 };
+                }
+            }
+            return null;
+        }
+
+        function scrollToCenter(element) {
+            const rect = element.getBoundingClientRect();
+            const absoluteElementTop = rect.top + window.pageYOffset;
+            const middle = absoluteElementTop - (window.innerHeight / 2) + (rect.height / 2);
+            window.scrollTo({ top: middle, behavior: 'smooth' });
+        }
+
+        searchInput1.addEventListener('focus', () => scrollToCenter(searchInput1));
+        searchInput2.addEventListener('focus', () => scrollToCenter(searchInput2));
+
+        function updateDraftUI1() {
+            if (draftMine1) {
+                badgeMineText1.textContent = draftMine1;
+                clearMineBtn1.classList.remove('hidden');
+            } else {
+                badgeMineText1.textContent = '선택 안됨';
+                clearMineBtn1.classList.add('hidden');
+            }
+
+            if (draftOpp1) {
+                badgeOppText1.textContent = draftOpp1;
+                clearOppBtn1.classList.remove('hidden');
+            } else {
+                badgeOppText1.textContent = '선택 안됨';
+                clearOppBtn1.classList.add('hidden');
+            }
+
+            if (draftMine1 && draftOpp1) {
+                const m = draftMine1;
+                const o = draftOpp1;
+                draftMine1 = null;
+                draftOpp1 = null;
+                updateDraftUI1();
+                runSearch(`${m} vs ${o}`, true);
+            }
+        }
+
+        function updateDraftUI2() {
+            badgeMyAdc.textContent = draftMyAdc ? draftMyAdc : '원딜 선택안됨';
+            badgeMySup.textContent = draftMySup ? draftMySup : '서폿 선택안됨';
+            badgeOppAdc.textContent = draftOppAdc ? draftOppAdc : '원딜 선택안됨';
+            badgeOppSup.textContent = draftOppSup ? draftOppSup : '서폿 선택안됨';
+
+            if (draftMyAdc || draftMySup || draftOppAdc || draftOppSup) {
+                clearMyBtn2.classList.remove('hidden');
+                clearOppBtn2.classList.remove('hidden');
+            } else {
+                clearMyBtn2.classList.add('hidden');
+                clearOppBtn2.classList.add('hidden');
+            }
+
+            if (draftMyAdc && draftMySup && draftOppAdc && draftOppSup) {
+                const queryStr = `${draftMyAdc} ${draftMySup} ${draftOppAdc} ${draftOppSup}`;
+                const mAdc = draftMyAdc;
+                const mSup = draftMySup;
+                const oAdc = draftOppAdc;
+                const oSup = draftOppSup;
+
+                draftMyAdc = null;
+                draftMySup = null;
+                draftOppAdc = null;
+                draftOppSup = null;
+                updateDraftUI2();
+                runBottom2v2Search(mAdc, mSup, oAdc, oSup, queryStr, true);
+            }
+        }
+
+        clearMineBtn1.addEventListener('click', () => { draftMine1 = null; updateDraftUI1(); });
+        clearOppBtn1.addEventListener('click', () => { draftOpp1 = null; updateDraftUI1(); });
+        clearMyBtn2.addEventListener('click', () => { draftMyAdc = null; draftMySup = null; updateDraftUI2(); });
+        clearOppBtn2.addEventListener('click', () => { draftOppAdc = null; draftOppSup = null; updateDraftUI2(); });
+
+        function setupAutocomplete(inputEl, suggestionsEl, isDetail = false) {
+            inputEl.addEventListener('input', (e) => {
+                const query = e.target.value.trim().toLowerCase();
+                if (!query) { suggestionsEl.classList.add('hidden'); suggestionsEl.innerHTML = ''; return; }
+
+                let matches = [];
+                const seen = new Set();
+                Object.entries(champAliases).forEach(([alias, official]) => {
+                    if (alias.toLowerCase().includes(query) || official.toLowerCase().includes(query)) {
+                        if (!seen.has(official)) { seen.add(official); matches.push({ display: `${alias} (${official})`, name: official }); }
+                    }
+                });
+                Object.values(normalizedChampMap).forEach(official => {
+                    if (official.toLowerCase().includes(query) && !seen.has(official)) {
+                        seen.add(official); matches.push({ display: official, name: official });
+                    }
+                });
+                matches = matches.slice(0, 6);
+                if (matches.length === 0) { suggestionsEl.classList.add('hidden'); suggestionsEl.innerHTML = ''; return; }
+
+                if (isDetail) {
+                    suggestionsEl.innerHTML = matches.map(item => `
+                        <div class="flex items-center justify-between p-2.5 hover:bg-slate-900 rounded-xl transition-all border border-transparent hover:border-amber-500/40 cursor-pointer" onclick="runSearch('${item.name} vs 갱플랭크', true)">
+                            <div class="flex items-center gap-3">
+                                <img src="${getChampImgUrl(item.name)}" alt="${item.name}" class="w-10 h-10 rounded-xl object-cover border border-slate-700 bg-slate-800">
+                                <span class="font-bold text-sm text-white">${item.display}</span>
+                            </div>
+                            <span class="text-xs text-amber-400 font-bold">선택하기 ➔</span>
+                        </div>
+                    `).join('');
+                } else {
+                    suggestionsEl.innerHTML = matches.map(item => `
+                        <div class="flex items-center justify-between p-2.5 hover:bg-slate-900 rounded-xl transition-all border border-transparent hover:border-amber-500/40">
+                            <div class="flex items-center gap-3">
+                                <img src="${getChampImgUrl(item.name)}" alt="${item.name}" class="w-10 h-10 rounded-xl object-cover border border-slate-700 bg-slate-800">
+                                <span class="font-bold text-sm text-white">${item.display}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="selectDraftChamp1('${item.name}', 'mine')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition-all cursor-pointer shadow">⚔️ MY</button>
+                                <button type="button" onclick="selectDraftChamp1('${item.name}', 'opp')" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg transition-all cursor-pointer shadow">🛡️ ENEMY</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                suggestionsEl.classList.remove('hidden');
+            });
+        }
+
+        function setupAutocomplete2(inputEl, suggestionsEl) {
+            inputEl.addEventListener('input', (e) => {
+                const query = e.target.value.trim().toLowerCase();
+                if (!query) { suggestionsEl.classList.add('hidden'); suggestionsEl.innerHTML = ''; return; }
+
+                let matches = [];
+                const seen = new Set();
+                Object.entries(champAliases).forEach(([alias, official]) => {
+                    if (alias.toLowerCase().includes(query) || official.toLowerCase().includes(query)) {
+                        if (!seen.has(official)) { seen.add(official); matches.push({ display: `${alias} (${official})`, name: official }); }
+                    }
+                });
+                Object.values(normalizedChampMap).forEach(official => {
+                    if (official.toLowerCase().includes(query) && !seen.has(official)) {
+                        seen.add(official); matches.push({ display: official, name: official });
+                    }
+                });
+                matches = matches.slice(0, 6);
+                if (matches.length === 0) { suggestionsEl.classList.add('hidden'); suggestionsEl.innerHTML = ''; return; }
+
+                suggestionsEl.innerHTML = matches.map(item => `
+                    <div class="flex items-center justify-between p-2.5 hover:bg-slate-900 rounded-xl transition-all border border-transparent hover:border-amber-500/40">
+                        <div class="flex items-center gap-3">
+                            <img src="${getChampImgUrl(item.name)}" alt="${item.name}" class="w-10 h-10 rounded-xl object-cover border border-slate-700 bg-slate-800">
+                            <span class="font-bold text-sm text-white">${item.display}</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1">
+                            <button type="button" onclick="selectBottomChamp('${item.name}', 'my_adc')" class="px-2 py-1 bg-indigo-600 text-white font-bold text-[11px] rounded-lg cursor-pointer">아군원딜</button>
+                            <button type="button" onclick="selectBottomChamp('${item.name}', 'my_sup')" class="px-2 py-1 bg-blue-600 text-white font-bold text-[11px] rounded-lg cursor-pointer">아군서폿</button>
+                            <button type="button" onclick="selectBottomChamp('${item.name}', 'opp_adc')" class="px-2 py-1 bg-rose-600 text-white font-bold text-[11px] rounded-lg cursor-pointer">상대원딜</button>
+                            <button type="button" onclick="selectBottomChamp('${item.name}', 'opp_sup')" class="px-2 py-1 bg-orange-600 text-white font-bold text-[11px] rounded-lg cursor-pointer">상대서폿</button>
+                        </div>
+                    </div>
+                `).join('');
+                suggestionsEl.classList.remove('hidden');
+            });
+        }
+
+        setupAutocomplete(searchInput1, searchSuggestions1, false);
+        setupAutocomplete2(searchInput2, searchSuggestions2);
+
+        window.selectDraftChamp1 = function(champName, side) {
+            if (side === 'mine') draftMine1 = champName;
+            else draftOpp1 = champName;
+            searchInput1.value = '';
+            searchSuggestions1.classList.add('hidden');
+            updateDraftUI1();
+        };
+
+        window.selectBottomChamp = function(champName, role) {
+            if (role === 'my_adc') draftMyAdc = champName;
+            else if (role === 'my_sup') draftMySup = champName;
+            else if (role === 'opp_adc') draftOppAdc = champName;
+            else if (role === 'opp_sup') draftOppSup = champName;
+            searchInput2.value = '';
+            searchSuggestions2.classList.add('hidden');
+            updateDraftUI2();
+        };
+
+        document.addEventListener('click', (e) => {
+            if (!searchInput1.contains(e.target) && !searchSuggestions1.contains(e.target)) searchSuggestions1.classList.add('hidden');
+            if (!searchInput2.contains(e.target) && !searchSuggestions2.contains(e.target)) searchSuggestions2.classList.add('hidden');
+            const detailSearchInput = document.getElementById('detail-search-input');
+            const detailSuggestions = document.getElementById('detail-search-suggestions');
+            if (detailSearchInput && detailSuggestions && !detailSearchInput.contains(e.target) && !detailSuggestions.contains(e.target)) {
+                detailSuggestions.classList.add('hidden');
+            }
+        });
+
+        const topFileLoads = {};
+        function loadTopFile(name) {
+            if (!topFileLoads[name]) {
+                topFileLoads[name] = new Promise(resolve => {
+                    const s = document.createElement('script');
+                    const directMap = {
+                        "아트록스": "aatrox", "아칼리": "akali", "베인": "vayne", "탈론": "talon", "제드": "zed",
+                        "트런들": "trundle", "사일러스": "sylas", "야스오": "yasuo", "이즈리얼": "ezreal", "레오나": "leona", "징크스": "jinx", "쓰레쉬": "thresh"
+                    };
+                    const key = name.replace(/\s+/g, '');
+                    const fileId = directMap[key] || (champDataList[name] ? champDataList[name].toLowerCase() : key);
+                    s.src = 'top/top_' + encodeURIComponent(fileId) + '.js';
+                    s.onload = resolve; s.onerror = resolve;
+                    document.head.appendChild(s);
+                });
+            }
+            return topFileLoads[name];
+        }
+
+        async function runSearch(query, pushHistory = true) {
+            const val = query.trim();
+            if (!val) return;
+
+            const matchup = parseMatchup(val);
+            if (!matchup) {
+                showAlertModal(`
+                    <div class="text-center py-4">
+                        <span class="text-4xl mb-3 block">⚠️</span>
+                        <h3 id="modal-title" class="text-lg font-bold text-yellow-400 mb-2">정보가 없습니다</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            올바르지 않은 구도이거나 챔피언명입니다.<br>(예: <span class="text-white font-bold">트타 vs 바루스</span>)
+                        </p>
+                    </div>
+                `);
+                return;
+            }
+
+            const mine = matchup.mine;
+            const opp = matchup.opp;
+
+            const dbKey = `${mine}_${opp}`;
+            await loadTopFile(mine);
+            const topKey = `${mine}_${opp}`.replace(/\s+/g, '');
+            const data = (window.TOP_MATCHUPS || {})[topKey] || (window.TOP_MATCHUPS || {})[dbKey] || MATCHUP_DATABASE[dbKey] || {
+                lvl1: `${mine}의 견제 스킬 범위를 유지하며 ${opp}의 주도권을 파악하세요.`,
+                lvl3: `${opp}의 주요 스킬이 빠진 직후를 노려 교전 타이밍을 포착하세요.`,
+                lvl6: `${mine}과 ${opp}의 궁극기 타이밍 맞대결 및 갱승 유도를 준비하세요.`,
+                item: `3078`,
+                spell: `점멸 / 점화`
+            };
+
+            detailDynamicContent.innerHTML = `
+                <!-- 상세 페이지 내부에 챔피언 초상화 자동완성이 포함된 검색 바 추가 -->
+                <div class="w-full bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl mb-6 relative">
+                    <form id="detail-search-form" class="w-full relative" role="search">
+                        <div class="relative">
+                            <label for="detail-search-input" class="sr-only">다른 매치업 검색</label>
+                            <input
+                                id="detail-search-input"
+                                type="text"
+                                autocomplete="off"
+                                placeholder="다른 매치업 검색 (예: 가렌, 트타 / 리신 제드)"
+                                class="w-full py-3 px-16 text-center text-slate-900 font-bold text-sm bg-white rounded-xl outline-none focus:ring-4 focus:ring-yellow-400 shadow"
+                            />
+                            <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs cursor-pointer">
+                                검색
+                            </button>
+                        </div>
+                    </form>
+                    <div id="detail-search-suggestions" class="absolute left-4 right-4 top-full mt-2 bg-slate-950/95 border border-amber-500/40 rounded-2xl shadow-2xl max-h-72 overflow-y-auto z-50 hidden p-2 space-y-1 backdrop-blur-md"></div>
+                </div>
+
+                <div class="w-full bg-slate-900/90 rounded-3xl p-8 mb-6 border-2 border-amber-500/50 shadow-2xl flex flex-col md:flex-row items-center justify-around gap-6">
+                    <div class="flex flex-col items-center text-center">
+                        <div class="relative w-36 h-36 mb-4 rounded-3xl overflow-hidden border-4 border-indigo-400 shadow-2xl bg-slate-800">
+                            <img src="${getChampImgUrl(mine)}" alt="${mine}" class="w-full h-full object-cover">
+                        </div>
+                        <span class="text-sm text-indigo-300 font-extrabold tracking-wider mb-1">MY CHAMPION</span>
+                        <h2 class="text-3xl sm:text-4xl font-black text-white">${mine}</h2>
+                    </div>
+
+                    <div class="flex flex-col items-center justify-center my-2 md:my-0">
+                        <span class="text-6xl sm:text-7xl font-black text-yellow-400 italic tracking-widest drop-shadow-[0_0_20px_rgba(250,204,21,0.6)]">VS</span>
+                        <span class="text-xs text-white/70 font-bold mt-2">라이벌 라인전 매치업</span>
+                    </div>
+
+                    <div class="flex flex-col items-center text-center">
+                        <div class="relative w-36 h-36 mb-4 rounded-3xl overflow-hidden border-4 border-rose-400 shadow-2xl bg-slate-800">
+                            <img src="${getChampImgUrl(opp)}" alt="${opp}" class="w-full h-full object-cover">
+                        </div>
+                        <span class="text-sm text-rose-300 font-extrabold tracking-wider mb-1">ENEMY CHAMPION</span>
+                        <h2 class="text-3xl sm:text-4xl font-black text-white">${opp}</h2>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl mb-6">
+                    <h3 class="text-xl font-black text-yellow-300 mb-6 flex items-center gap-3">
+                        <span class="text-2xl">🎯</span> 30초 로딩 창 라인전 핵심 노하우
+                    </h3>
+                    <div class="space-y-5 text-base sm:text-lg">
+                        <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 shadow-md">
+                            <span class="text-yellow-400 font-black text-lg block mb-2">⚡ 1레벨 타이밍 구도</span>
+                            <p class="text-slate-100 leading-relaxed font-medium">${data.lvl1}</p>
+                        </div>
+                        <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 shadow-md">
+                            <span class="text-cyan-400 font-black text-lg block mb-2">⚡ 3레벨 타이밍 구도</span>
+                            <p class="text-slate-100 leading-relaxed font-medium">${data.lvl3}</p>
+                        </div>
+                        <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 shadow-md">
+                            <span class="text-rose-400 font-black text-lg block mb-2">⚡ 6레벨 궁극기 타이밍 구도</span>
+                            <p class="text-slate-100 leading-relaxed font-medium">${data.lvl6}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-900/90 rounded-3xl p-6 border border-amber-500/40 shadow-xl flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-base font-black text-emerald-400 mb-4 flex items-center gap-2">
+                                <span>🛡️</span> 상대 맞춤 카운터 템트리 추천
+                            </h4>
+                            <div class="flex items-center gap-4 bg-slate-800/90 p-4 rounded-2xl border border-slate-700">
+                                <img src="${getItemImgUrl(data.item || '3078')}" alt="추천 아이템" class="w-16 h-16 rounded-xl border border-amber-500/50 shadow-md object-cover bg-slate-900">
+                                <div>
+                                    <span class="text-white font-bold text-base block mb-1">추천 핵심 1코어 장비</span>
+                                    <span class="text-xs text-slate-300 leading-relaxed">상대 ${opp}의 유지력과 딜교환에 맞춤화된 핵심 아이템입니다.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/90 rounded-3xl p-6 border border-amber-500/40 shadow-xl flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-base font-black text-indigo-300 mb-4 flex items-center gap-2">
+                                <span>⚡</span> 추천 소환사 스펠
+                            </h4>
+                            <div class="flex items-center gap-4 bg-slate-800/90 p-4 rounded-2xl border border-slate-700">
+                                <div class="flex items-center gap-2">
+                                    <img src="${getSpellImgUrl('점멸')}" alt="점멸" class="w-12 h-12 rounded-xl border border-indigo-400/50 shadow-md object-cover bg-slate-900">
+                                    <img src="${getSpellImgUrl('점화')}" alt="점화" class="w-12 h-12 rounded-xl border border-rose-400/50 shadow-md object-cover bg-slate-900">
+                                </div>
+                                <div>
+                                    <span class="text-white font-bold text-base block mb-1">점멸 / 점화 (또는 순간이동)</span>
+                                    <span class="text-xs text-slate-300 leading-relaxed">초반 교전 킬 각 및 라인 복귀력 극대화 스펠 조합</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            switchToDetailView('search', query, pushHistory);
+
+            const dInput = document.getElementById('detail-search-input');
+            const dSugg = document.getElementById('detail-search-suggestions');
+            const dForm = document.getElementById('detail-search-form');
+            if (dInput && dSugg) {
+                setupAutocomplete(dInput, dSugg, true);
+                dForm.addEventListener('submit', (ev) => {
+                    ev.preventDefault();
+                    dSugg.classList.add('hidden');
+                    runSearch(dInput.value, true);
+                });
+            }
+        }
+
+        function runBottom2v2Search(mAdc, mSup, oAdc, oSup, query, pushHistory = true) {
+            detailDynamicContent.innerHTML = `
+                <div class="w-full bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl mb-6 relative">
+                    <form id="detail-search-form" class="w-full relative" role="search">
+                        <div class="relative">
+                            <label for="detail-search-input" class="sr-only">다른 매치업 검색</label>
+                            <input
+                                id="detail-search-input"
+                                type="text"
+                                autocomplete="off"
+                                placeholder="다른 매치업 검색 (예: 가렌, 트타 / 리신 제드)"
+                                class="w-full py-3 px-16 text-center text-slate-900 font-bold text-sm bg-white rounded-xl outline-none focus:ring-4 focus:ring-yellow-400 shadow"
+                            />
+                            <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs cursor-pointer">
+                                검색
+                            </button>
+                        </div>
+                    </form>
+                    <div id="detail-search-suggestions" class="absolute left-4 right-4 top-full mt-2 bg-slate-950/95 border border-amber-500/40 rounded-2xl shadow-2xl max-h-72 overflow-y-auto z-50 hidden p-2 space-y-1 backdrop-blur-md"></div>
+                </div>
+
+                <div class="w-full bg-slate-900/90 rounded-3xl p-8 mb-6 border-2 border-amber-500/50 shadow-2xl">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-black text-yellow-300 mb-2">⚔️ 바텀 2대2 매치업 분석 솔루션</h2>
+                        <p class="text-sm text-slate-300">아군 듀오와 상대 듀오 조합의 상성 분석 결과입니다.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-11 gap-4 items-center">
+                        <div class="md:col-span-5 bg-indigo-950/70 p-6 rounded-3xl border-2 border-indigo-400/50 flex flex-col items-center shadow-xl">
+                            <span class="text-sm text-indigo-300 font-extrabold mb-4">🛡️ 아군 듀오 (MY TEAM)</span>
+                            <div class="flex items-center gap-5">
+                                <div class="flex flex-col items-center">
+                                    <img src="${getChampImgUrl(mAdc)}" alt="${mAdc}" class="w-20 h-20 rounded-2xl object-cover border-2 border-indigo-400 bg-slate-800 shadow-lg">
+                                    <span class="text-sm font-black text-white mt-2">${mAdc}</span>
+                                    <span class="text-xs text-indigo-300 font-bold">원딜</span>
+                                </div>
+                                <span class="text-2xl font-bold text-indigo-300">+</span>
+                                <div class="flex flex-col items-center">
+                                    <img src="${getChampImgUrl(mSup)}" alt="${mSup}" class="w-20 h-20 rounded-2xl object-cover border-2 border-indigo-400 bg-slate-800 shadow-lg">
+                                    <span class="text-sm font-black text-white mt-2">${mSup}</span>
+                                    <span class="text-xs text-indigo-300 font-bold">서포터</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-1 text-center my-2 md:my-0">
+                            <span class="text-5xl font-black text-yellow-400 italic drop-shadow-[0_0_15px_rgba(250,204,21,0.6)]">VS</span>
+                        </div>
+
+                        <div class="md:col-span-5 bg-rose-950/70 p-6 rounded-3xl border-2 border-rose-400/50 flex flex-col items-center shadow-xl">
+                            <span class="text-sm text-rose-300 font-extrabold mb-4">🛡️ 상대 듀오 (ENEMY TEAM)</span>
+                            <div class="flex items-center gap-5">
+                                <div class="flex flex-col items-center">
+                                    <img src="${getChampImgUrl(oAdc)}" alt="${oAdc}" class="w-20 h-20 rounded-2xl object-cover border-2 border-rose-400 bg-slate-800 shadow-lg">
+                                    <span class="text-sm font-black text-white mt-2">${oAdc}</span>
+                                    <span class="text-xs text-rose-300 font-bold">원딜</span>
+                                </div>
+                                <span class="text-2xl font-bold text-rose-300">+</span>
+                                <div class="flex flex-col items-center">
+                                    <img src="${getChampImgUrl(oSup)}" alt="${oSup}" class="w-20 h-20 rounded-2xl object-cover border-2 border-rose-400 bg-slate-800 shadow-lg">
+                                    <span class="text-sm font-black text-white mt-2">${oSup}</span>
+                                    <span class="text-xs text-rose-300 font-bold">서포터</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl">
+                    <h3 class="text-xl font-black text-yellow-300 mb-6 flex items-center gap-3">
+                        <span class="text-2xl">🎯</span> 바텀 2대2 교전 및 라인전 핵심 가이드
+                    </h3>
+                    <div class="space-y-5 text-base sm:text-lg">
+                        <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 shadow-md">
+                            <span class="text-yellow-400 font-black text-lg block mb-2">⚡ 2레벨 선찍 & 초반 주도권 구도</span>
+                            <p class="text-slate-100 leading-relaxed font-medium">${mAdc}&${mSup} 듀오가 ${oAdc}&${oSup} 상대로 미니언 선푸시를 통해 2렙을 먼저 찍는 타이밍을 적극 노리세요.</p>
+                        </div>
+                        <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 shadow-md">
+                            <span class="text-cyan-400 font-black text-lg block mb-2">⚡ 갱킹 회피 포인트</span>
+                            <p class="text-slate-100 leading-relaxed font-medium">상대 ${oSup}의 갱 호응 스킬 타이밍에 맞춰 거리 조절 및 삼거리 시야 확보가 필수적입니다.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            switchToDetailView('search', query, pushHistory);
+
+            const dInput = document.getElementById('detail-search-input');
+            const dSugg = document.getElementById('detail-search-suggestions');
+            const dForm = document.getElementById('detail-search-form');
+            if (dInput && dSugg) {
+                setupAutocomplete(dInput, dSugg, true);
+                dForm.addEventListener('submit', (ev) => {
+                    ev.preventDefault();
+                    dSugg.classList.add('hidden');
+                    runSearch(dInput.value, true);
+                });
+            }
+        }
+
+        function renderPage(type, pushHistory = true) {
+            if (type === 'hot') {
+                detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">🔥 실시간 인기 매치업 TOP 5</h2></div>`;
+            } else if (type === 'guide') {
+                detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">💡 30초 로딩 창 활용 가이드</h2></div>`;
+            } else if (type === 'patch') {
+                detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">📢 최신 패치노트 & 공략 데이터</h2></div>`;
+            } else if (type === 'feedback') {
+                detailDynamicContent.innerHTML = `
+                    <div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl max-w-2xl mx-auto">
+                        <h2 class="text-2xl font-black text-yellow-300 mb-4 text-center">💬 공략 제보 및 꿀팁 등록</h2>
+                        <form id="feedback-form" class="space-y-4 text-base" novalidate>
+                            <input name="matchup" type="text" placeholder="구도 (예: 트런들 vs 베인)" class="w-full bg-slate-800 text-white p-4 rounded-2xl border border-slate-700 outline-none">
+                            <textarea name="tip" rows="4" placeholder="꿀팁 내용을 입력하세요." class="w-full bg-slate-800 text-white p-4 rounded-2xl border border-slate-700 outline-none"></textarea>
+                            <button type="submit" class="w-full bg-amber-400 text-slate-950 font-black py-4 rounded-2xl cursor-pointer shadow-lg">제보 등록하기</button>
+                        </form>
+                    </div>
+                `;
+            } else if (type === 'ranking') {
+                detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">🏆 라인별 1티어 챔피언 랭킹</h2></div>`;
+            } else if (type === 'matchup_all') {
+                detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">⚔️ 전체 라인 상성 요약표</h2></div>`;
+            }
+            switchToDetailView(type, pushHistory);
+        }
+
+        function switchToDetailView(type, subType, pushHistory = true) {
+            mainView.classList.add('hidden'); mainView.classList.remove('grid');
+            detailView.classList.remove('hidden'); detailView.classList.add('flex');
+            searchSuggestions1.classList.add('hidden'); searchSuggestions2.classList.add('hidden');
+            if (pushHistory) history.pushState({ view: 'detail', type, subType }, '', '');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showMainView(pushHistory = true) {
+            detailView.classList.add('hidden'); detailView.classList.remove('flex');
+            mainView.classList.remove('hidden'); mainView.classList.add('grid');
+            searchInput1.value = ''; searchInput2.value = '';
+            searchSuggestions1.classList.add('hidden'); searchSuggestions2.classList.add('hidden');
+            if (pushHistory) history.pushState({ view: 'main' }, '', '');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.addEventListener('popstate', (e) => {
+            if (e.state && e.state.view === 'detail') {
+                if (e.state.type === 'search') runSearch(e.state.subType, false);
+                else renderPage(e.state.type, false);
+            } else {
+                showMainView(false);
+            }
+        });
+
+        backToHomeBtn.addEventListener('click', (e) => { e.preventDefault(); showMainView(true); });
+        brandLogo.addEventListener('click', (e) => { e.preventDefault(); showMainView(true); });
+
+        searchForm1.addEventListener('submit', e => {
+            e.preventDefault();
+            searchSuggestions1.classList.add('hidden');
+            runSearch(searchInput1.value, true);
+        });
+
+        searchForm2.addEventListener('submit', e => {
+            e.preventDefault();
+            searchSuggestions2.classList.add('hidden');
+            const val = searchInput2.value.trim();
+            if (!val) return;
+
+            const fourMatch = parseBottom4Matchup(val);
+            if (fourMatch) {
+                runBottom2v2Search(fourMatch.myAdc, fourMatch.mySup, fourMatch.oppAdc, fourMatch.oppSup, val, true);
+            } else {
+                runSearch(val, true);
+            }
+        });
+
+        function showAlertModal(html) {
+            if (modalContainer.classList.contains('hidden')) lastFocused = document.activeElement;
+            modalContent.innerHTML = html;
+            modalContainer.classList.remove('hidden'); modalContainer.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+            document.getElementById('modal-close').focus();
+        }
+
+        function closeAlertModal() {
+            modalContainer.classList.add('hidden'); modalContainer.classList.remove('flex');
+            document.body.style.overflow = '';
+            if (lastFocused) lastFocused.focus();
+        }
+
+        document.addEventListener('click', e => {
+            const queryEl = e.target.closest('[data-query]');
+            if (queryEl) { e.stopPropagation(); closeAlertModal(); runSearch(queryEl.dataset.query, true); return; }
+
+            const pageEl = e.target.closest('[data-page]');
+            if (pageEl) { renderPage(pageEl.dataset.page, true); return; }
+
+            if (e.target === modalContainer || e.target.closest('#modal-close')) closeAlertModal();
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && !modalContainer.classList.contains('hidden')) closeAlertModal();
+        });
+
+        document.addEventListener('submit', async e => {
+            if (e.target.id !== 'feedback-form') return;
+            e.preventDefault();
+            const form = e.target;
+            const matchup = form.matchup.value.trim();
+            const tip = form.tip.value.trim();
+            if (!matchup || !tip) return;
+
+            try {
+                const body = new URLSearchParams({ matchup, tip, page: location.href });
+                await fetch(SHEET_URL, { method: 'POST', body, mode: 'no-cors' });
+                detailDynamicContent.innerHTML = `
+                    <div class="bg-slate-900/95 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center max-w-xl mx-auto py-16">
+                        <span class="text-5xl mb-4 block">✅</span>
+                        <h2 class="text-2xl font-black text-yellow-300 mb-2">공략 제보가 완료되었습니다!</h2>
+                        <button type="button" onclick="showMainView(true)" class="bg-amber-400 hover:bg-amber-500 text-slate-950 font-black px-6 py-3 rounded-2xl text-sm cursor-pointer shadow-lg">메인으로 돌아가기</button>
+                    </div>
+                `;
+            } catch (err) {
+                console.error('전송 실패:', err);
+            }
+        });
+    </script>
+</body>
+</html>
 
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
