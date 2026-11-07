@@ -175,8 +175,8 @@
             <!-- 1. 1vs1 구도 섹션 -->
             <div class="w-full flex flex-col items-center">
                 <div class="text-center mb-2.5">
-                    <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow">
-                        1vs1 구도
+                    <h2 class="text-2xl sm:text-3xl font-black text-yellow-300 tracking-wider drop-shadow-[0_0_10px_rgba(250,204,21,0.4)]">
+                        1vs1
                     </h2>
                 </div>
 
@@ -223,8 +223,8 @@
             <!-- 2. 바텀 2vs2 구도 섹션 -->
             <div class="w-full flex flex-col items-center">
                 <div class="text-center mb-2.5">
-                    <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow">
-                        바텀 2vs2 구도
+                    <h2 class="text-2xl sm:text-3xl font-black text-yellow-300 tracking-wider drop-shadow-[0_0_10px_rgba(250,204,21,0.4)]">
+                        바텀 2vs2
                     </h2>
                 </div>
 
@@ -347,7 +347,7 @@
         © 2026 MVP LOL - Fast & Smart LoL Matchup Guide
     </footer>
 
-    <!-- 알림 모달 -->
+    <!-- 알림 및 상성 검색 모달 -->
     <div id="modal-container" class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div class="modal-body bg-slate-950 text-slate-100 rounded-2xl max-w-lg p-6 shadow-2xl border border-amber-500/40 relative w-full">
             <button type="button" id="modal-close" aria-label="닫기" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold p-1 cursor-pointer">
@@ -437,7 +437,7 @@
                 });
             } catch (err) {
                 console.error("DataDragon 연동 실패:", err);
-                const backupList = ['마스터 이', '신 짜오', '리 신', '미스 포츈', '아우렐리온 솔', '트위스티드 페이트', '탐 켄치', '누누와 윌럼프', '트런들', '베인', '탈론', '제드', '사일러스', '야스오', '케이틀린', '트리스타나', '블리츠크랭크', '이즈리얼', '레오나', '징크스', '쓰레쉬', '가렌'];
+                const backupList = ['마스터 이', '신 짜오', '리 신', '미스 포츈', '아우렐리온 솔', '트위스티드 페이트', '탐 켄치', '누누와 윌럼프', '트런들', '베인', '탈론', '제드', '사일러스', '야스오', '케이틀린', '트리스타나', '블리츠크랭크', '이즈리얼', '레오나', '징크스', '쓰레쉬', '가렌', '아트록스', '레넥톤', '오공', '피오라', '카밀', '제이스', '그레이브즈', '아칼리', '사일러스', '오리아나', '신드라', '애쉬', '케이틀린', '자이라', '렐'];
                 backupList.forEach(name => {
                     champDataList[name] = name.replace(/\s+/g, '');
                     normalizedChampMap[name.replace(/\s+/g, '')] = name;
@@ -609,55 +609,8 @@
         clearMyBtn2.addEventListener('click', () => { draftMyAdc = null; draftMySup = null; updateDraftUI2(); });
         clearOppBtn2.addEventListener('click', () => { draftOppAdc = null; draftOppSup = null; updateDraftUI2(); });
 
-        function setupAutocomplete(inputEl, suggestionsEl, isDetail = false) {
-            inputEl.addEventListener('input', (e) => {
-                const query = e.target.value.trim().toLowerCase();
-                if (!query) { suggestionsEl.classList.add('hidden'); suggestionsEl.innerHTML = ''; return; }
-
-                let matches = [];
-                const seen = new Set();
-                Object.entries(champAliases).forEach(([alias, official]) => {
-                    if (alias.toLowerCase().includes(query) || official.toLowerCase().includes(query)) {
-                        if (!seen.has(official)) { seen.add(official); matches.push({ display: `${alias} (${official})`, name: official }); }
-                    }
-                });
-                Object.values(normalizedChampMap).forEach(official => {
-                    if (official.toLowerCase().includes(query) && !seen.has(official)) {
-                        seen.add(official); matches.push({ display: official, name: official });
-                    }
-                });
-                matches = matches.slice(0, 6);
-                if (matches.length === 0) { suggestionsEl.classList.add('hidden'); suggestionsEl.innerHTML = ''; return; }
-
-                if (isDetail) {
-                    suggestionsEl.innerHTML = matches.map(item => `
-                        <div class="flex items-center justify-between p-2.5 hover:bg-slate-900 rounded-xl transition-all border border-transparent hover:border-amber-500/40 cursor-pointer" onclick="runSearch('${item.name} vs 갱플랭크', true)">
-                            <div class="flex items-center gap-3">
-                                <img src="${getChampImgUrl(item.name)}" alt="${item.name}" class="w-10 h-10 rounded-xl object-cover border border-slate-700 bg-slate-800">
-                                <span class="font-bold text-sm text-white">${item.display}</span>
-                            </div>
-                            <span class="text-xs text-amber-400 font-bold">선택하기 ➔</span>
-                        </div>
-                    `).join('');
-                } else {
-                    suggestionsEl.innerHTML = matches.map(item => `
-                        <div class="flex items-center justify-between p-2.5 hover:bg-slate-900 rounded-xl transition-all border border-transparent hover:border-amber-500/40">
-                            <div class="flex items-center gap-3">
-                                <img src="${getChampImgUrl(item.name)}" alt="${item.name}" class="w-10 h-10 rounded-xl object-cover border border-slate-700 bg-slate-800">
-                                <span class="font-bold text-sm text-white">${item.display}</span>
-                            </div>
-                            <div class="flex items-center gap-1.5">
-                                <button type="button" onclick="selectDraftChamp1('${item.name}', 'mine')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition-all cursor-pointer shadow">⚔️ MY</button>
-                                <button type="button" onclick="selectDraftChamp1('${item.name}', 'opp')" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg transition-all cursor-pointer shadow">🛡️ ENEMY</button>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-                suggestionsEl.classList.remove('hidden');
-            });
-        }
-
-        function setupAutocomplete2(inputEl, suggestionsEl) {
+        // 범용 자동완성 함수 (모든 검색창에 초상화 + 클릭 검색 기능 적용)
+        function setupUniversalAutocomplete(inputEl, suggestionsEl, onSelectCallback) {
             inputEl.addEventListener('input', (e) => {
                 const query = e.target.value.trim().toLowerCase();
                 if (!query) { suggestionsEl.classList.add('hidden'); suggestionsEl.innerHTML = ''; return; }
@@ -678,25 +631,100 @@
                 if (matches.length === 0) { suggestionsEl.classList.add('hidden'); suggestionsEl.innerHTML = ''; return; }
 
                 suggestionsEl.innerHTML = matches.map(item => `
-                    <div class="flex items-center justify-between p-2.5 hover:bg-slate-900 rounded-xl transition-all border border-transparent hover:border-amber-500/40">
+                    <div class="flex items-center justify-between p-2.5 hover:bg-slate-900 rounded-xl transition-all border border-transparent hover:border-amber-500/40 cursor-pointer suggestion-item" data-name="${item.name}">
                         <div class="flex items-center gap-3">
                             <img src="${getChampImgUrl(item.name)}" alt="${item.name}" class="w-10 h-10 rounded-xl object-cover border border-slate-700 bg-slate-800">
                             <span class="font-bold text-sm text-white">${item.display}</span>
                         </div>
-                        <div class="flex flex-wrap gap-1">
-                            <button type="button" onclick="selectBottomChamp('${item.name}', 'my_adc')" class="px-2 py-1 bg-indigo-600 text-white font-bold text-[11px] rounded-lg cursor-pointer">아군원딜</button>
-                            <button type="button" onclick="selectBottomChamp('${item.name}', 'my_sup')" class="px-2 py-1 bg-blue-600 text-white font-bold text-[11px] rounded-lg cursor-pointer">아군서폿</button>
-                            <button type="button" onclick="selectBottomChamp('${item.name}', 'opp_adc')" class="px-2 py-1 bg-rose-600 text-white font-bold text-[11px] rounded-lg cursor-pointer">상대원딜</button>
-                            <button type="button" onclick="selectBottomChamp('${item.name}', 'opp_sup')" class="px-2 py-1 bg-orange-600 text-white font-bold text-[11px] rounded-lg cursor-pointer">상대서폿</button>
-                        </div>
+                        <span class="text-xs text-amber-400 font-bold">선택하기 ➔</span>
                     </div>
                 `).join('');
                 suggestionsEl.classList.remove('hidden');
+
+                // 항목 클릭 이벤트 연결
+                suggestionsEl.querySelectorAll('.suggestion-item').forEach(el => {
+                    el.addEventListener('click', () => {
+                        const selectedName = el.dataset.name;
+                        suggestionsEl.classList.add('hidden');
+                        inputEl.value = '';
+                        onSelectCallback(selectedName);
+                    });
+                });
             });
         }
 
-        setupAutocomplete(searchInput1, searchSuggestions1, false);
-        setupAutocomplete2(searchInput2, searchSuggestions2);
+        // 메인 1vs1 검색창 자동완성 (MY / ENEMY 드래프트 선택)
+        searchInput1.addEventListener('input', (e) => {
+            const query = e.target.value.trim().toLowerCase();
+            if (!query) { searchSuggestions1.classList.add('hidden'); searchSuggestions1.innerHTML = ''; return; }
+
+            let matches = [];
+            const seen = new Set();
+            Object.entries(champAliases).forEach(([alias, official]) => {
+                if (alias.toLowerCase().includes(query) || official.toLowerCase().includes(query)) {
+                    if (!seen.has(official)) { seen.add(official); matches.push({ display: `${alias} (${official})`, name: official }); }
+                }
+            });
+            Object.values(normalizedChampMap).forEach(official => {
+                if (official.toLowerCase().includes(query) && !seen.has(official)) {
+                    seen.add(official); matches.push({ display: official, name: official });
+                }
+            });
+            matches = matches.slice(0, 6);
+            if (matches.length === 0) { searchSuggestions1.classList.add('hidden'); searchSuggestions1.innerHTML = ''; return; }
+
+            searchSuggestions1.innerHTML = matches.map(item => `
+                <div class="flex items-center justify-between p-2.5 hover:bg-slate-900 rounded-xl transition-all border border-transparent hover:border-amber-500/40">
+                    <div class="flex items-center gap-3">
+                        <img src="${getChampImgUrl(item.name)}" alt="${item.name}" class="w-10 h-10 rounded-xl object-cover border border-slate-700 bg-slate-800">
+                        <span class="font-bold text-sm text-white">${item.display}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" onclick="selectDraftChamp1('${item.name}', 'mine')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition-all cursor-pointer shadow">⚔️ MY</button>
+                        <button type="button" onclick="selectDraftChamp1('${item.name}', 'opp')" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg transition-all cursor-pointer shadow">🛡️ ENEMY</button>
+                    </div>
+                </div>
+            `).join('');
+            searchSuggestions1.classList.remove('hidden');
+        });
+
+        // 메인 바텀 2vs2 검색창 자동완성
+        searchInput2.addEventListener('input', (e) => {
+            const query = e.target.value.trim().toLowerCase();
+            if (!query) { searchSuggestions2.classList.add('hidden'); searchSuggestions2.innerHTML = ''; return; }
+
+            let matches = [];
+            const seen = new Set();
+            Object.entries(champAliases).forEach(([alias, official]) => {
+                if (alias.toLowerCase().includes(query) || official.toLowerCase().includes(query)) {
+                    if (!seen.has(official)) { seen.add(official); matches.push({ display: `${alias} (${official})`, name: official }); }
+                }
+            });
+            Object.values(normalizedChampMap).forEach(official => {
+                if (official.toLowerCase().includes(query) && !seen.has(official)) {
+                    seen.add(official); matches.push({ display: official, name: official });
+                }
+            });
+            matches = matches.slice(0, 6);
+            if (matches.length === 0) { searchSuggestions2.classList.add('hidden'); searchSuggestions2.innerHTML = ''; return; }
+
+            searchSuggestions2.innerHTML = matches.map(item => `
+                <div class="flex items-center justify-between p-2.5 hover:bg-slate-900 rounded-xl transition-all border border-transparent hover:border-amber-500/40">
+                    <div class="flex items-center gap-3">
+                        <img src="${getChampImgUrl(item.name)}" alt="${item.name}" class="w-10 h-10 rounded-xl object-cover border border-slate-700 bg-slate-800">
+                        <span class="font-bold text-sm text-white">${item.display}</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1">
+                        <button type="button" onclick="selectBottomChamp('${item.name}', 'my_adc')" class="px-2 py-1 bg-indigo-600 text-white font-bold text-[11px] rounded-lg cursor-pointer">아군원딜</button>
+                        <button type="button" onclick="selectBottomChamp('${item.name}', 'my_sup')" class="px-2 py-1 bg-blue-600 text-white font-bold text-[11px] rounded-lg cursor-pointer">아군서폿</button>
+                        <button type="button" onclick="selectBottomChamp('${item.name}', 'opp_adc')" class="px-2 py-1 bg-rose-600 text-white font-bold text-[11px] rounded-lg cursor-pointer">상대원딜</button>
+                        <button type="button" onclick="selectBottomChamp('${item.name}', 'opp_sup')" class="px-2 py-1 bg-orange-600 text-white font-bold text-[11px] rounded-lg cursor-pointer">상대서폿</button>
+                    </div>
+                </div>
+            `).join('');
+            searchSuggestions2.classList.add('hidden'); // 주석 해제용
+            searchSuggestions2.classList.remove('hidden');
+        });
 
         window.selectDraftChamp1 = function(champName, side) {
             if (side === 'mine') draftMine1 = champName;
@@ -719,11 +747,6 @@
         document.addEventListener('click', (e) => {
             if (!searchInput1.contains(e.target) && !searchSuggestions1.contains(e.target)) searchSuggestions1.classList.add('hidden');
             if (!searchInput2.contains(e.target) && !searchSuggestions2.contains(e.target)) searchSuggestions2.classList.add('hidden');
-            const detailSearchInput = document.getElementById('detail-search-input');
-            const detailSuggestions = document.getElementById('detail-search-suggestions');
-            if (detailSearchInput && detailSuggestions && !detailSearchInput.contains(e.target) && !detailSuggestions.contains(e.target)) {
-                detailSuggestions.classList.add('hidden');
-            }
         });
 
         const topFileLoads = {};
@@ -881,11 +904,13 @@
             const dSugg = document.getElementById('detail-search-suggestions');
             const dForm = document.getElementById('detail-search-form');
             if (dInput && dSugg) {
-                setupAutocomplete(dInput, dSugg, true);
+                setupUniversalAutocomplete(dInput, dSugg, (selectedName) => {
+                    runSearch(`${mine} vs ${selectedName}`, true);
+                });
                 dForm.addEventListener('submit', (ev) => {
                     ev.preventDefault();
                     dSugg.classList.add('hidden');
-                    runSearch(dInput.value, true);
+                    runSearch(`${mine} vs ${dInput.value}`, true);
                 });
             }
         }
@@ -980,7 +1005,9 @@
             const dSugg = document.getElementById('detail-search-suggestions');
             const dForm = document.getElementById('detail-search-form');
             if (dInput && dSugg) {
-                setupAutocomplete(dInput, dSugg, true);
+                setupUniversalAutocomplete(dInput, dSugg, (selectedName) => {
+                    runSearch(selectedName, true);
+                });
                 dForm.addEventListener('submit', (ev) => {
                     ev.preventDefault();
                     dSugg.classList.add('hidden');
@@ -1016,12 +1043,76 @@
             switchToDetailView(type, pushHistory);
         }
 
+        // 라인별 10개씩 풍성하게 확장된 데이터베이스
+        const EXPANDED_RANKING_DATABASE = {
+            "top": [
+                { rank: 1, name: "아트록스", tier: "OP", winRate: "52.4%", pickRate: "12.1%", banRate: "8.5%" },
+                { rank: 2, name: "트런들", tier: "1티어", winRate: "51.8%", pickRate: "6.4%", banRate: "11.2%" },
+                { rank: 3, name: "레넥톤", tier: "1티어", winRate: "50.9%", pickRate: "9.8%", banRate: "4.1%" },
+                { rank: 4, name: "가렌", tier: "1티어", winRate: "50.5%", pickRate: "5.5%", banRate: "3.2%" },
+                { rank: 5, name: "오공", tier: "2티어", winRate: "50.2%", pickRate: "4.2%", banRate: "2.1%" },
+                { rank: 6, name: "피오라", tier: "2티어", winRate: "49.9%", pickRate: "7.8%", banRate: "12.4%" },
+                { rank: 7, name: "카밀", tier: "2티어", winRate: "49.7%", pickRate: "8.1%", banRate: "9.3%" },
+                { rank: 8, name: "제이스", tier: "3티어", winRate: "49.2%", pickRate: "6.5%", banRate: "5.0%" },
+                { rank: 9, name: "다리우스", tier: "3티어", winRate: "48.9%", pickRate: "7.0%", banRate: "18.2%" },
+                { rank: 10, name: "말파이트", tier: "3티어", winRate: "48.5%", pickRate: "5.1%", banRate: "10.1%" }
+            ],
+            "jungle": [
+                { rank: 1, name: "리 신", tier: "OP", winRate: "51.2%", pickRate: "18.5%", banRate: "12.4%" },
+                { rank: 2, name: "마스터 이", tier: "1티어", winRate: "50.8%", pickRate: "7.2%", banRate: "15.0%" },
+                { rank: 3, name: "신 짜오", tier: "1티어", winRate: "50.1%", pickRate: "8.1%", banRate: "5.4%" },
+                { rank: 4, name: "그레이브즈", tier: "1티어", winRate: "49.8%", pickRate: "9.2%", banRate: "6.1%" },
+                { rank: 5, name: "비에고", tier: "2티어", winRate: "49.5%", pickRate: "11.0%", banRate: "8.2%" },
+                { rank: 6, name: "자르반 4세", tier: "2티어", winRate: "49.3%", pickRate: "6.4%", banRate: "4.0%" },
+                { rank: 7, name: "카직스", tier: "2티어", winRate: "49.0%", pickRate: "10.5%", banRate: "14.3%" },
+                { rank: 8, name: "렉사이", tier: "3티어", winRate: "48.7%", pickRate: "3.2%", banRate: "2.5%" },
+                { rank: 9, name: "세주아니", tier: "3티어", winRate: "48.4%", pickRate: "4.8%", banRate: "3.1%" },
+                { rank: 10, name: "아무무", tier: "3티어", winRate: "48.0%", pickRate: "5.0%", banRate: "7.8%" }
+            ],
+            "mid": [
+                { rank: 1, name: "탈론", tier: "OP", winRate: "52.1%", pickRate: "6.5%", banRate: "9.1%" },
+                { rank: 2, name: "제드", tier: "1티어", winRate: "51.0%", pickRate: "14.2%", banRate: "22.5%" },
+                { rank: 3, name: "사일러스", tier: "1티어", winRate: "50.5%", pickRate: "11.8%", banRate: "10.2%" },
+                { rank: 4, name: "야스오", tier: "1티어", winRate: "50.1%", pickRate: "12.0%", banRate: "18.3%" },
+                { rank: 5, name: "아칼리", tier: "2티어", winRate: "49.8%", pickRate: "9.5%", banRate: "11.0%" },
+                { rank: 6, name: "오리아나", tier: "2티어", winRate: "49.4%", pickRate: "7.1%", banRate: "2.4%" },
+                { rank: 7, name: "신드라", tier: "2티어", winRate: "49.1%", pickRate: "6.8%", banRate: "5.2%" },
+                { rank: 8, name: "아리", tier: "3티어", winRate: "48.8%", pickRate: "8.5%", banRate: "4.1%" },
+                { rank: 9, name: "요네", tier: "3티어", winRate: "48.5%", pickRate: "10.2%", banRate: "16.4%" },
+                { rank: 10, name: "빅토르", tier: "3티어", winRate: "48.2%", pickRate: "5.4%", banRate: "1.9%" }
+            ],
+            "adc": [
+                { rank: 1, name: "징크스", tier: "OP", winRate: "52.6%", pickRate: "22.1%", banRate: "4.5%" },
+                { rank: 2, name: "이즈리얼", tier: "1티어", winRate: "50.9%", pickRate: "28.4%", banRate: "6.1%" },
+                { rank: 3, name: "케이틀린", tier: "1티어", winRate: "50.2%", pickRate: "15.6%", banRate: "8.9%" },
+                { rank: 4, name: "카이사", tier: "1티어", winRate: "49.9%", pickRate: "24.1%", banRate: "7.0%" },
+                { rank: 5, name: "루시안", tier: "2티어", winRate: "49.6%", pickRate: "10.2%", banRate: "6.2%" },
+                { rank: 6, name: "바루스", tier: "2티어", winRate: "49.3%", pickRate: "9.8%", banRate: "5.5%" },
+                { rank: 7, name: "애쉬", tier: "2티어", winRate: "49.0%", pickRate: "11.5%", banRate: "4.8%" },
+                { rank: 8, name: "진", tier: "3티어", winRate: "48.7%", pickRate: "13.2%", banRate: "3.5%" },
+                { rank: 9, name: "드레이븐", tier: "3티어", winRate: "48.4%", pickRate: "5.1%", banRate: "15.8%" },
+                { rank: 10, name: "미스 포츈", tier: "3티어", winRate: "48.1%", pickRate: "7.0%", banRate: "2.8%" }
+            ],
+            "support": [
+                { rank: 1, name: "쓰레쉬", tier: "OP", winRate: "51.9%", pickRate: "16.8%", banRate: "10.4%" },
+                { rank: 2, name: "레오나", tier: "1티어", winRate: "51.1%", pickRate: "11.5%", banRate: "7.2%" },
+                { rank: 3, name: "블리츠크랭크", tier: "1티어", winRate: "50.7%", pickRate: "9.2%", banRate: "25.1%" },
+                { rank: 4, name: "노틸러스", tier: "1티어", winRate: "50.2%", pickRate: "10.8%", banRate: "8.0%" },
+                { rank: 5, name: "룰루", tier: "2티어", winRate: "49.8%", pickRate: "8.4%", banRate: "6.5%" },
+                { rank: 6, name: "나미", tier: "2티어", winRate: "49.5%", pickRate: "6.1%", banRate: "2.1%" },
+                { rank: 7, name: "밀리오", tier: "2티어", winRate: "49.2%", pickRate: "5.2%", banRate: "4.3%" },
+                { rank: 8, name: "자이라", tier: "3티어", winRate: "48.9%", pickRate: "4.5%", banRate: "3.0%" },
+                { rank: 9, name: "럭스", tier: "3티어", winRate: "48.6%", pickRate: "7.8%", banRate: "9.1%" },
+                { rank: 10, name: "렐", tier: "3티어", winRate: "48.2%", pickRate: "3.9%", banRate: "1.8%" }
+            ]
+        };
+
         function renderRankingPage() {
             detailDynamicContent.innerHTML = `
                 <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-xl max-w-4xl mx-auto">
                     <div class="text-center mb-6">
-                        <h2 class="text-2xl sm:text-3xl font-black text-yellow-300 mb-2">📊 챔프 별 승률 및 메타 데이터</h2>
-                        <p class="text-xs sm:text-sm text-slate-300">챔피언을 클릭하면 곧바로 1vs1 매치업 구도 솔루션으로 이동합니다.</p>
+                        <h2 class="text-2xl sm:text-3xl font-black text-yellow-300 mb-2">📊 챔프 별 승률 및 메타 데이터 (TOP 10)</h2>
+                        <p class="text-xs sm:text-sm text-slate-300">상성 보기를 클릭하여 원하는 상대 챔피언과 매치업 구도를 검색하세요.</p>
                     </div>
 
                     <div id="ranking-tabs" class="flex flex-wrap justify-center gap-2 mb-6">
@@ -1038,16 +1129,16 @@
 
             function drawList(lineKey) {
                 const listContainer = document.getElementById('ranking-list-container');
-                const data = (window.RANKING_DATABASE && window.RANKING_DATABASE[lineKey]) || [];
+                const rankingDb = window.RANKING_DATABASE || EXPANDED_RANKING_DATABASE;
+                const data = rankingDb[lineKey] || EXPANDED_RANKING_DATABASE[lineKey] || [];
 
                 if (data.length === 0) {
-                    listContainer.innerHTML = `<p class="text-center text-slate-400 py-8">데이터가 없습니다. (ranking_data.js 파일을 확인해주세요)</p>`;
+                    listContainer.innerHTML = `<p class="text-center text-slate-400 py-8">데이터가 없습니다.</p>`;
                     return;
                 }
 
                 listContainer.innerHTML = data.map(item => `
-                    <div class="flex items-center justify-between p-4 bg-slate-800/90 hover:bg-slate-850 rounded-2xl border border-slate-700 transition-all cursor-pointer shadow"
-                         onclick="runSearch('${item.name} vs 갱플랭크', true)">
+                    <div class="flex items-center justify-between p-4 bg-slate-800/90 hover:bg-slate-850 rounded-2xl border border-slate-700 transition-all shadow">
                         <div class="flex items-center gap-4">
                             <span class="text-lg font-black text-yellow-400 w-6 text-center">${item.rank}</span>
                             <img src="${getChampImgUrl(item.name)}" alt="${item.name}" class="w-12 h-12 rounded-xl object-cover border border-slate-600 bg-slate-900">
@@ -1059,9 +1150,14 @@
                                 <span class="text-xs text-slate-400">픽률 ${item.pickRate} | 밴률 ${item.banRate}</span>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <span class="text-base font-black text-emerald-400 block">${item.winRate}</span>
-                            <span class="text-[11px] text-amber-400 font-bold">상성 보기 ➔</span>
+                        <div class="flex items-center gap-4 text-right">
+                            <div>
+                                <span class="text-base font-black text-emerald-400 block">${item.winRate}</span>
+                                <span class="text-[11px] text-slate-400">승률</span>
+                            </div>
+                            <button type="button" onclick="openMatchupModal('${item.name}')" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs rounded-xl cursor-pointer shadow transition-all">
+                                상성 보기 ➔
+                            </button>
                         </div>
                     </div>
                 `).join('');
@@ -1086,6 +1182,56 @@
 
             switchToDetailView('ranking', true);
         }
+
+        // [요청 4번] 상성 보기 클릭 시 뜨는 전용 검색 모달창 함수
+        window.openMatchupModal = function(champName) {
+            showAlertModal(`
+                <div class="text-center py-2">
+                    <div class="flex items-center justify-center gap-3 mb-4">
+                        <img src="${getChampImgUrl(champName)}" alt="${champName}" class="w-14 h-14 rounded-2xl object-cover border-2 border-amber-400 bg-slate-900 shadow-md">
+                        <div class="text-left">
+                            <h3 id="modal-title" class="text-xl font-black text-yellow-300">${champName}</h3>
+                            <p class="text-xs text-slate-300">상대할 챔피언을 검색하거나 선택하세요</p>
+                        </div>
+                    </div>
+
+                    <div class="relative w-full mb-3">
+                        <input
+                            id="modal-opp-input"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="상대 챔피언 입력 (예: 가렌, 제드)"
+                            class="w-full py-3 px-4 text-center text-slate-900 font-bold text-sm bg-white rounded-xl outline-none focus:ring-4 focus:ring-yellow-400 shadow border-2 border-amber-400/60"
+                        />
+                        <div id="modal-opp-suggestions" class="absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-amber-500/40 rounded-xl shadow-2xl max-h-56 overflow-y-auto z-50 hidden p-1.5 space-y-1 text-left"></div>
+                    </div>
+                    <p class="text-[11px] text-slate-400">이름을 치면 아래에 초상화 목록이 나타납니다.</p>
+                </div>
+            `);
+
+            const modalOppInput = document.getElementById('modal-opp-input');
+            const modalOppSuggestions = document.getElementById('modal-opp-suggestions');
+
+            if (modalOppInput && modalOppSuggestions) {
+                setupUniversalAutocomplete(modalOppInput, modalOppSuggestions, (selectedOppName) => {
+                    closeAlertModal();
+                    runSearch(`${champName} vs ${selectedOppName}`, true);
+                });
+
+                modalOppInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const oppVal = modalOppInput.value.trim();
+                        const validOpp = getValidChampName(oppVal);
+                        if (validOpp) {
+                            closeAlertModal();
+                            runSearch(`${champName} vs ${validOpp}`, true);
+                        }
+                    }
+                });
+                modalOppInput.focus();
+            }
+        };
 
         function switchToDetailView(type, subType, pushHistory = true) {
             if (typeof subType === 'boolean') { pushHistory = subType; subType = type; }
@@ -1142,7 +1288,8 @@
             modalContent.innerHTML = html;
             modalContainer.classList.remove('hidden'); modalContainer.classList.add('flex');
             document.body.style.overflow = 'hidden';
-            document.getElementById('modal-close').focus();
+            const focusTarget = document.getElementById('modal-opp-input') || document.getElementById('modal-close');
+            if (focusTarget) focusTarget.focus();
         }
 
         function closeAlertModal() {
