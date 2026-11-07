@@ -95,7 +95,6 @@
 
     <!-- Header Section -->
     <header class="w-full max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 pb-4 border-b border-amber-500/30">
-        <!-- 좌측 상단 로고 (LOL 글자에 미세한 오른쪽 간격 및 마진 부여) -->
         <a href="#" id="brand-logo" class="text-2xl sm:text-3xl font-black tracking-tight text-white hover:opacity-95 transition-opacity cursor-pointer flex items-center justify-center gap-2">
             <span class="leading-none">MVP</span>
             <img src="image/5level.webp" alt="명예 5렙 상자" class="w-8 h-8 object-contain drop-shadow-[0_0_8px_rgba(250,204,21,0.7)] flex-shrink-0">
@@ -104,7 +103,7 @@
 
         <nav class="flex flex-wrap justify-center gap-2 sm:gap-3 text-base sm:text-lg font-bold" aria-label="주요 메뉴">
             <button type="button" data-page="ranking" class="px-4 py-2.5 rounded-xl text-white/95 hover:text-white hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-2 cursor-pointer shadow">
-                <span aria-hidden="true">🏆</span> 챔피언 랭킹
+                <span aria-hidden="true">📊</span> 챔프 별 승률 데이터
             </button>
             <button type="button" data-page="matchup_all" class="px-4 py-2.5 rounded-xl text-white/95 hover:text-white hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-2 cursor-pointer shadow">
                 <span aria-hidden="true">⚔️</span> 전체 구도
@@ -161,7 +160,6 @@
             <div class="hextech-hero-card p-6 text-center">
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-950/70 via-amber-950/40 to-blue-950/70 pointer-events-none"></div>
 
-                <!-- 중앙 히어로 로고 (LOL 글자에 미세한 오른쪽 간격 및 마진 부여) -->
                 <div class="relative z-10 flex flex-col items-center gap-2 px-14">
                     <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] flex items-center justify-center gap-4 m-0 p-0 leading-none -translate-x-3">
                         <span class="leading-none m-0">MVP</span>
@@ -359,11 +357,12 @@
         </div>
     </div>
 
-    <!-- 각 라인별 상성 자바스크립트 파일 연결 -->
+    <!-- 각 라인별 상성 및 랭킹 데이터 스크립트 연결 -->
     <script src="jungle.js"></script>
     <script src="mid.js"></script>
     <script src="adc.js"></script>
     <script src="support.js"></script>
+    <script src="ranking_data.js"></script>
 
     <script>
         const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwNFf8z4QMR5D31aAT8hwIfYjnZzKPRXA_fpAfYVUnfOsZwT1o2_J7x0MTjENkHeXU/exec';
@@ -412,7 +411,7 @@
             "갱플": "갱플랭크", "글가": "그라가스", "그브": "그레이브즈", "노틸": "노틸러스", "누누": "누누와 윌럼프",
             "다리": "다리우스", "드븐": "드레이븐", "레넥": "레넥톤", "레나타": "레나타 글라스크", "리산": "리산드라",
             "마이": "마스터 이", "마오": "마오카이", "말파": "말파이트", "모데": "모데카이저", "몰가": "모르가나",
-            "문도": "문도 박사", "미포": "미스 포츈", "볼베": "볼리베어", "브라": "브라이er", "블라디": "블라디미르",
+            "문도": "문도 박사", "미포": "미스 포츈", "볼베": "볼리베어", "브라": "브라이어", "블라디": "블라디미르",
             "블츠": "블리츠크랭크", "블랭": "블리츠크랭크", "사일": "사일러스", "세주": "세주아니", "짜오": "신 짜오",
             "신드": "신지드", "쓸쉬": "쓰레쉬", "무무": "아무무", "아우솔": "아우렐리온 솔", "아트": "아트록스",
             "아펠": "아펠리오스", "알리": "알리스타", "야소": "야스오", "오리": "오리아나", "이렐": "이렐리아",
@@ -779,7 +778,6 @@
             };
 
             detailDynamicContent.innerHTML = `
-                <!-- 상세 페이지 내부에 챔피언 초상화 자동완성이 포함된 검색 바 추가 -->
                 <div class="w-full bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl mb-6 relative">
                     <form id="detail-search-form" class="w-full relative" role="search">
                         <div class="relative">
@@ -1010,14 +1008,87 @@
                     </div>
                 `;
             } else if (type === 'ranking') {
-                detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">🏆 라인별 1티어 챔피언 랭킹</h2></div>`;
+                renderRankingPage();
+                return;
             } else if (type === 'matchup_all') {
                 detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">⚔️ 전체 라인 상성 요약표</h2></div>`;
             }
             switchToDetailView(type, pushHistory);
         }
 
+        function renderRankingPage() {
+            detailDynamicContent.innerHTML = `
+                <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-xl max-w-4xl mx-auto">
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl sm:text-3xl font-black text-yellow-300 mb-2">📊 챔프 별 승률 및 메타 데이터</h2>
+                        <p class="text-xs sm:text-sm text-slate-300">챔피언을 클릭하면 곧바로 1vs1 매치업 구도 솔루션으로 이동합니다.</p>
+                    </div>
+
+                    <div id="ranking-tabs" class="flex flex-wrap justify-center gap-2 mb-6">
+                        <button type="button" data-line="top" class="px-4 py-2 rounded-xl font-bold text-sm bg-amber-500 text-slate-950 cursor-pointer shadow">⚔️ 탑</button>
+                        <button type="button" data-line="jungle" class="px-4 py-2 rounded-xl font-bold text-sm bg-slate-800 text-white hover:bg-slate-700 cursor-pointer shadow">🗡️ 정글</button>
+                        <button type="button" data-line="mid" class="px-4 py-2 rounded-xl font-bold text-sm bg-slate-800 text-white hover:bg-slate-700 cursor-pointer shadow">🔮 미드</button>
+                        <button type="button" data-line="adc" class="px-4 py-2 rounded-xl font-bold text-sm bg-slate-800 text-white hover:bg-slate-700 cursor-pointer shadow">🏹 원딜</button>
+                        <button type="button" data-line="support" class="px-4 py-2 rounded-xl font-bold text-sm bg-slate-800 text-white hover:bg-slate-700 cursor-pointer shadow">🛡️ 서포터</button>
+                    </div>
+
+                    <div id="ranking-list-container" class="space-y-3"></div>
+                </div>
+            `;
+
+            function drawList(lineKey) {
+                const listContainer = document.getElementById('ranking-list-container');
+                const data = (window.RANKING_DATABASE && window.RANKING_DATABASE[lineKey]) || [];
+
+                if (data.length === 0) {
+                    listContainer.innerHTML = `<p class="text-center text-slate-400 py-8">데이터가 없습니다. (ranking_data.js 파일을 확인해주세요)</p>`;
+                    return;
+                }
+
+                listContainer.innerHTML = data.map(item => `
+                    <div class="flex items-center justify-between p-4 bg-slate-800/90 hover:bg-slate-850 rounded-2xl border border-slate-700 transition-all cursor-pointer shadow"
+                         onclick="runSearch('${item.name} vs 갱플랭크', true)">
+                        <div class="flex items-center gap-4">
+                            <span class="text-lg font-black text-yellow-400 w-6 text-center">${item.rank}</span>
+                            <img src="${getChampImgUrl(item.name)}" alt="${item.name}" class="w-12 h-12 rounded-xl object-cover border border-slate-600 bg-slate-900">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-black text-base text-white">${item.name}</span>
+                                    <span class="text-[10px] px-2 py-0.5 rounded font-bold ${item.tier === 'OP' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40' : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40'}">${item.tier}</span>
+                                </div>
+                                <span class="text-xs text-slate-400">픽률 ${item.pickRate} | 밴률 ${item.banRate}</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-base font-black text-emerald-400 block">${item.winRate}</span>
+                            <span class="text-[11px] text-amber-400 font-bold">상성 보기 ➔</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            drawList('top');
+
+            const tabButtons = document.querySelectorAll('#ranking-tabs button');
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    tabButtons.forEach(b => {
+                        b.classList.remove('bg-amber-500', 'text-slate-950');
+                        b.classList.add('bg-slate-800', 'text-white');
+                    });
+                    e.currentTarget.classList.remove('bg-slate-800', 'text-white');
+                    e.currentTarget.classList.add('bg-amber-500', 'text-slate-950');
+
+                    const selectedLine = e.currentTarget.dataset.line;
+                    drawList(selectedLine);
+                });
+            });
+
+            switchToDetailView('ranking', true);
+        }
+
         function switchToDetailView(type, subType, pushHistory = true) {
+            if (typeof subType === 'boolean') { pushHistory = subType; subType = type; }
             mainView.classList.add('hidden'); mainView.classList.remove('grid');
             detailView.classList.remove('hidden'); detailView.classList.add('flex');
             searchSuggestions1.classList.add('hidden'); searchSuggestions2.classList.add('hidden');
