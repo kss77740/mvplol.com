@@ -115,16 +115,16 @@
 
         <nav class="flex flex-wrap justify-center gap-2 sm:gap-3 text-base sm:text-lg font-bold" aria-label="주요 메뉴">
             <button type="button" data-page="ranking" class="px-4 py-2.5 rounded-xl text-white/95 hover:text-white hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-2 cursor-pointer shadow">
-                <span aria-hidden="true">📊</span> 챔프 별 승률 데이터
+                챔프 별 승률 데이터
             </button>
             <button type="button" data-page="matchup_all" class="px-4 py-2.5 rounded-xl text-white/95 hover:text-white hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-2 cursor-pointer shadow">
-                <span aria-hidden="true">⚔️</span> 전체 구도
+                전체 구도
             </button>
             <button type="button" data-page="patch" class="px-4 py-2.5 rounded-xl text-white/95 hover:text-white hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-2 cursor-pointer shadow">
-                <span aria-hidden="true">📢</span> 패치노트
+                패치노트
             </button>
             <button type="button" data-page="feedback" class="px-4 py-2.5 rounded-xl text-white/95 hover:text-white hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-2 cursor-pointer shadow">
-                <span aria-hidden="true">💬</span> 공략 제보
+                공략 제보
             </button>
         </nav>
     </header>
@@ -136,7 +136,7 @@
         <div class="lg:col-span-3 flex flex-col gap-4 w-full">
             <div class="hextech-card side-card rounded-2xl px-4 py-3">
                 <h3 class="text-sm font-bold pb-1.5 mb-2 border-b border-amber-500/30 flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 text-yellow-300"><span aria-hidden="true">🔥</span> 이번 패치 인기 구도</span>
+                    <span class="flex items-center gap-1.5 text-yellow-300">이번 패치 인기 구도</span>
                     <button type="button" data-page="hot" class="text-[11px] text-amber-400 font-normal cursor-pointer hover:text-amber-300">더보기 ➔</button>
                 </h3>
                 <div id="side-popular" class="flex flex-col gap-1.5 text-xs text-slate-400">불러오는 중...</div>
@@ -144,7 +144,7 @@
 
             <div class="hextech-card side-card rounded-2xl px-4 py-3">
                 <h3 class="text-sm font-bold pb-1.5 mb-2 border-b border-amber-500/30 flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 text-yellow-300"><span aria-hidden="true">👑</span> 라인별 OP 챔피언</span>
+                    <span class="flex items-center gap-1.5 text-yellow-300">라인별 OP 챔피언</span>
                     <button type="button" data-page="ranking" class="text-[11px] text-amber-400 font-normal cursor-pointer hover:text-amber-300">더보기 ➔</button>
                 </h3>
                 <div id="side-op-tabs" class="grid grid-cols-5 gap-1 mb-2 text-[11px] font-bold">
@@ -159,10 +159,10 @@
 
             <div class="hextech-card side-card rounded-2xl px-4 py-3">
                 <h3 class="text-sm font-bold pb-1.5 mb-2 border-b border-amber-500/30 flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 text-yellow-300"><span aria-hidden="true">📈</span> 급상승 · 급하락</span>
-                    <button type="button" data-page="trend" class="text-[11px] text-amber-400 font-normal cursor-pointer hover:text-amber-300">더보기 ➔</button>
+                    <span id="side-patch-title" class="text-yellow-300">패치노트 한눈에 보기</span>
+                    <button type="button" data-page="patch" class="text-[11px] text-amber-400 font-normal cursor-pointer hover:text-amber-300">더보기 ➔</button>
                 </h3>
-                <div id="side-trend" class="text-xs text-slate-400">불러오는 중...</div>
+                <div id="side-patch" class="text-xs text-slate-400">불러오는 중...</div>
             </div>
         </div>
 
@@ -195,13 +195,13 @@
                 <div class="w-full relative">
                     <div id="draft-status-1" class="flex items-center justify-center gap-3 mb-2.5 text-xs sm:text-sm font-bold">
                         <div class="px-3.5 py-1.5 rounded-xl bg-indigo-950/80 border border-indigo-400/50 text-indigo-200 flex items-center gap-2 shadow-md">
-                            <span>⚔️ 내 챔피언:</span> 
+                            <span>내 챔피언:</span> 
                             <span id="badge-mine-text-1" class="text-yellow-300 font-black">선택 안됨</span>
                             <button type="button" id="clear-mine-1" class="text-indigo-300 hover:text-white hidden ml-1 cursor-pointer">✕</button>
                         </div>
                         <span class="text-yellow-400 font-black italic">VS</span>
                         <div class="px-3.5 py-1.5 rounded-xl bg-rose-950/80 border border-rose-400/50 text-rose-200 flex items-center gap-2 shadow-md">
-                            <span>🛡️ 상대 챔피언:</span> 
+                            <span>상대 챔피언:</span> 
                             <span id="badge-opp-text-1" class="text-yellow-300 font-black">선택 안됨</span>
                             <button type="button" id="clear-opp-1" class="text-rose-300 hover:text-white hidden ml-1 cursor-pointer">✕</button>
                         </div>
@@ -243,7 +243,7 @@
                 <div class="w-full relative">
                     <div id="draft-status-2" class="flex flex-wrap items-center justify-center gap-2 mb-2.5 text-xs font-bold">
                         <div class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-950/80 border border-indigo-400/50 text-indigo-200 shadow-md">
-                            <span>⚔️ 아군:</span>
+                            <span>아군:</span>
                             <span id="badge-my-adc" class="text-yellow-300 font-black">원딜 선택안됨</span>
                             <span>/</span>
                             <span id="badge-my-sup" class="text-yellow-300 font-black">서폿 선택안됨</span>
@@ -251,7 +251,7 @@
                         </div>
                         <span class="text-yellow-400 font-black italic">VS</span>
                         <div class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-rose-950/80 border border-rose-400/50 text-rose-200 shadow-md">
-                            <span>🛡️ 상대:</span>
+                            <span>상대:</span>
                             <span id="badge-opp-adc" class="text-yellow-300 font-black">원딜 선택안됨</span>
                             <span>/</span>
                             <span id="badge-opp-sup" class="text-yellow-300 font-black">서폿 선택안됨</span>
@@ -288,7 +288,7 @@
         <div class="lg:col-span-3 flex flex-col gap-4 w-full">
             <div class="hextech-card side-card rounded-2xl px-4 py-3">
                 <h3 class="text-sm font-bold pb-1.5 mb-2 border-b border-amber-500/30 flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 text-yellow-300"><span aria-hidden="true">🛡️</span> 챔피언 빌드 & 룬</span>
+                    <span class="flex items-center gap-1.5 text-yellow-300">챔피언 빌드 & 룬</span>
                     <span id="side-build-label" class="text-[10px] text-slate-500 font-normal"></span>
                 </h3>
                 <div id="side-build" class="text-xs text-slate-400">불러오는 중...</div>
@@ -296,7 +296,7 @@
 
             <div class="hextech-card side-card rounded-2xl px-4 py-3">
                 <h3 class="text-sm font-bold pb-1.5 mb-2 border-b border-amber-500/30 flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 text-yellow-300"><span aria-hidden="true">⚔️</span> 상대 난이도</span>
+                    <span class="flex items-center gap-1.5 text-yellow-300">상대 난이도</span>
                     <span class="text-[10px] text-slate-500 font-normal">누르면 상성 보기</span>
                 </h3>
                 <div id="side-counter" class="text-xs text-slate-400">불러오는 중...</div>
@@ -305,7 +305,7 @@
             <div data-page="feedback" role="button" tabindex="0" class="hextech-card rounded-2xl px-4 py-3 justify-between">
                 <div class="pointer-events-none w-full">
                     <h3 class="text-sm font-bold pb-1.5 mb-1.5 border-b border-amber-500/30 flex items-center justify-between text-yellow-300">
-                        <span class="flex items-center gap-1.5"><span aria-hidden="true">💬</span> 공략 제보 & 요청</span>
+                        <span class="flex items-center gap-1.5">공략 제보 & 요청</span>
                         <span class="text-[11px] text-amber-400 font-normal">작성하기 ➔</span>
                     </h3>
                     <p class="text-xs text-slate-300 leading-relaxed truncate">
@@ -321,29 +321,25 @@
     <section class="w-full max-w-7xl mx-auto my-8">
         <div class="flex items-center justify-between mb-4 pb-2 border-b border-amber-500/30">
             <h2 class="text-lg font-black text-yellow-300 flex items-center gap-2">
-                <span>📦</span> 추가 확장 콘텐츠 구역 (스크롤)
+                추가 확장 콘텐츠 구역 (스크롤)
             </h2>
             <span class="text-xs text-slate-400">총 4개 슬롯</span>
         </div>
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="hextech-card rounded-2xl p-5 h-36 flex flex-col items-center justify-center text-center group">
-                <span class="text-2xl mb-1 group-hover:scale-110 transition-transform">📄</span>
                 <span class="text-xs font-bold text-slate-300">확장 카드 슬롯 1</span>
                 <span class="text-[10px] text-slate-500 mt-1">추후 내용을 채워넣으세요</span>
             </div>
             <div class="hextech-card rounded-2xl p-5 h-36 flex flex-col items-center justify-center text-center group">
-                <span class="text-2xl mb-1 group-hover:scale-110 transition-transform">📊</span>
                 <span class="text-xs font-bold text-slate-300">확장 카드 슬롯 2</span>
                 <span class="text-[10px] text-slate-500 mt-1">추후 내용을 채워넣으세요</span>
             </div>
             <div class="hextech-card rounded-2xl p-5 h-36 flex flex-col items-center justify-center text-center group">
-                <span class="text-2xl mb-1 group-hover:scale-110 transition-transform">⚙️</span>
                 <span class="text-xs font-bold text-slate-300">확장 카드 슬롯 3</span>
                 <span class="text-[10px] text-slate-500 mt-1">추후 내용을 채워넣으세요</span>
             </div>
             <div class="hextech-card rounded-2xl p-5 h-36 flex flex-col items-center justify-center text-center group">
-                <span class="text-2xl mb-1 group-hover:scale-110 transition-transform">⭐</span>
                 <span class="text-xs font-bold text-slate-300">확장 카드 슬롯 4</span>
                 <span class="text-[10px] text-slate-500 mt-1">추후 내용을 채워넣으세요</span>
             </div>
@@ -354,7 +350,7 @@
     <main id="detail-view" class="w-full max-w-5xl mx-auto py-4 hidden flex-col items-center">
         <div class="w-full flex items-center justify-start mb-6 bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl">
             <button id="back-to-home" type="button" class="flex items-center gap-2 text-yellow-300 hover:text-yellow-400 font-bold text-sm transition-colors cursor-pointer">
-                <span>←</span> 메인으로 돌아가기
+                <span>←</span>메인으로 돌아가기
             </button>
         </div>
 
@@ -382,6 +378,7 @@
     <script src="support.js"></script>
     <script src="ranking_data.js"></script>
     <script src="champ_data.js"></script>
+    <script src="patch_notes.js"></script>
 
     <script>
         const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwNFf8z4QMR5D31aAT8hwIfYjnZzKPRXA_fpAfYVUnfOsZwT1o2_J7x0MTjENkHeXU/exec';
@@ -477,7 +474,7 @@
                 });
             }
         }
-        initDataDragon().then(() => renderSidePanels());
+        initDataDragon().then(() =>renderSidePanels());
 
         function getChampImgUrl(champName) {
             const key = champDataList[champName];
@@ -509,10 +506,10 @@
             const names = ['점멸', '점화', '순간이동', '텔레포트', '회복', '정화', '강타', '탈진', '보호막', '유체화'];
             const text = String(spellText || '');
             const found = names
-                .map(n => ({ n, i: text.indexOf(n) }))
-                .filter(o => o.i !== -1)
-                .sort((a, b) => a.i - b.i)
-                .map(o => (o.n === '텔레포트' ? '순간이동' : o.n));
+                .map(n =>({ n, i: text.indexOf(n) }))
+                .filter(o =>o.i !== -1)
+                .sort((a, b) =>a.i - b.i)
+                .map(o =>(o.n === '텔레포트' ? '순간이동' : o.n));
             const unique = [...new Set(found)].slice(0, 2);
             return unique.length ? unique : ['점멸', '점화'];
         }
@@ -526,7 +523,7 @@
             for (const [name, id] of Object.entries(itemNameToId)) {
                 const i = text.indexOf(name);
                 if (i === -1) continue;
-                if (!best || i < best.i || (i === best.i && name.length > best.name.length)) {
+                if (!best || i < best.i || (i === best.i && name.length >best.name.length)) {
                     best = { i, name, id };
                 }
             }
@@ -557,7 +554,7 @@
             if (!text) return null;
 
             let parts = text.split(/\s*vs\.?\s*|\s+versus\s+|\s*[,/:]\s*|\s+대\s+/i)
-                .map(s => s.trim())
+                .map(s =>s.trim())
                 .filter(Boolean);
 
             if (parts.length === 2) {
@@ -584,7 +581,7 @@
             if (!text) return null;
 
             let tokens = text.split(/\s*vs\.?\s*|\s*[,/]\s*|\s+/i)
-                .map(s => s.trim())
+                .map(s =>s.trim())
                 .filter(Boolean);
 
             if (tokens.length >= 4) {
@@ -606,8 +603,8 @@
             window.scrollTo({ top: middle, behavior: 'smooth' });
         }
 
-        searchInput1.addEventListener('focus', () => scrollToCenter(searchInput1));
-        searchInput2.addEventListener('focus', () => scrollToCenter(searchInput2));
+        searchInput1.addEventListener('focus', () =>scrollToCenter(searchInput1));
+        searchInput2.addEventListener('focus', () =>scrollToCenter(searchInput2));
 
         function updateDraftUI1() {
             if (draftMine1) {
@@ -739,8 +736,8 @@
                         <span class="font-bold text-sm text-white">${item.display}</span>
                     </div>
                     <div class="flex items-center gap-1.5">
-                        <button type="button" onclick="selectDraftChamp1('${item.name}', 'mine')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition-all cursor-pointer shadow">⚔️ MY</button>
-                        <button type="button" onclick="selectDraftChamp1('${item.name}', 'opp')" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg transition-all cursor-pointer shadow">🛡️ ENEMY</button>
+                        <button type="button" onclick="selectDraftChamp1('${item.name}', 'mine')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition-all cursor-pointer shadow">MY</button>
+                        <button type="button" onclick="selectDraftChamp1('${item.name}', 'opp')" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg transition-all cursor-pointer shadow">ENEMY</button>
                     </div>
                 </div>
             `).join('');
@@ -833,7 +830,6 @@
             if (!matchup) {
                 showAlertModal(`
                     <div class="text-center py-4">
-                        <span class="text-4xl mb-3 block">⚠️</span>
                         <h3 id="modal-title" class="text-lg font-bold text-yellow-400 mb-2">정보가 없습니다</h3>
                         <p class="text-slate-300 text-sm leading-relaxed">
                             올바르지 않은 구도이거나 챔피언명입니다.<br>(예: <span class="text-white font-bold">트타 vs 바루스</span>)
@@ -903,19 +899,19 @@
 
                 <div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl mb-6">
                     <h3 class="text-xl font-black text-yellow-300 mb-6 flex items-center gap-3">
-                        <span class="text-2xl">🎯</span> 30초 로딩 창 라인전 핵심 노하우
+                        30초 로딩 창 라인전 핵심 노하우
                     </h3>
                     <div class="space-y-5 text-base sm:text-lg">
                         <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 shadow-md">
-                            <span class="text-yellow-400 font-black text-lg block mb-2">⚡ 1레벨 타이밍 구도</span>
+                            <span class="text-yellow-400 font-black text-lg block mb-2">1레벨 타이밍 구도</span>
                             <p class="text-slate-100 leading-relaxed font-medium">${data.lvl1}</p>
                         </div>
                         <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 shadow-md">
-                            <span class="text-cyan-400 font-black text-lg block mb-2">⚡ 3레벨 타이밍 구도</span>
+                            <span class="text-cyan-400 font-black text-lg block mb-2">3레벨 타이밍 구도</span>
                             <p class="text-slate-100 leading-relaxed font-medium">${data.lvl3}</p>
                         </div>
                         <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 shadow-md">
-                            <span class="text-rose-400 font-black text-lg block mb-2">⚡ 6레벨 궁극기 타이밍 구도</span>
+                            <span class="text-rose-400 font-black text-lg block mb-2">6레벨 궁극기 타이밍 구도</span>
                             <p class="text-slate-100 leading-relaxed font-medium">${data.lvl6}</p>
                         </div>
                     </div>
@@ -925,7 +921,7 @@
                     <div class="bg-slate-900/90 rounded-3xl p-6 border border-amber-500/40 shadow-xl flex flex-col justify-between">
                         <div>
                             <h4 class="text-base font-black text-emerald-400 mb-4 flex items-center gap-2">
-                                <span>🛡️</span> 상대 맞춤 카운터 템트리 추천
+                                상대 맞춤 카운터 템트리 추천
                             </h4>
                             <div class="flex items-center gap-4 bg-slate-800/90 p-4 rounded-2xl border border-slate-700">
                                 <img src="${getItemImgUrl(getItemIdFromText(data.item))}" alt="추천 아이템" class="w-16 h-16 rounded-xl border border-amber-500/50 shadow-md object-cover bg-slate-900 flex-shrink-0" onerror="this.src='https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/3152.png'">
@@ -940,7 +936,7 @@
                     <div class="bg-slate-900/90 rounded-3xl p-6 border border-amber-500/40 shadow-xl flex flex-col justify-between">
                         <div>
                             <h4 class="text-base font-black text-indigo-300 mb-4 flex items-center gap-2">
-                                <span>⚡</span> 추천 소환사 스펠
+                                추천 소환사 스펠
                             </h4>
                             <div class="flex items-center gap-4 bg-slate-800/90 p-4 rounded-2xl border border-slate-700">
                                 <div class="flex items-center gap-2 flex-shrink-0">
@@ -995,13 +991,13 @@
 
                 <div class="w-full bg-slate-900/90 rounded-3xl p-8 mb-6 border-2 border-amber-500/50 shadow-2xl">
                     <div class="text-center mb-8">
-                        <h2 class="text-3xl font-black text-yellow-300 mb-2">⚔️ 바텀 2대2 매치업 분석 솔루션</h2>
+                        <h2 class="text-3xl font-black text-yellow-300 mb-2">바텀 2대2 매치업 분석 솔루션</h2>
                         <p class="text-sm text-slate-300">아군 듀오와 상대 듀오 조합의 상성 분석 결과입니다.</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-11 gap-4 items-center">
                         <div class="md:col-span-5 bg-indigo-950/70 p-6 rounded-3xl border-2 border-indigo-400/50 flex flex-col items-center shadow-xl">
-                            <span class="text-sm text-indigo-300 font-extrabold mb-4">🛡️ 아군 듀오 (MY TEAM)</span>
+                            <span class="text-sm text-indigo-300 font-extrabold mb-4">아군 듀오 (MY TEAM)</span>
                             <div class="flex items-center gap-5">
                                 <div class="flex flex-col items-center">
                                     <img src="${getChampImgUrl(mAdc)}" alt="${mAdc}" class="w-20 h-20 rounded-2xl object-cover border-2 border-indigo-400 bg-slate-800 shadow-lg">
@@ -1022,7 +1018,7 @@
                         </div>
 
                         <div class="md:col-span-5 bg-rose-950/70 p-6 rounded-3xl border-2 border-rose-400/50 flex flex-col items-center shadow-xl">
-                            <span class="text-sm text-rose-300 font-extrabold mb-4">🛡️ 상대 듀오 (ENEMY TEAM)</span>
+                            <span class="text-sm text-rose-300 font-extrabold mb-4">상대 듀오 (ENEMY TEAM)</span>
                             <div class="flex items-center gap-5">
                                 <div class="flex flex-col items-center">
                                     <img src="${getChampImgUrl(oAdc)}" alt="${oAdc}" class="w-20 h-20 rounded-2xl object-cover border-2 border-rose-400 bg-slate-800 shadow-lg">
@@ -1042,15 +1038,15 @@
 
                 <div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl">
                     <h3 class="text-xl font-black text-yellow-300 mb-6 flex items-center gap-3">
-                        <span class="text-2xl">🎯</span> 바텀 2대2 교전 및 라인전 핵심 가이드
+                        바텀 2대2 교전 및 라인전 핵심 가이드
                     </h3>
                     <div class="space-y-5 text-base sm:text-lg">
                         <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 shadow-md">
-                            <span class="text-yellow-400 font-black text-lg block mb-2">⚡ 2레벨 선찍 & 초반 주도권 구도</span>
+                            <span class="text-yellow-400 font-black text-lg block mb-2">2레벨 선찍 & 초반 주도권 구도</span>
                             <p class="text-slate-100 leading-relaxed font-medium">${mAdc}&${mSup} 듀오가 ${oAdc}&${oSup} 상대로 미니언 선푸시를 통해 2렙을 먼저 찍는 타이밍을 적극 노리세요.</p>
                         </div>
                         <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 shadow-md">
-                            <span class="text-cyan-400 font-black text-lg block mb-2">⚡ 갱킹 회피 포인트</span>
+                            <span class="text-cyan-400 font-black text-lg block mb-2">갱킹 회피 포인트</span>
                             <p class="text-slate-100 leading-relaxed font-medium">상대 ${oSup}의 갱 호응 스킬 타이밍에 맞춰 거리 조절 및 삼거리 시야 확보가 필수적입니다.</p>
                         </div>
                     </div>
@@ -1080,7 +1076,7 @@
         let sideOpLine = 'top';
 
         function escHtml(v) {
-            return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+            return String(v ?? '').replace(/[&<>"']/g, c =>({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         }
         function escJs(v) {
             return String(v ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
@@ -1114,7 +1110,7 @@
                 const roles = data.champs[name].roles;
                 sideChamp = name;
                 sideRole = (role && roles[role]) ? role
-                    : Object.keys(roles).sort((x, y) => roles[y].games - roles[x].games)[0];
+                    : Object.keys(roles).sort((x, y) =>roles[y].games - roles[x].games)[0];
             }
             renderSideBuild();
             renderSideCounter();
@@ -1155,27 +1151,31 @@
                 </button>`).join('');
         }
 
-        function renderSideTrend() {
-            const el = document.getElementById('side-trend');
+        function patchChangeClass(change) {
+            if (change === '상향') return 'text-emerald-400 border-emerald-500/40 bg-emerald-500/10';
+            if (change === '하향') return 'text-rose-400 border-rose-500/40 bg-rose-500/10';
+            return 'text-sky-300 border-sky-500/40 bg-sky-500/10';
+        }
+
+        function renderSidePatch() {
+            const el = document.getElementById('side-patch');
             if (!el) return;
-            const t = window.CHAMP_DATA && window.CHAMP_DATA.trend;
-            if (!t || !t.from || (!t.up.length && !t.down.length)) {
-                el.innerHTML = noDataText('지난 패치와 비교해야 해서, 다음 패치부터 표시돼요.');
-                return;
-            }
-            const row = (c, up) => `
-                <button type="button" onclick="setSideChamp('${escJs(c.name)}', '${c.role}')" class="side-chip flex items-center justify-between gap-2 w-full px-2 py-1 rounded-lg border border-slate-700 bg-slate-900/60 text-left">
-                    <span class="flex items-center gap-1.5 min-w-0">
-                        ${iconImg(champImg(c.name, c.id), c.name, 'w-6 h-6')}
-                        <span class="text-[11px] font-bold text-white truncate">${escHtml(c.name)}</span>
-                        <span class="text-[10px] text-slate-500">${LINE_NAMES[c.role] || ''}</span>
-                    </span>
-                    <span class="text-[11px] font-black ${up ? 'text-emerald-400' : 'text-rose-400'} flex-shrink-0">${c.delta}</span>
-                </button>`;
-            el.innerHTML = `
-                <div class="flex flex-col gap-1">${t.up.slice(0, 2).map(c => row(c, true)).join('')}</div>
-                <div class="flex flex-col gap-1 mt-1">${t.down.slice(0, 2).map(c => row(c, false)).join('')}</div>
-                <p class="text-[10px] text-slate-500 mt-1.5">${escHtml(t.from)} 패치 대비 승률 변화</p>`;
+            const pn = window.PATCH_NOTES;
+            if (!pn) { el.innerHTML = noDataText('패치노트 정보가 아직 없어요.'); return; }
+            document.getElementById('side-patch-title').textContent = `${pn.patch} 패치 한눈에 보기`;
+            const group = (change) => {
+                const list = (pn.champions || []).filter(c =>c.change === change);
+                if (!list.length) return '';
+                return `
+                    <div class="flex items-center gap-2 mb-1.5">
+                        <span class="text-[10px] font-black px-1.5 py-0.5 rounded border flex-shrink-0 ${patchChangeClass(change)}">${change}</span>
+                        <div class="flex flex-wrap gap-1">
+                            ${list.map(c => `<button type="button" onclick="setSideChamp('${escJs(c.name)}')" class="side-chip rounded-lg">${iconImg(getChampImgUrl(c.name), c.name, 'w-7 h-7')}</button>`).join('')}
+                        </div>
+                    </div>`;
+            };
+            el.innerHTML = group('상향') + group('하향') + group('조정')
+                + `<p class="text-[10px] text-slate-500 mt-1">${escHtml(pn.date)} 적용 · 아이콘을 누르면 빌드 보기</p>`;
         }
 
         function renderSideBuild() {
@@ -1185,23 +1185,23 @@
             const data = window.CHAMP_DATA;
             if (!data || !data.champs) { el.innerHTML = noDataText('데이터를 모으는 중이에요. 매일 새벽에 갱신돼요.'); label.textContent = ''; return; }
             if (!sideChamp) {
-                el.innerHTML = noDataText('1vs1 검색에서 ⚔️ MY로 내 챔피언을 고르거나, 왼쪽 OP 챔피언을 누르면 빌드가 나와요.');
+                el.innerHTML = noDataText('1vs1 검색에서  MY로 내 챔피언을 고르거나, 왼쪽 OP 챔피언을 누르면 빌드가 나와요.');
                 label.textContent = '';
                 return;
             }
             const champ = data.champs[sideChamp];
             if (!champ || !sideRole) {
-                el.innerHTML = noDataText(`${escHtml(sideChamp)}는 이번 패치 표본이 부족해서 빌드를 보여줄 수 없어요.`);
+                el.innerHTML = noDataText(`${escHtml(sideChamp)}: 이번 패치 표본이 부족해서 아직 빌드를 보여줄 수 없어요.`);
                 label.textContent = '';
                 return;
             }
             const r = champ.roles[sideRole];
             label.textContent = `${Number(r.games).toLocaleString()}판 기준`;
-            const roleTabs = Object.keys(champ.roles).length > 1
+            const roleTabs = Object.keys(champ.roles).length >1
                 ? `<div class="flex flex-wrap gap-1 mb-2">${Object.keys(champ.roles).map(k => `
                     <button type="button" onclick="setSideChamp('${escJs(sideChamp)}', '${k}')" class="side-tab ${k === sideRole ? 'active' : ''} text-[10px] font-bold rounded-md px-2 py-0.5 bg-slate-800 text-white">${LINE_NAMES[k]}</button>`).join('')}</div>`
                 : '';
-            const items = (r.items || []).map(it => iconImg(getItemImgUrl(it.id), `${it.name} (픽 ${it.pick}, 승률 ${it.winRate})`, 'w-8 h-8')).join('');
+            const items = (r.items || []).map(it =>iconImg(getItemImgUrl(it.id), `${it.name} (픽 ${it.pick}, 승률 ${it.winRate})`, 'w-8 h-8')).join('');
             const boots = r.boots ? iconImg(getItemImgUrl(r.boots.id), `${r.boots.name} (픽 ${r.boots.pick})`, 'w-8 h-8', 'opacity-90') : '';
             const runeBase = 'https://ddragon.leagueoflegends.com/cdn/img/';
             const keystone = r.keystone ? `
@@ -1257,14 +1257,14 @@
                             </button>`).join('') : '<span class="text-[10px] text-slate-500">표본 부족</span>'}
                     </div>
                 </div>`;
-            el.innerHTML = `<div class="grid grid-cols-2 gap-2">${col(r.hard || [], '😣 어려운 상대', 'text-rose-400')}${col(r.easy || [], '😎 쉬운 상대', 'text-emerald-400')}</div>
+            el.innerHTML = `<div class="grid grid-cols-2 gap-2">${col(r.hard || [], '어려운 상대', 'text-rose-400')}${col(r.easy || [], '쉬운 상대', 'text-emerald-400')}</div>
                 <p class="text-[10px] text-slate-500 mt-1.5">${escHtml(sideChamp)} 기준 승률</p>`;
         }
 
         function renderSidePanels() {
             renderSidePopular();
             renderSideOp();
-            renderSideTrend();
+            renderSidePatch();
             if (!sideChamp && window.RANKING_DATABASE && window.RANKING_META) {
                 const first = (window.RANKING_DATABASE.top || [])[0];
                 if (first) { setSideChamp(first.name, 'top'); return; }
@@ -1277,7 +1277,7 @@
             const btn = e.target.closest('[data-line]');
             if (!btn) return;
             sideOpLine = btn.dataset.line;
-            document.querySelectorAll('#side-op-tabs .side-tab').forEach(b => b.classList.toggle('active', b === btn));
+            document.querySelectorAll('#side-op-tabs .side-tab').forEach(b =>b.classList.toggle('active', b === btn));
             renderSideOp();
         });
 
@@ -1286,7 +1286,7 @@
             const meta = (window.CHAMP_DATA && window.CHAMP_DATA.meta) || {};
             detailDynamicContent.innerHTML = `
                 <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-xl max-w-3xl mx-auto">
-                    <h2 class="text-2xl font-black text-yellow-300 mb-1 text-center">🔥 이번 패치 인기 구도 TOP 20</h2>
+                    <h2 class="text-2xl font-black text-yellow-300 mb-1 text-center">이번 패치 인기 구도 TOP 20</h2>
                     <p class="text-[11px] text-slate-500 text-center mb-5">${meta.patch ? `패치 ${escHtml(meta.patch)} · 같은 라인에서 가장 많이 만난 조합` : ''}</p>
                     <div class="space-y-2">
                         ${list.length ? list.map((m, i) => `
@@ -1308,52 +1308,55 @@
                 </div>`;
         }
 
-        function renderTrendPage() {
-            const t = (window.CHAMP_DATA && window.CHAMP_DATA.trend) || { up: [], down: [] };
-            const meta = (window.CHAMP_DATA && window.CHAMP_DATA.meta) || {};
-            const block = (list, title, up) => `
-                <div class="bg-slate-800/60 rounded-2xl p-4 border border-slate-700">
-                    <h3 class="font-black mb-3 ${up ? 'text-emerald-400' : 'text-rose-400'}">${title}</h3>
-                    <div class="space-y-2">
-                        ${list.length ? list.map((c, i) => `
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="flex items-center gap-2 min-w-0">
-                                    <span class="text-yellow-400 font-black w-5 text-center">${i + 1}</span>
-                                    ${iconImg(champImg(c.name, c.id), c.name, 'w-8 h-8')}
-                                    <span class="font-bold text-white text-sm truncate">${escHtml(c.name)}</span>
-                                    <span class="text-[11px] text-slate-500">${LINE_NAMES[c.role]}</span>
-                                </span>
-                                <span class="text-right flex-shrink-0">
-                                    <span class="block text-sm font-black ${up ? 'text-emerald-400' : 'text-rose-400'}">${c.delta}</span>
-                                    <span class="block text-[11px] text-slate-400">현재 ${c.winRate}</span>
-                                </span>
-                            </div>`).join('') : '<p class="text-xs text-slate-500">없음</p>'}
-                    </div>
-                </div>`;
+        function renderPatchPage() {
+            const pn = window.PATCH_NOTES;
+            if (!pn) {
+                detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center">${noDataText('패치노트 정보가 아직 없어요.')}</div>`;
+                return;
+            }
+            const champRows = (change) =>(pn.champions || []).filter(c =>c.change === change).map(c => `
+                <button type="button" onclick="setSideChamp('${escJs(c.name)}'); showMainView(true);" class="side-chip flex items-center gap-2 p-2 rounded-xl border border-slate-700 bg-slate-800/80 text-left">
+                    ${iconImg(getChampImgUrl(c.name), c.name, 'w-9 h-9')}
+                    <span class="text-sm font-bold text-white">${escHtml(c.name)}</span>
+                </button>`).join('');
+            const section = (change) => {
+                const rows = champRows(change);
+                if (!rows) return '';
+                return `
+                    <div class="mb-5">
+                        <h3 class="inline-block text-xs font-black px-2 py-0.5 rounded border mb-2 ${patchChangeClass(change)}">${change}</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">${rows}</div>
+                    </div>`;
+            };
+            const items = (pn.items || []).map(it => `
+                <div class="flex items-center gap-2 p-2 rounded-xl border border-slate-700 bg-slate-800/80">
+                    ${iconImg(getItemImgUrl(getItemIdFromText(it.name)), it.name, 'w-9 h-9')}
+                    <span class="text-sm font-bold text-white flex-1 min-w-0 truncate">${escHtml(it.name)}</span>
+                    <span class="text-[10px] font-black px-1.5 py-0.5 rounded border flex-shrink-0 ${patchChangeClass(it.change)}">${escHtml(it.change)}</span>
+                </div>`).join('');
             detailDynamicContent.innerHTML = `
                 <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-xl max-w-3xl mx-auto">
-                    <h2 class="text-2xl font-black text-yellow-300 mb-1 text-center">📈 급상승 · 급하락 챔피언</h2>
-                    <p class="text-[11px] text-slate-500 text-center mb-5">${t.from ? `${escHtml(t.from)} → ${escHtml(meta.patch)} 패치 승률 변화` : '지난 패치와 비교해야 해서, 다음 패치부터 표시돼요.'}</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        ${block(t.up || [], '📈 급상승', true)}
-                        ${block(t.down || [], '📉 급하락', false)}
-                    </div>
+                    <h2 class="text-2xl font-black text-yellow-300 mb-1 text-center">${escHtml(pn.patch)} 패치 한눈에 보기</h2>
+                    <p class="text-[11px] text-slate-500 text-center mb-4">${escHtml(pn.date)} 적용</p>
+                    ${pn.summary ? `<p class="text-sm text-slate-200 leading-relaxed bg-slate-800/60 border border-slate-700 rounded-2xl p-4 mb-6">${escHtml(pn.summary)}</p>` : ''}
+                    <h3 class="text-base font-black text-white mb-3">챔피언</h3>
+                    ${section('상향')}${section('하향')}${section('조정')}
+                    ${items ? `<h3 class="text-base font-black text-white mb-3">아이템</h3><div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-6">${items}</div>` : ''}
+                    ${pn.url ? `<a href="${escHtml(pn.url)}" target="_blank" rel="noopener" class="block text-center bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-3 rounded-2xl">공식 패치노트 전체 보기</a>` : ''}
                 </div>`;
         }
 
         function renderPage(type, pushHistory = true) {
             if (type === 'hot') {
                 renderHotPage();
-            } else if (type === 'trend') {
-                renderTrendPage();
             } else if (type === 'guide') {
-                detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">💡 30초 로딩 창 활용 가이드</h2></div>`;
+                detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">30초 로딩 창 활용 가이드</h2></div>`;
             } else if (type === 'patch') {
-                detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">📢 최신 패치노트 & 공략 데이터</h2></div>`;
+                renderPatchPage();
             } else if (type === 'feedback') {
                 detailDynamicContent.innerHTML = `
                     <div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl max-w-2xl mx-auto">
-                        <h2 class="text-2xl font-black text-yellow-300 mb-4 text-center">💬 공략 제보 및 꿀팁 등록</h2>
+                        <h2 class="text-2xl font-black text-yellow-300 mb-4 text-center">공략 제보 및 꿀팁 등록</h2>
                         <form id="feedback-form" class="space-y-4 text-base" novalidate>
                             <input name="matchup" type="text" placeholder="구도 (예: 트런들 vs 베인)" class="w-full bg-slate-800 text-white p-4 rounded-2xl border border-slate-700 outline-none">
                             <textarea name="tip" rows="4" placeholder="꿀팁 내용을 입력하세요." class="w-full bg-slate-800 text-white p-4 rounded-2xl border border-slate-700 outline-none"></textarea>
@@ -1365,7 +1368,7 @@
                 renderRankingPage();
                 return;
             } else if (type === 'matchup_all') {
-                detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">⚔️ 전체 라인 상성 요약표</h2></div>`;
+                detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">전체 라인 상성 요약표</h2></div>`;
             }
             switchToDetailView(type, pushHistory);
         }
@@ -1443,17 +1446,17 @@
             detailDynamicContent.innerHTML = `
                 <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-xl max-w-4xl mx-auto">
                     <div class="text-center mb-6">
-                        <h2 class="text-2xl sm:text-3xl font-black text-yellow-300 mb-2">📊 챔프 별 승률 및 메타 데이터 (TOP 10)</h2>
+                        <h2 class="text-2xl sm:text-3xl font-black text-yellow-300 mb-2">챔프 별 승률 및 메타 데이터 (TOP 10)</h2>
                         <p class="text-xs sm:text-sm text-slate-300">상성 버튼을 눌러 원하는 상대 챔피언과 매치업 구도를 검색하세요.</p>
                         <p class="text-[11px] text-slate-500 mt-2">${getRankingMetaText()}</p>
                     </div>
 
                     <div id="ranking-tabs" class="flex flex-wrap justify-center gap-2 mb-6">
-                        <button type="button" data-line="top" class="px-4 py-2 rounded-xl font-bold text-sm bg-amber-500 text-slate-950 cursor-pointer shadow">⚔️ 탑</button>
-                        <button type="button" data-line="jungle" class="px-4 py-2 rounded-xl font-bold text-sm bg-slate-800 text-white hover:bg-slate-700 cursor-pointer shadow">🗡️ 정글</button>
-                        <button type="button" data-line="mid" class="px-4 py-2 rounded-xl font-bold text-sm bg-slate-800 text-white hover:bg-slate-700 cursor-pointer shadow">🔮 미드</button>
-                        <button type="button" data-line="adc" class="px-4 py-2 rounded-xl font-bold text-sm bg-slate-800 text-white hover:bg-slate-700 cursor-pointer shadow">🏹 원딜</button>
-                        <button type="button" data-line="support" class="px-4 py-2 rounded-xl font-bold text-sm bg-slate-800 text-white hover:bg-slate-700 cursor-pointer shadow">🛡️ 서포터</button>
+                        <button type="button" data-line="top" class="px-4 py-2 rounded-xl font-bold text-sm bg-amber-500 text-slate-950 cursor-pointer shadow">탑</button>
+                        <button type="button" data-line="jungle" class="px-4 py-2 rounded-xl font-bold text-sm bg-slate-800 text-white hover:bg-slate-700 cursor-pointer shadow">정글</button>
+                        <button type="button" data-line="mid" class="px-4 py-2 rounded-xl font-bold text-sm bg-slate-800 text-white hover:bg-slate-700 cursor-pointer shadow">미드</button>
+                        <button type="button" data-line="adc" class="px-4 py-2 rounded-xl font-bold text-sm bg-slate-800 text-white hover:bg-slate-700 cursor-pointer shadow">원딜</button>
+                        <button type="button" data-line="support" class="px-4 py-2 rounded-xl font-bold text-sm bg-slate-800 text-white hover:bg-slate-700 cursor-pointer shadow">서포터</button>
                     </div>
 
                     <div id="ranking-list-container" class="space-y-3"></div>
@@ -1664,7 +1667,6 @@
                 await fetch(SHEET_URL, { method: 'POST', body, mode: 'no-cors' });
                 detailDynamicContent.innerHTML = `
                     <div class="bg-slate-900/95 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center max-w-xl mx-auto py-16">
-                        <span class="text-5xl mb-4 block">✅</span>
                         <h2 class="text-2xl font-black text-yellow-300 mb-2">공략 제보가 완료되었습니다!</h2>
                         <button type="button" onclick="showMainView(true)" class="bg-amber-400 hover:bg-amber-500 text-slate-950 font-black px-6 py-3 rounded-2xl text-sm cursor-pointer shadow-lg">메인으로 돌아가기</button>
                     </div>
