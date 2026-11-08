@@ -32,7 +32,8 @@ QUEUE_ID = 420             # 솔로랭크
 INCLUDE_DIAMOND1_PAGES = int(os.environ.get("DIAMOND1_PAGES", "2"))
 TIER_LABEL = "다이아 I+" if INCLUDE_DIAMOND1_PAGES > 0 else "마스터+"
 
-MAX_RUNTIME_MIN = float(os.environ.get("MAX_RUNTIME_MIN", "50"))   # 한 번 실행 시 최대 수집 시간
+MAX_RUNTIME_MIN = float(os.environ.get("MAX_RUNTIME_MIN", "110"))  # 한 번 실행 시 최대 수집 시간
+FETCH_TIMELINE = os.environ.get("FETCH_TIMELINE", "1") == "1"      # 아이템 구매 순서(1·2·3코어)용 타임라인 수집
 MATCHES_PER_PLAYER = 20                                           # 한 명당 최근 경기 몇 개를 볼지
 LOOKBACK_DAYS = 14
 
@@ -53,7 +54,7 @@ OUTPUT_PATH = os.path.join(ROOT, "ranking_data.js")
 CHAMP_OUTPUT_PATH = os.path.join(ROOT, "champ_data.js")
 
 MIN_ROLE_GAMES = 30        # 챔피언 상세(빌드/카운터)를 보여줄 최소 판수
-MIN_VS_GAMES = 8           # 상대별 승률을 보여줄 최소 판수
+MIN_VS_GAMES = 5           # 상대별 승률을 보여줄 최소 판수
 MIN_TREND_GAMES = 40       # 급상승/급하락 비교에 필요한 패치별 최소 판수
 
 ROLE_MAP = {"TOP": "top", "JUNGLE": "jungle", "MIDDLE": "mid", "BOTTOM": "adc", "UTILITY": "support"}
@@ -146,24 +147,47 @@ def load_game_data():
         if it.get("requiredChampion") or it.get("requiredAlly"):
             continue
         tags = it.get("tags", [])
-        if "Boots" in tags and "1001" in it.get("from", []):
-            boots[iid] = it["name"]                      # 2단계 신발
+        if "Boots" in tags:
+            if iid != "1001":
+                boots[iid] = it["name"]                  # 업그레이드 신발 (2단계 이상)
         elif not it.get("into") and it["gold"].get("total", 0) >= 2000 and "Consumable" not in tags:
             items[iid] = it["name"]                      # 완성 아이템
 
     runes = {}
     styles = {}
+    tree = []   # 인게임 룬 화면처럼 그리기 위한 전체 룬 구조
     for style in http_get_json(f"{base}/runesReforged.json", riot=False):
         styles[str(style["id"])] = {"name": style["name"], "icon": style["icon"]}
-        for rune in style["slots"][0]["runes"]:          # 핵심 룬만
-            runes[str(rune["id"])] = {"name": rune["name"], "icon": rune["icon"]}
+        slots = []
+        for slot in style["slots"]:
+            row = []
+            for rune in slot["runes"]:
+                runes[str(rune["id"])] = {"name": rune["name"], "icon": rune["icon"]}
+                row.append({"id": rune["id"], "name": rune["name"], "icon": rune["icon"]})
+            slots.append(row)
+        tree.append({"id": style["id"], "name": style["name"], "icon": style["icon"], "slots": slots})
 
     spells = {}
     for sp in http_get_json(f"{base}/summoner.json", riot=False)["data"].values():
         spells[sp["key"]] = {"id": sp["id"], "name": sp["name"]}
 
     return {"names": names, "items": items, "boots": boots, "runes": runes,
-            "styles": styles, "spells": spells}
+            "styles": styles, "spells": spells, "tree": tree}
+
+
+# 능력치 파편 (Data Dragon 에 없어서 직접 정의)
+STAT_SHARDS = {
+    "5008": {"name": "적응형 능력치", "icon": "perk-images/StatMods/StatModsAdaptiveForceIcon.png"},
+    "5005": {"name": "공격 속도", "icon": "perk-images/StatMods/StatModsAttackSpeedIcon.png"},
+    "5007": {"name": "스킬 가속", "icon": "perk-images/StatMods/StatModsCDRScalingIcon.png"},
+    "5010": {"name": "이동 속도", "icon": "perk-images/StatMods/StatModsMovementSpeedIcon.png"},
+    "5001": {"name": "체력 증가 (레벨 비례)", "icon": "perk-images/StatMods/StatModsHealthPlusIcon.png"},
+    "5011": {"name": "체력", "icon": "perk-images/StatMods/StatModsHealthScalingIcon.png"},
+    "5013": {"name": "강인함 및 둔화 저항", "icon": "perk-images/StatMods/StatModsTenacityIcon.png"},
+    "5002": {"name": "방어력", "icon": "perk-images/StatMods/StatModsArmorIcon.png"},
+    "5003": {"name": "마법 저항력", "icon": "perk-images/StatMods/StatModsMagicResIcon.MagicResist_Fix.png"},
+}
+SHARD_ROWS = [["5008", "5005", "5007"], ["5008", "5010", "5001"], ["5011", "5013", "5001"]]
 
 
 # ───────────────────────── 상태 저장 ─────────────────────────
@@ -187,6 +211,16 @@ def save_state(state):
 def patch_of(game_version):
     parts = str(game_version).split(".")
     return f"{parts[0]}.{parts[1]}" if len(parts) >= 2 else None
+
+
+def display_patch(p):
+    """경기 데이터 버전(16.22) → 실제 패치 이름(26.22)"""
+    try:
+        major, minor = p.split(".")[:2]
+        major = int(major)
+        return f"{major + 10 if major < 20 else major}.{minor}"
+    except Exception:
+        return p
 
 
 def patch_key(p):
@@ -250,8 +284,18 @@ def add_match_to_bucket(bucket, info, game):
             styles = p["perks"]["styles"]
             _inc(d.setdefault("keys", {}), styles[0]["selections"][0]["perk"], win)
             _inc(d.setdefault("sec", {}), styles[1]["style"], win)
+            sp = p["perks"].get("statPerks", {})
+            page = "{}:{}|{}:{}|{}".format(
+                styles[0]["style"], ",".join(str(x["perk"]) for x in styles[0]["selections"]),
+                styles[1]["style"], ",".join(str(x["perk"]) for x in styles[1]["selections"]),
+                ",".join(str(sp.get(k, 0)) for k in ("offense", "flex", "defense")))
+            _inc(d.setdefault("pages", {}), page, win)   # 룬 페이지 전체 (꼬마 룬 + 파편)
         except (KeyError, IndexError, TypeError):
             pass
+        cores = (info.get("_cores") or {}).get(p.get("participantId"))
+        if cores:
+            for k, iid in enumerate(cores[:3]):
+                _inc(d.setdefault(f"core{k + 1}", {}), iid, win)
         pair = "_".join(sorted([str(p.get("summoner1Id")), str(p.get("summoner2Id"))]))
         _inc(d.setdefault("spells", {}), pair, win)
 
@@ -271,6 +315,36 @@ def add_match_to_bucket(bucket, info, game):
                 banned.add(str(b["championId"]))
     for cid in banned:
         bucket["bans"][cid] = bucket["bans"].get(cid, 0) + 1
+
+
+def core_orders(timeline, game):
+    """타임라인에서 선수별로 완성 아이템을 산 순서를 뽑음 (되돌리기 반영)"""
+    bought = {}
+    try:
+        frames = timeline["info"]["frames"]
+    except (KeyError, TypeError):
+        return {}
+    for fr in frames:
+        for ev in fr.get("events", []):
+            pid = ev.get("participantId")
+            if ev.get("type") == "ITEM_PURCHASED":
+                bought.setdefault(pid, []).append(str(ev.get("itemId")))
+            elif ev.get("type") == "ITEM_UNDO":
+                lst = bought.get(pid, [])
+                before = str(ev.get("beforeId"))
+                for i in range(len(lst) - 1, -1, -1):
+                    if lst[i] == before:
+                        del lst[i]
+                        break
+    result = {}
+    for pid, lst in bought.items():
+        order = []
+        for iid in lst:
+            if iid in game["items"] and iid not in order:
+                order.append(iid)
+        if order:
+            result[pid] = order
+    return result
 
 
 def is_valid_match(info):
@@ -329,6 +403,9 @@ def collect(state, game):
                 state["oldCutoff"] = 0
 
             if patch == cur["patch"]:
+                if FETCH_TIMELINE and time_left() > 60:
+                    tl = riot_region(f"/lol/match/v5/matches/{mid}/timeline")
+                    info["_cores"] = core_orders(tl, game) if tl else {}
                 add_match_to_bucket(cur, info, game)
                 added += 1
             else:
@@ -401,7 +478,7 @@ def write_output(bucket, names):
         log("순위를 만들 만큼 데이터가 없어서 ranking_data.js 는 그대로 둡니다.")
         return False
     meta = {
-        "patch": bucket["patch"],
+        "patch": display_patch(bucket["patch"]),
         "games": bucket["games"],
         "tierLabel": TIER_LABEL,
         "updatedAt": datetime.now(KST).strftime("%Y-%m-%d"),
@@ -447,24 +524,23 @@ def build_champ_data(bucket, prev, game):
             # 빌드 정보가 기록된 판수 (예전 버전 스크립트로 모은 경기는 빌드 정보가 없어서 따로 셈)
             games = sum(v[0] for v in (d.get("spells") or {}).values()) or rec[0]
 
-            items = [{"id": k, "name": game["items"].get(k, k), "pick": fmt(v[0] / games), "winRate": fmt(_wr(v))}
-                     for k, v in _top(d.get("items"), 3)]
-            boots = [{"id": k, "name": game["boots"].get(k, k), "pick": fmt(v[0] / games), "winRate": fmt(_wr(v))}
-                     for k, v in _top(d.get("boots"), 1)]
-            keystone = None
-            for k, v in _top(d.get("keys"), 1):
+            stat = lambda v: {"pick": fmt(v[0] / games), "winRate": fmt(_wr(v)), "games": v[0]}
+
+            items = [{"id": k, "name": game["items"].get(k, k), **stat(v)} for k, v in _top(d.get("items"), 6)]
+            boots_list = [{"id": k, "name": game["boots"].get(k, k), **stat(v)} for k, v in _top(d.get("boots"), 3)]
+            keystones = []
+            for k, v in _top(d.get("keys"), 3):
                 r = game["runes"].get(k, {"name": k, "icon": ""})
-                keystone = {"name": r["name"], "icon": r["icon"], "pick": fmt(v[0] / games), "winRate": fmt(_wr(v))}
-            secondary = None
-            for k, v in _top(d.get("sec"), 1):
+                keystones.append({"name": r["name"], "icon": r["icon"], **stat(v)})
+            secondaries = []
+            for k, v in _top(d.get("sec"), 2):
                 st = game["styles"].get(k, {"name": k, "icon": ""})
-                secondary = {"name": st["name"], "icon": st["icon"]}
-            spells = None
-            for k, v in _top(d.get("spells"), 1):
-                ids = k.split("_")
-                sp = [game["spells"].get(i, {"id": "SummonerFlash", "name": "?"}) for i in ids]
+                secondaries.append({"name": st["name"], "icon": st["icon"], **stat(v)})
+            spells_list = []
+            for k, v in _top(d.get("spells"), 3):
+                sp = [game["spells"].get(i, {"id": "SummonerFlash", "name": "?"}) for i in k.split("_")]
                 sp.sort(key=lambda x: 0 if x["id"] == "SummonerFlash" else 1)  # 점멸을 앞으로
-                spells = {"list": sp, "pick": fmt(v[0] / games), "winRate": fmt(_wr(v))}
+                spells_list.append({"list": sp, **stat(v)})
 
             vs_rows = []
             for ocid, v in (d.get("vs") or {}).items():
@@ -472,17 +548,56 @@ def build_champ_data(bucket, prev, game):
                     continue
                 oname, oid = names.get(ocid, (ocid, None))
                 vs_rows.append({"name": oname, "id": oid, "games": v[0], "winRate": fmt(_wr(v)), "_s": _smooth(v)})
+            pick4 = lambda r: {k: r[k] for k in ("name", "id", "games", "winRate")}
             vs_rows.sort(key=lambda r: r["_s"])
-            hard = [{k: r[k] for k in ("name", "id", "games", "winRate")} for r in vs_rows[:3]]
-            easy = [{k: r[k] for k in ("name", "id", "games", "winRate")} for r in reversed(vs_rows[-3:])] if len(vs_rows) > 3 else []
+            # 어려운 상대 / 쉬운 상대 각각 최대 3명 (후보가 6명보다 적으면 반씩 나눔)
+            n_hard = min(3, (len(vs_rows) + 1) // 2)
+            hard = [pick4(r) for r in vs_rows[:n_hard]]
+            rest = vs_rows[n_hard:]
+            easy = [pick4(r) for r in reversed(rest[-3:])]
+
+            # 1·2·3코어: 순서별로 가장 많이 산 아이템 (앞 코어와 겹치지 않게) + 대안 2개
+            cores, used = [], set()
+            for k in (1, 2, 3):
+                slot = d.get(f"core{k}") or {}
+                total_k = sum(v[0] for v in slot.values())
+                opts = [(iid, v) for iid, v in sorted(slot.items(), key=lambda kv: kv[1][0], reverse=True)
+                        if iid not in used][:3]
+                if not opts or total_k == 0:
+                    break
+                used.add(opts[0][0])
+                cores.append([{"id": iid, "name": game["items"].get(iid, iid), "pick": fmt(v[0] / total_k),
+                               "winRate": fmt(_wr(v)), "games": v[0]} for iid, v in opts])
+
+            # 가장 많이 쓰는 룬 페이지 (꼬마 룬, 능력치 파편까지)
+            rune_pages = []
+            for key, v in _top(d.get("pages"), 2):
+                try:
+                    prim, sub, shards = key.split("|")
+                    pst, pperks = prim.split(":")
+                    sst, sperks = sub.split(":")
+                    rune_pages.append({
+                        "primary": {"style": int(pst), "perks": [int(x) for x in pperks.split(",")]},
+                        "sub": {"style": int(sst), "perks": [int(x) for x in sperks.split(",")]},
+                        "shards": [int(x) for x in shards.split(",")],
+                        **stat(v),
+                    })
+                except ValueError:
+                    continue
+            vs_all = [pick4(r) for r in sorted(vs_rows, key=lambda r: r["games"], reverse=True)[:20]]
 
             entry = champs.setdefault(name, {"id": ddid, "roles": {}})
             entry["roles"][role] = {
                 "games": rec[0], "winRate": fmt(_wr(rec)), "pickRate": fmt(rec[0] / total),
                 "banRate": fmt(bucket["bans"].get(cid, 0) / total),
-                "items": items, "boots": boots[0] if boots else None,
-                "keystone": keystone, "secondary": secondary, "spells": spells,
-                "hard": hard, "easy": easy,
+                "buildGames": games,
+                "items": items,
+                "boots": boots_list[0] if boots_list else None, "bootsList": boots_list,
+                "keystone": keystones[0] if keystones else None, "keystones": keystones,
+                "secondary": secondaries[0] if secondaries else None, "secondaries": secondaries,
+                "spells": spells_list[0] if spells_list else None, "spellsList": spells_list,
+                "hard": hard, "easy": easy, "vs": vs_all,
+                "cores": cores, "runePages": rune_pages,
             }
 
     # 인기 구도: 같은 라인에서 가장 많이 만난 조합
@@ -498,7 +613,7 @@ def build_champ_data(bucket, prev, game):
     popular.sort(key=lambda r: r["games"], reverse=True)
 
     # 급상승 / 급하락: 지난 패치 대비 승률 변화
-    trend = {"up": [], "down": [], "from": prev["patch"] if prev else None}
+    trend = {"up": [], "down": [], "from": display_patch(prev["patch"]) if prev else None}
     if prev:
         rows = []
         for role in LINES:
@@ -515,12 +630,22 @@ def build_champ_data(bucket, prev, game):
         trend["up"] = [clean(r) for r in rows[:10] if r["_d"] > 0]
         trend["down"] = [clean(r) for r in reversed(rows[-10:]) if r["_d"] < 0]
 
-    return {"champs": champs, "popular": popular[:20], "trend": trend}
+    # 라인별 TOP 5
+    popular_top = []
+    for role in LINES:
+        popular_top += [r for r in popular if r["role"] == role][:5]
+
+    rune_tree = {
+        "styles": game.get("tree", []),
+        "shards": STAT_SHARDS,
+        "shardRows": SHARD_ROWS,
+    }
+    return {"champs": champs, "popular": popular_top, "trend": trend, "runeTree": rune_tree}
 
 
 def write_champ_data(bucket, prev, game):
     data = build_champ_data(bucket, prev, game)
-    data["meta"] = {"patch": bucket["patch"], "games": bucket["games"], "tierLabel": TIER_LABEL,
+    data["meta"] = {"patch": display_patch(bucket["patch"]), "games": bucket["games"], "tierLabel": TIER_LABEL,
                     "updatedAt": datetime.now(KST).strftime("%Y-%m-%d")}
     content = (
         "// 자동 생성 파일입니다. 직접 수정하지 마세요. (scripts/update_ranking.py)\n"
