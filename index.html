@@ -284,7 +284,7 @@
                     <span class="flex items-center gap-1.5 text-yellow-300">챔피언 빌드 & 룬</span>
                     <span class="flex items-center gap-2">
                         <span id="side-build-label" class="text-[10px] text-slate-500 font-normal"></span>
-                        <button type="button" id="side-build-more" onclick="if (sideChamp) openChampPage(sideChamp, sideRole)" class="text-[11px] text-amber-400 font-normal cursor-pointer hover:text-amber-300 hidden">상세보기 ➔</button>
+                        <button type="button" id="side-build-more" onclick="renderPage('champs', true)" class="text-[11px] text-amber-400 font-normal cursor-pointer hover:text-amber-300">챔피언 선택 ➔</button>
                     </span>
                 </h3>
                 <div id="side-build" class="text-xs text-slate-400">불러오는 중...</div>
@@ -1141,9 +1141,6 @@
             const el = document.getElementById('side-build');
             const label = document.getElementById('side-build-label');
             if (!el) return;
-            const more = document.getElementById('side-build-more');
-            const champOk = window.CHAMP_DATA && window.CHAMP_DATA.champs && sideChamp && window.CHAMP_DATA.champs[sideChamp] && sideRole;
-            if (more) more.classList.toggle('hidden', !champOk);
             const data = window.CHAMP_DATA;
             if (!data || !data.champs) { el.innerHTML = noDataText('데이터를 모으는 중이에요. 매일 새벽에 갱신돼요.'); label.textContent = ''; return; }
             if (!sideChamp) {
@@ -1242,6 +1239,82 @@
             document.querySelectorAll('#side-op-tabs .side-tab').forEach(b =>b.classList.toggle('active', b === btn));
             renderSideOp();
         });
+
+        // ───────────── 챔피언 선택 페이지 (전체 챔피언 초상화) ─────────────
+        const CHOSUNG = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+        function toChosung(str) {
+            return [...String(str)].map(ch => {
+                const c = ch.charCodeAt(0) - 0xAC00;
+                return (c >= 0 && c <= 11171) ? CHOSUNG[Math.floor(c / 588)] : ch;
+            }).join('');
+        }
+        function champMainRole(name) {
+            const c = window.CHAMP_DATA && window.CHAMP_DATA.champs && window.CHAMP_DATA.champs[name];
+            if (!c) return null;
+            return Object.keys(c.roles).sort((x, y) => c.roles[y].games - c.roles[x].games)[0];
+        }
+
+        let champSelectLine = 'all';
+        let champSelectQuery = '';
+
+        function renderChampSelectPage() {
+            const tabs = [['all', '전체'], ...Object.entries(LINE_NAMES)].map(([k, v]) => `
+                <button type="button" data-cs-line="${k}" class="px-3.5 py-1.5 rounded-xl font-bold text-sm cursor-pointer ${k === champSelectLine ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-white hover:bg-slate-700'}">${v}</button>`).join('');
+            detailDynamicContent.innerHTML = `
+                <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-xl">
+                    <h2 class="text-2xl font-black text-yellow-300 mb-1 text-center">챔피언 빌드 & 룬</h2>
+                    <p class="text-xs text-slate-400 text-center mb-5">빌드를 보고 싶은 챔피언을 선택하세요.</p>
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-5">
+                        <div id="cs-tabs" class="flex flex-wrap justify-center gap-1.5">${tabs}</div>
+                        <input id="cs-search" type="text" autocomplete="off" value="${escHtml(champSelectQuery)}" placeholder="챔피언 검색 (예: 아트, ㅇㅌㄹㅅ)"
+                            class="w-full sm:w-64 py-2 px-4 text-sm text-slate-900 font-bold bg-white rounded-xl outline-none border-2 border-amber-400/60 focus:ring-4 focus:ring-yellow-400 placeholder:font-normal placeholder:text-slate-400">
+                    </div>
+                    <div id="cs-grid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2"></div>
+                </div>`;
+
+            const drawGrid = () => {
+                const q = champSelectQuery.trim().replace(/\s+/g, '').toLowerCase();
+                const aliasHits = new Set(Object.entries(champAliases)
+                    .filter(([alias]) => q && alias.toLowerCase().includes(q)).map(([, official]) => official));
+                const names = Object.keys(champDataList).sort((a, b) => a.localeCompare(b, 'ko'));
+                const list = names.filter(name => {
+                    if (champSelectLine !== 'all' && champMainRole(name) !== champSelectLine) return false;
+                    if (!q) return true;
+                    const plain = name.replace(/\s+/g, '').toLowerCase();
+                    return plain.includes(q) || toChosung(plain).includes(q) || aliasHits.has(name)
+                        || String(champDataList[name]).toLowerCase().includes(q);
+                });
+                const grid = document.getElementById('cs-grid');
+                grid.innerHTML = list.length ? list.map(name => `
+                    <button type="button" data-cs-name="${escHtml(name)}" class="side-chip group flex flex-col items-center gap-1 p-1.5 rounded-xl border border-transparent hover:border-amber-400 hover:bg-slate-800/80" title="${escHtml(name)}">
+                        <img src="${getChampImgUrl(name)}" alt="${escHtml(name)}" loading="lazy" class="w-full aspect-square rounded-lg object-cover border border-slate-700 bg-slate-800 group-hover:border-amber-400">
+                        <span class="text-[11px] font-bold text-slate-200 truncate w-full text-center">${escHtml(name)}</span>
+                    </button>`).join('')
+                    : `<p class="col-span-full text-center text-sm text-slate-500 py-8">${champSelectLine === 'all' ? '검색 결과가 없어요.' : '이 라인에 해당하는 챔피언이 없거나, 아직 데이터가 모이는 중이에요.'}</p>`;
+            };
+            drawGrid();
+
+            document.getElementById('cs-tabs').addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-cs-line]');
+                if (!btn) return;
+                champSelectLine = btn.dataset.csLine;
+                document.querySelectorAll('#cs-tabs [data-cs-line]').forEach(b => {
+                    const on = b === btn;
+                    b.classList.toggle('bg-amber-500', on); b.classList.toggle('text-slate-950', on);
+                    b.classList.toggle('bg-slate-800', !on); b.classList.toggle('text-white', !on);
+                    b.classList.toggle('hover:bg-slate-700', !on);
+                });
+                drawGrid();
+            });
+            document.getElementById('cs-search').addEventListener('input', (e) => {
+                champSelectQuery = e.target.value;
+                drawGrid();
+            });
+            document.getElementById('cs-grid').addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-cs-name]');
+                if (btn) openChampPage(btn.dataset.csName);
+            });
+        }
 
         // ───────────── 챔피언 상세페이지 ─────────────
         window.openChampPage = function(name, role, pushHistory = true) {
@@ -1371,7 +1444,7 @@
         const SIDE_CARD_TARGET = {
             'card-popular': () => renderPage('hot', true),
             'card-op': () => renderPage('ranking', true),
-            'card-build': () => { if (sideChamp) openChampPage(sideChamp, sideRole); },
+            'card-build': () => renderPage('champs', true),
             'card-patch': () => renderPage('patch', true),
         };
         Object.entries(SIDE_CARD_TARGET).forEach(([id, go]) => {
@@ -1467,6 +1540,8 @@
         function renderPage(type, pushHistory = true) {
             if (type === 'hot') {
                 renderHotPage();
+            } else if (type === 'champs') {
+                renderChampSelectPage();
             } else if (type === 'guide') {
                 detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">30초 로딩 창 활용 가이드</h2></div>`;
             } else if (type === 'patch') {
