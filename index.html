@@ -89,6 +89,18 @@
                 transform: scale(1) translateY(0);
             }
         }
+
+        /* 데이터가 들어가는 양옆 카드: 높이 자동 */
+        .hextech-card.side-card {
+            height: auto;
+            min-height: 105px;
+            justify-content: flex-start;
+            cursor: default;
+        }
+        .side-chip { cursor: pointer; transition: all 0.15s ease; }
+        .side-chip:hover { border-color: rgba(250, 204, 21, 0.8); background: rgba(250, 204, 21, 0.12); }
+        .side-tab { cursor: pointer; }
+        .side-tab.active { background: #f59e0b; color: #020617; }
     </style>
 </head>
 <body class="flex flex-col justify-between min-h-screen px-4 py-6 md:px-8">
@@ -120,37 +132,37 @@
     <!-- Main Container -->
     <main id="main-view" class="w-full max-w-7xl mx-auto my-auto py-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
         
-        <!-- 좌측 영역 -->
+        <!-- 좌측 영역: 이번 패치 메타 -->
         <div class="lg:col-span-3 flex flex-col gap-4 w-full">
-            <div data-page="hot" role="button" tabindex="0" class="hextech-card rounded-2xl px-4 py-3">
-                <h3 class="text-sm font-bold pb-1.5 mb-1.5 border-b border-amber-500/30 flex items-center justify-between pointer-events-none">
-                    <span class="flex items-center gap-1.5 text-yellow-300"><span aria-hidden="true">🔥</span> 오늘의 인기 구도</span>
-                    <span class="text-[11px] text-amber-400 font-normal">더보기 ➔</span>
+            <div class="hextech-card side-card rounded-2xl px-4 py-3">
+                <h3 class="text-sm font-bold pb-1.5 mb-2 border-b border-amber-500/30 flex items-center justify-between">
+                    <span class="flex items-center gap-1.5 text-yellow-300"><span aria-hidden="true">🔥</span> 이번 패치 인기 구도</span>
+                    <button type="button" data-page="hot" class="text-[11px] text-amber-400 font-normal cursor-pointer hover:text-amber-300">더보기 ➔</button>
                 </h3>
-                <div class="flex flex-wrap gap-1.5 pointer-events-none">
-                    <span class="bg-amber-500/15 text-[11px] font-semibold px-2 py-0.5 rounded-lg border border-amber-500/30">트런들 vs 베인</span>
-                    <span class="bg-amber-500/15 text-[11px] font-semibold px-2 py-0.5 rounded-lg border border-amber-500/30">탈론 vs 제드</span>
+                <div id="side-popular" class="flex flex-col gap-1.5 text-xs text-slate-400">불러오는 중...</div>
+            </div>
+
+            <div class="hextech-card side-card rounded-2xl px-4 py-3">
+                <h3 class="text-sm font-bold pb-1.5 mb-2 border-b border-amber-500/30 flex items-center justify-between">
+                    <span class="flex items-center gap-1.5 text-yellow-300"><span aria-hidden="true">👑</span> 라인별 OP 챔피언</span>
+                    <button type="button" data-page="ranking" class="text-[11px] text-amber-400 font-normal cursor-pointer hover:text-amber-300">더보기 ➔</button>
+                </h3>
+                <div id="side-op-tabs" class="grid grid-cols-5 gap-1 mb-2 text-[11px] font-bold">
+                    <button type="button" data-line="top" class="side-tab active rounded-lg py-1 bg-slate-800 text-white">탑</button>
+                    <button type="button" data-line="jungle" class="side-tab rounded-lg py-1 bg-slate-800 text-white">정글</button>
+                    <button type="button" data-line="mid" class="side-tab rounded-lg py-1 bg-slate-800 text-white">미드</button>
+                    <button type="button" data-line="adc" class="side-tab rounded-lg py-1 bg-slate-800 text-white">원딜</button>
+                    <button type="button" data-line="support" class="side-tab rounded-lg py-1 bg-slate-800 text-white">서폿</button>
                 </div>
+                <div id="side-op" class="flex flex-col gap-1.5 text-xs text-slate-400">불러오는 중...</div>
             </div>
 
-            <div data-page="guide" role="button" tabindex="0" class="hextech-card rounded-2xl px-4 py-3">
-                <h3 class="text-sm font-bold pb-1.5 mb-1.5 border-b border-amber-500/30 flex items-center justify-between pointer-events-none">
-                    <span class="flex items-center gap-1.5 text-yellow-300"><span aria-hidden="true">💡</span> 30초 사용 가이드</span>
-                    <span class="text-[11px] text-amber-400 font-normal">더보기 ➔</span>
+            <div class="hextech-card side-card rounded-2xl px-4 py-3">
+                <h3 class="text-sm font-bold pb-1.5 mb-2 border-b border-amber-500/30 flex items-center justify-between">
+                    <span class="flex items-center gap-1.5 text-yellow-300"><span aria-hidden="true">📈</span> 급상승 · 급하락</span>
+                    <button type="button" data-page="trend" class="text-[11px] text-amber-400 font-normal cursor-pointer hover:text-amber-300">더보기 ➔</button>
                 </h3>
-                <p class="text-xs text-slate-300 pointer-events-none leading-relaxed">
-                    로딩 창 30초 내에 챔피언 검색 후 핵심 라인전 꿀팁을 확인하세요.
-                </p>
-            </div>
-
-            <div data-page="patch" role="button" tabindex="0" class="hextech-card rounded-2xl px-4 py-3">
-                <h3 class="text-sm font-bold pb-1.5 mb-1.5 border-b border-amber-500/30 flex items-center justify-between pointer-events-none">
-                    <span class="flex items-center gap-1.5 text-yellow-300"><span aria-hidden="true">🏆</span> 최신 패치 공략 데이터</span>
-                    <span class="text-[11px] text-amber-400 font-normal">더보기 ➔</span>
-                </h3>
-                <p class="text-xs text-slate-300 pointer-events-none leading-relaxed">
-                    최신 패치노트 상성 데이터 및 챌린저 장인 노하우 전수 수록
-                </p>
+                <div id="side-trend" class="text-xs text-slate-400">불러오는 중...</div>
             </div>
         </div>
 
@@ -272,16 +284,22 @@
 
         </div>
 
-        <!-- 우측 영역 -->
+        <!-- 우측 영역: 내 챔피언 맞춤 -->
         <div class="lg:col-span-3 flex flex-col gap-4 w-full">
-            <div class="hextech-card rounded-2xl px-4 py-3 items-center text-center">
-                <span class="text-sm font-black text-yellow-300 tracking-wider flex items-center gap-2">
-                    <span>🛡️</span> 챔피언 빌드 & 룬 가이드
-                </span>
+            <div class="hextech-card side-card rounded-2xl px-4 py-3">
+                <h3 class="text-sm font-bold pb-1.5 mb-2 border-b border-amber-500/30 flex items-center justify-between">
+                    <span class="flex items-center gap-1.5 text-yellow-300"><span aria-hidden="true">🛡️</span> 챔피언 빌드 & 룬</span>
+                    <span id="side-build-label" class="text-[10px] text-slate-500 font-normal"></span>
+                </h3>
+                <div id="side-build" class="text-xs text-slate-400">불러오는 중...</div>
             </div>
 
-            <div class="hextech-card rounded-2xl px-4 py-3 items-center text-center">
-                <span class="text-3xl font-black text-amber-400/50 tracking-widest select-none">? ? ?</span>
+            <div class="hextech-card side-card rounded-2xl px-4 py-3">
+                <h3 class="text-sm font-bold pb-1.5 mb-2 border-b border-amber-500/30 flex items-center justify-between">
+                    <span class="flex items-center gap-1.5 text-yellow-300"><span aria-hidden="true">⚔️</span> 상대 난이도</span>
+                    <span class="text-[10px] text-slate-500 font-normal">누르면 상성 보기</span>
+                </h3>
+                <div id="side-counter" class="text-xs text-slate-400">불러오는 중...</div>
             </div>
 
             <div data-page="feedback" role="button" tabindex="0" class="hextech-card rounded-2xl px-4 py-3 justify-between">
@@ -363,6 +381,7 @@
     <script src="adc.js"></script>
     <script src="support.js"></script>
     <script src="ranking_data.js"></script>
+    <script src="champ_data.js"></script>
 
     <script>
         const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwNFf8z4QMR5D31aAT8hwIfYjnZzKPRXA_fpAfYVUnfOsZwT1o2_J7x0MTjENkHeXU/exec';
@@ -458,7 +477,7 @@
                 });
             }
         }
-        initDataDragon();
+        initDataDragon().then(() => renderSidePanels());
 
         function getChampImgUrl(champName) {
             const key = champDataList[champName];
@@ -765,7 +784,7 @@
         });
 
         window.selectDraftChamp1 = function(champName, side) {
-            if (side === 'mine') draftMine1 = champName;
+            if (side === 'mine') { draftMine1 = champName; setSideChamp(champName); }
             else draftOpp1 = champName;
             searchInput1.value = '';
             searchSuggestions1.classList.add('hidden');
@@ -826,6 +845,7 @@
 
             const mine = matchup.mine;
             const opp = matchup.opp;
+            setSideChamp(mine);
 
             const dbKey = `${mine}_${opp}`;
             await loadTopFile(mine);
@@ -1053,9 +1073,279 @@
             }
         }
 
+        // ───────────── 양옆 패널 (라이엇 API 집계 데이터: champ_data.js / ranking_data.js) ─────────────
+        const LINE_NAMES = { top: '탑', jungle: '정글', mid: '미드', adc: '원딜', support: '서폿' };
+        let sideChamp = null;      // 오른쪽 패널에 보여줄 챔피언
+        let sideRole = null;       // 그 챔피언의 라인
+        let sideOpLine = 'top';
+
+        function escHtml(v) {
+            return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+        function escJs(v) {
+            return String(v ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        }
+        function champImg(name, id) {
+            if (id) return `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${id}.png`;
+            return getChampImgUrl(name);
+        }
+        function iconImg(src, alt, size = 'w-7 h-7', extra = '') {
+            return `<img src="${src}" alt="${escHtml(alt)}" title="${escHtml(alt)}" class="${size} rounded-lg object-cover border border-slate-600 bg-slate-900 flex-shrink-0 ${extra}" onerror="this.style.visibility='hidden'">`;
+        }
+        function wrColor(wr) {
+            const n = parseFloat(wr);
+            if (n >= 52) return 'text-emerald-400';
+            if (n <= 48) return 'text-rose-400';
+            return 'text-slate-200';
+        }
+        function noDataText(msg) {
+            return `<p class="text-xs text-slate-500 leading-relaxed">${msg}</p>`;
+        }
+
+        window.openMatchupFromSide = function(a, b) {
+            runSearch(`${a} vs ${b}`, true);
+        };
+
+        window.setSideChamp = function(name, role) {
+            const data = window.CHAMP_DATA;
+            if (!data || !data.champs || !data.champs[name]) {
+                sideChamp = name; sideRole = null;
+            } else {
+                const roles = data.champs[name].roles;
+                sideChamp = name;
+                sideRole = (role && roles[role]) ? role
+                    : Object.keys(roles).sort((x, y) => roles[y].games - roles[x].games)[0];
+            }
+            renderSideBuild();
+            renderSideCounter();
+        };
+
+        function renderSidePopular() {
+            const el = document.getElementById('side-popular');
+            if (!el) return;
+            const list = (window.CHAMP_DATA && window.CHAMP_DATA.popular) || [];
+            if (!list.length) { el.innerHTML = noDataText('데이터를 모으는 중이에요. 매일 새벽에 갱신돼요.'); return; }
+            el.innerHTML = list.slice(0, 4).map(m => `
+                <button type="button" onclick="openMatchupFromSide('${escJs(m.a)}', '${escJs(m.b)}')" class="side-chip flex items-center justify-between gap-2 w-full px-2 py-1.5 rounded-lg border border-amber-500/25 bg-slate-900/60 text-left">
+                    <span class="flex items-center gap-1.5 min-w-0">
+                        ${iconImg(champImg(m.a, m.aId), m.a, 'w-6 h-6')}
+                        <span class="text-[11px] font-bold text-white truncate">${escHtml(m.a)}</span>
+                        <span class="text-[10px] text-amber-400 font-black">vs</span>
+                        ${iconImg(champImg(m.b, m.bId), m.b, 'w-6 h-6')}
+                        <span class="text-[11px] font-bold text-white truncate">${escHtml(m.b)}</span>
+                    </span>
+                    <span class="text-[10px] text-slate-400 flex-shrink-0">${LINE_NAMES[m.role] || ''}</span>
+                </button>`).join('');
+        }
+
+        function renderSideOp() {
+            const el = document.getElementById('side-op');
+            if (!el) return;
+            const db = window.RANKING_DATABASE;
+            const list = (db && db[sideOpLine]) || [];
+            if (!window.RANKING_META || !list.length) { el.innerHTML = noDataText('데이터를 모으는 중이에요. 매일 새벽에 갱신돼요.'); return; }
+            el.innerHTML = list.slice(0, 3).map(c => `
+                <button type="button" onclick="setSideChamp('${escJs(c.name)}', '${sideOpLine}')" class="side-chip flex items-center justify-between gap-2 w-full px-2 py-1.5 rounded-lg border border-slate-700 bg-slate-900/60 text-left">
+                    <span class="flex items-center gap-2 min-w-0">
+                        <span class="text-yellow-400 font-black text-xs w-3">${c.rank}</span>
+                        ${iconImg(champImg(c.name, c.id), c.name, 'w-7 h-7')}
+                        <span class="text-xs font-bold text-white truncate">${escHtml(c.name)}</span>
+                    </span>
+                    <span class="text-xs font-black ${wrColor(c.winRate)} flex-shrink-0">${c.winRate}</span>
+                </button>`).join('');
+        }
+
+        function renderSideTrend() {
+            const el = document.getElementById('side-trend');
+            if (!el) return;
+            const t = window.CHAMP_DATA && window.CHAMP_DATA.trend;
+            if (!t || !t.from || (!t.up.length && !t.down.length)) {
+                el.innerHTML = noDataText('지난 패치와 비교해야 해서, 다음 패치부터 표시돼요.');
+                return;
+            }
+            const row = (c, up) => `
+                <button type="button" onclick="setSideChamp('${escJs(c.name)}', '${c.role}')" class="side-chip flex items-center justify-between gap-2 w-full px-2 py-1 rounded-lg border border-slate-700 bg-slate-900/60 text-left">
+                    <span class="flex items-center gap-1.5 min-w-0">
+                        ${iconImg(champImg(c.name, c.id), c.name, 'w-6 h-6')}
+                        <span class="text-[11px] font-bold text-white truncate">${escHtml(c.name)}</span>
+                        <span class="text-[10px] text-slate-500">${LINE_NAMES[c.role] || ''}</span>
+                    </span>
+                    <span class="text-[11px] font-black ${up ? 'text-emerald-400' : 'text-rose-400'} flex-shrink-0">${c.delta}</span>
+                </button>`;
+            el.innerHTML = `
+                <div class="flex flex-col gap-1">${t.up.slice(0, 2).map(c => row(c, true)).join('')}</div>
+                <div class="flex flex-col gap-1 mt-1">${t.down.slice(0, 2).map(c => row(c, false)).join('')}</div>
+                <p class="text-[10px] text-slate-500 mt-1.5">${escHtml(t.from)} 패치 대비 승률 변화</p>`;
+        }
+
+        function renderSideBuild() {
+            const el = document.getElementById('side-build');
+            const label = document.getElementById('side-build-label');
+            if (!el) return;
+            const data = window.CHAMP_DATA;
+            if (!data || !data.champs) { el.innerHTML = noDataText('데이터를 모으는 중이에요. 매일 새벽에 갱신돼요.'); label.textContent = ''; return; }
+            if (!sideChamp) {
+                el.innerHTML = noDataText('1vs1 검색에서 ⚔️ MY로 내 챔피언을 고르거나, 왼쪽 OP 챔피언을 누르면 빌드가 나와요.');
+                label.textContent = '';
+                return;
+            }
+            const champ = data.champs[sideChamp];
+            if (!champ || !sideRole) {
+                el.innerHTML = noDataText(`${escHtml(sideChamp)}는 이번 패치 표본이 부족해서 빌드를 보여줄 수 없어요.`);
+                label.textContent = '';
+                return;
+            }
+            const r = champ.roles[sideRole];
+            label.textContent = `${Number(r.games).toLocaleString()}판 기준`;
+            const roleTabs = Object.keys(champ.roles).length > 1
+                ? `<div class="flex flex-wrap gap-1 mb-2">${Object.keys(champ.roles).map(k => `
+                    <button type="button" onclick="setSideChamp('${escJs(sideChamp)}', '${k}')" class="side-tab ${k === sideRole ? 'active' : ''} text-[10px] font-bold rounded-md px-2 py-0.5 bg-slate-800 text-white">${LINE_NAMES[k]}</button>`).join('')}</div>`
+                : '';
+            const items = (r.items || []).map(it => iconImg(getItemImgUrl(it.id), `${it.name} (픽 ${it.pick}, 승률 ${it.winRate})`, 'w-8 h-8')).join('');
+            const boots = r.boots ? iconImg(getItemImgUrl(r.boots.id), `${r.boots.name} (픽 ${r.boots.pick})`, 'w-8 h-8', 'opacity-90') : '';
+            const runeBase = 'https://ddragon.leagueoflegends.com/cdn/img/';
+            const keystone = r.keystone ? `
+                <div class="flex items-center gap-1.5 min-w-0">
+                    ${iconImg(runeBase + r.keystone.icon, r.keystone.name, 'w-8 h-8', 'rounded-full')}
+                    ${r.secondary ? iconImg(runeBase + r.secondary.icon, r.secondary.name, 'w-5 h-5', 'rounded-full border-0') : ''}
+                    <span class="text-[11px] font-bold text-white truncate">${escHtml(r.keystone.name)}</span>
+                </div>` : '';
+            const spells = r.spells ? r.spells.list.map(sp =>
+                iconImg(`https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/${sp.id}.png`, sp.name, 'w-7 h-7')).join('') : '';
+
+            el.innerHTML = `
+                <div class="flex items-center gap-2 mb-2">
+                    ${iconImg(champImg(sideChamp, champ.id), sideChamp, 'w-10 h-10', 'border-amber-400')}
+                    <div class="min-w-0">
+                        <div class="text-sm font-black text-white truncate">${escHtml(sideChamp)}</div>
+                        <div class="text-[11px] text-slate-400">${LINE_NAMES[sideRole]} · 승률 <span class="${wrColor(r.winRate)} font-bold">${r.winRate}</span> · 픽 ${r.pickRate}</div>
+                    </div>
+                </div>
+                ${roleTabs}
+                <div class="text-[10px] text-slate-500 mb-1">핵심 아이템 · 신발</div>
+                <div class="flex items-center gap-1.5 mb-2">${items}${boots ? '<span class="text-slate-600 mx-0.5">|</span>' + boots : ''}</div>
+                <div class="flex items-center justify-between gap-2">
+                    <div class="min-w-0">
+                        <div class="text-[10px] text-slate-500 mb-1">룬</div>
+                        ${keystone}
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="text-[10px] text-slate-500 mb-1 text-right">스펠</div>
+                        <div class="flex gap-1">${spells}</div>
+                    </div>
+                </div>`;
+        }
+
+        function renderSideCounter() {
+            const el = document.getElementById('side-counter');
+            if (!el) return;
+            const data = window.CHAMP_DATA;
+            const champ = data && data.champs && sideChamp ? data.champs[sideChamp] : null;
+            if (!data || !data.champs) { el.innerHTML = noDataText('데이터를 모으는 중이에요.'); return; }
+            if (!sideChamp) { el.innerHTML = noDataText('내 챔피언을 고르면 상대하기 어려운 / 쉬운 챔피언이 나와요.'); return; }
+            if (!champ || !sideRole) { el.innerHTML = noDataText('표본이 부족해요.'); return; }
+            const r = champ.roles[sideRole];
+            const col = (list, title, color) => `
+                <div class="min-w-0">
+                    <div class="text-[10px] font-bold ${color} mb-1">${title}</div>
+                    <div class="flex flex-col gap-1">
+                        ${list.length ? list.map(o => `
+                            <button type="button" onclick="openMatchupFromSide('${escJs(sideChamp)}', '${escJs(o.name)}')" class="side-chip flex items-center gap-1.5 w-full px-1.5 py-1 rounded-lg border border-slate-700 bg-slate-900/60 text-left min-w-0" title="${escHtml(o.games)}판">
+                                ${iconImg(champImg(o.name, o.id), o.name, 'w-6 h-6')}
+                                <span class="text-[11px] font-bold text-white truncate">${escHtml(o.name)}</span>
+                                <span class="text-[10px] font-black ${wrColor(o.winRate)} ml-auto flex-shrink-0">${o.winRate}</span>
+                            </button>`).join('') : '<span class="text-[10px] text-slate-500">표본 부족</span>'}
+                    </div>
+                </div>`;
+            el.innerHTML = `<div class="grid grid-cols-2 gap-2">${col(r.hard || [], '😣 어려운 상대', 'text-rose-400')}${col(r.easy || [], '😎 쉬운 상대', 'text-emerald-400')}</div>
+                <p class="text-[10px] text-slate-500 mt-1.5">${escHtml(sideChamp)} 기준 승률</p>`;
+        }
+
+        function renderSidePanels() {
+            renderSidePopular();
+            renderSideOp();
+            renderSideTrend();
+            if (!sideChamp && window.RANKING_DATABASE && window.RANKING_META) {
+                const first = (window.RANKING_DATABASE.top || [])[0];
+                if (first) { setSideChamp(first.name, 'top'); return; }
+            }
+            renderSideBuild();
+            renderSideCounter();
+        }
+
+        document.getElementById('side-op-tabs').addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-line]');
+            if (!btn) return;
+            sideOpLine = btn.dataset.line;
+            document.querySelectorAll('#side-op-tabs .side-tab').forEach(b => b.classList.toggle('active', b === btn));
+            renderSideOp();
+        });
+
+        function renderHotPage() {
+            const list = (window.CHAMP_DATA && window.CHAMP_DATA.popular) || [];
+            const meta = (window.CHAMP_DATA && window.CHAMP_DATA.meta) || {};
+            detailDynamicContent.innerHTML = `
+                <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-xl max-w-3xl mx-auto">
+                    <h2 class="text-2xl font-black text-yellow-300 mb-1 text-center">🔥 이번 패치 인기 구도 TOP 20</h2>
+                    <p class="text-[11px] text-slate-500 text-center mb-5">${meta.patch ? `패치 ${escHtml(meta.patch)} · 같은 라인에서 가장 많이 만난 조합` : ''}</p>
+                    <div class="space-y-2">
+                        ${list.length ? list.map((m, i) => `
+                            <button type="button" onclick="openMatchupFromSide('${escJs(m.a)}', '${escJs(m.b)}')" class="side-chip w-full flex items-center justify-between gap-2 p-3 bg-slate-800/90 rounded-2xl border border-slate-700 text-left">
+                                <span class="flex items-center gap-2 min-w-0">
+                                    <span class="text-yellow-400 font-black w-6 text-center flex-shrink-0">${i + 1}</span>
+                                    ${iconImg(champImg(m.a, m.aId), m.a, 'w-9 h-9')}
+                                    <span class="font-bold text-white text-sm truncate">${escHtml(m.a)}</span>
+                                    <span class="text-amber-400 font-black text-xs">vs</span>
+                                    ${iconImg(champImg(m.b, m.bId), m.b, 'w-9 h-9')}
+                                    <span class="font-bold text-white text-sm truncate">${escHtml(m.b)}</span>
+                                </span>
+                                <span class="text-right flex-shrink-0">
+                                    <span class="block text-xs text-slate-300">${LINE_NAMES[m.role]} · ${Number(m.games).toLocaleString()}판</span>
+                                    <span class="block text-[11px] text-slate-500">${escHtml(m.a)} 승률 <b class="${wrColor(m.aWinRate)}">${m.aWinRate}</b></span>
+                                </span>
+                            </button>`).join('') : noDataText('데이터를 모으는 중이에요. 매일 새벽에 갱신돼요.')}
+                    </div>
+                </div>`;
+        }
+
+        function renderTrendPage() {
+            const t = (window.CHAMP_DATA && window.CHAMP_DATA.trend) || { up: [], down: [] };
+            const meta = (window.CHAMP_DATA && window.CHAMP_DATA.meta) || {};
+            const block = (list, title, up) => `
+                <div class="bg-slate-800/60 rounded-2xl p-4 border border-slate-700">
+                    <h3 class="font-black mb-3 ${up ? 'text-emerald-400' : 'text-rose-400'}">${title}</h3>
+                    <div class="space-y-2">
+                        ${list.length ? list.map((c, i) => `
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="flex items-center gap-2 min-w-0">
+                                    <span class="text-yellow-400 font-black w-5 text-center">${i + 1}</span>
+                                    ${iconImg(champImg(c.name, c.id), c.name, 'w-8 h-8')}
+                                    <span class="font-bold text-white text-sm truncate">${escHtml(c.name)}</span>
+                                    <span class="text-[11px] text-slate-500">${LINE_NAMES[c.role]}</span>
+                                </span>
+                                <span class="text-right flex-shrink-0">
+                                    <span class="block text-sm font-black ${up ? 'text-emerald-400' : 'text-rose-400'}">${c.delta}</span>
+                                    <span class="block text-[11px] text-slate-400">현재 ${c.winRate}</span>
+                                </span>
+                            </div>`).join('') : '<p class="text-xs text-slate-500">없음</p>'}
+                    </div>
+                </div>`;
+            detailDynamicContent.innerHTML = `
+                <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-xl max-w-3xl mx-auto">
+                    <h2 class="text-2xl font-black text-yellow-300 mb-1 text-center">📈 급상승 · 급하락 챔피언</h2>
+                    <p class="text-[11px] text-slate-500 text-center mb-5">${t.from ? `${escHtml(t.from)} → ${escHtml(meta.patch)} 패치 승률 변화` : '지난 패치와 비교해야 해서, 다음 패치부터 표시돼요.'}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        ${block(t.up || [], '📈 급상승', true)}
+                        ${block(t.down || [], '📉 급하락', false)}
+                    </div>
+                </div>`;
+        }
+
         function renderPage(type, pushHistory = true) {
             if (type === 'hot') {
-                detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">🔥 실시간 인기 매치업 TOP 5</h2></div>`;
+                renderHotPage();
+            } else if (type === 'trend') {
+                renderTrendPage();
             } else if (type === 'guide') {
                 detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">💡 30초 로딩 창 활용 가이드</h2></div>`;
             } else if (type === 'patch') {
