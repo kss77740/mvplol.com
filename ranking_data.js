@@ -1,208 +1,208 @@
 // 자동 생성 파일입니다. 직접 수정하지 마세요. (scripts/update_ranking.py)
-window.RANKING_META = {"patch": "16.22", "games": 1848, "tierLabel": "다이아 I+", "updatedAt": "2026-11-09", "source": "Riot API 직접 집계"};
+window.RANKING_META = {"patch": "26.22", "games": 4161, "tierLabel": "다이아 I+", "updatedAt": "2026-11-09", "source": "Riot API 직접 집계"};
 window.RANKING_DATABASE = {
   "top": [
     {
       "rank": 1,
-      "name": "신지드",
-      "id": "Singed",
+      "name": "뽀삐",
+      "id": "Poppy",
       "tier": "OP",
-      "winRate": "65.8%",
-      "pickRate": "2.1%",
-      "banRate": "0.9%",
-      "games": 38
+      "winRate": "64.4%",
+      "pickRate": "1.1%",
+      "banRate": "17.6%",
+      "games": 45
     },
     {
       "rank": 2,
-      "name": "세트",
-      "id": "Sett",
+      "name": "우르곳",
+      "id": "Urgot",
       "tier": "1티어",
-      "winRate": "66.7%",
-      "pickRate": "1.5%",
-      "banRate": "0.3%",
-      "games": 27
+      "winRate": "58.8%",
+      "pickRate": "2.0%",
+      "banRate": "0.2%",
+      "games": 85
     },
     {
       "rank": 3,
-      "name": "리산드라",
-      "id": "Lissandra",
+      "name": "볼리베어",
+      "id": "Volibear",
       "tier": "1티어",
-      "winRate": "63.2%",
-      "pickRate": "2.1%",
-      "banRate": "1.9%",
-      "games": 38
+      "winRate": "56.6%",
+      "pickRate": "2.4%",
+      "banRate": "0.2%",
+      "games": 99
     },
     {
       "rank": 4,
-      "name": "문도 박사",
-      "id": "DrMundo",
+      "name": "신지드",
+      "id": "Singed",
       "tier": "1티어",
-      "winRate": "59.6%",
-      "pickRate": "3.1%",
-      "banRate": "0.5%",
-      "games": 57
+      "winRate": "56.8%",
+      "pickRate": "2.1%",
+      "banRate": "0.9%",
+      "games": 88
     },
     {
       "rank": 5,
-      "name": "케넨",
-      "id": "Kennen",
-      "tier": "2티어",
-      "winRate": "57.8%",
-      "pickRate": "4.5%",
-      "banRate": "5.1%",
-      "games": 83
-    },
-    {
-      "rank": 6,
       "name": "워윅",
       "id": "Warwick",
       "tier": "2티어",
-      "winRate": "63.0%",
-      "pickRate": "1.5%",
+      "winRate": "57.4%",
+      "pickRate": "1.6%",
       "banRate": "0.3%",
-      "games": 27
+      "games": 68
+    },
+    {
+      "rank": 6,
+      "name": "케일",
+      "id": "Kayle",
+      "tier": "2티어",
+      "winRate": "57.1%",
+      "pickRate": "1.5%",
+      "banRate": "2.1%",
+      "games": 63
     },
     {
       "rank": 7,
-      "name": "티모",
-      "id": "Teemo",
+      "name": "베인",
+      "id": "Vayne",
       "tier": "2티어",
-      "winRate": "58.8%",
-      "pickRate": "1.8%",
+      "winRate": "56.9%",
+      "pickRate": "1.6%",
       "banRate": "1.9%",
-      "games": 34
+      "games": 65
     },
     {
       "rank": 8,
-      "name": "클레드",
-      "id": "Kled",
+      "name": "오공",
+      "id": "MonkeyKing",
       "tier": "3티어",
-      "winRate": "57.6%",
-      "pickRate": "1.8%",
-      "banRate": "1.1%",
-      "games": 33
+      "winRate": "56.1%",
+      "pickRate": "2.0%",
+      "banRate": "0.4%",
+      "games": 82
     },
     {
       "rank": 9,
-      "name": "올라프",
-      "id": "Olaf",
+      "name": "피오라",
+      "id": "Fiora",
       "tier": "3티어",
-      "winRate": "53.6%",
-      "pickRate": "13.5%",
-      "banRate": "14.7%",
-      "games": 250
+      "winRate": "54.2%",
+      "pickRate": "7.4%",
+      "banRate": "13.8%",
+      "games": 308
     },
     {
       "rank": 10,
-      "name": "우디르",
-      "id": "Udyr",
+      "name": "카밀",
+      "id": "Camille",
       "tier": "3티어",
-      "winRate": "56.8%",
-      "pickRate": "2.0%",
-      "banRate": "0.7%",
-      "games": 37
+      "winRate": "54.3%",
+      "pickRate": "6.2%",
+      "banRate": "1.9%",
+      "games": 256
     }
   ],
   "jungle": [
     {
       "rank": 1,
-      "name": "자헨",
-      "id": "Zaahen",
+      "name": "킨드레드",
+      "id": "Kindred",
       "tier": "OP",
-      "winRate": "69.0%",
-      "pickRate": "1.6%",
-      "banRate": "0.1%",
-      "games": 29
+      "winRate": "57.8%",
+      "pickRate": "9.1%",
+      "banRate": "6.9%",
+      "games": 377
     },
     {
       "rank": 2,
-      "name": "제이스",
-      "id": "Jayce",
-      "tier": "1티어",
-      "winRate": "57.4%",
-      "pickRate": "8.8%",
-      "banRate": "34.5%",
-      "games": 162
-    },
-    {
-      "rank": 3,
       "name": "자이라",
       "id": "Zyra",
       "tier": "1티어",
-      "winRate": "58.0%",
-      "pickRate": "4.8%",
-      "banRate": "22.5%",
-      "games": 88
+      "winRate": "55.0%",
+      "pickRate": "5.0%",
+      "banRate": "23.6%",
+      "games": 209
     },
     {
-      "rank": 4,
+      "rank": 3,
       "name": "판테온",
       "id": "Pantheon",
       "tier": "1티어",
-      "winRate": "61.9%",
-      "pickRate": "1.1%",
-      "banRate": "14.5%",
-      "games": 21
+      "winRate": "58.0%",
+      "pickRate": "1.2%",
+      "banRate": "10.2%",
+      "games": 50
+    },
+    {
+      "rank": 4,
+      "name": "자크",
+      "id": "Zac",
+      "tier": "1티어",
+      "winRate": "56.2%",
+      "pickRate": "1.5%",
+      "banRate": "0.5%",
+      "games": 64
     },
     {
       "rank": 5,
       "name": "렉사이",
       "id": "RekSai",
       "tier": "2티어",
-      "winRate": "55.7%",
-      "pickRate": "3.3%",
+      "winRate": "54.2%",
+      "pickRate": "3.1%",
       "banRate": "0.7%",
-      "games": 61
+      "games": 131
     },
     {
       "rank": 6,
-      "name": "비에고",
-      "id": "Viego",
+      "name": "키아나",
+      "id": "Qiyana",
       "tier": "2티어",
-      "winRate": "54.5%",
-      "pickRate": "6.0%",
-      "banRate": "0.3%",
-      "games": 110
+      "winRate": "52.9%",
+      "pickRate": "14.9%",
+      "banRate": "61.6%",
+      "games": 622
     },
     {
       "rank": 7,
-      "name": "킨드레드",
-      "id": "Kindred",
+      "name": "제드",
+      "id": "Zed",
       "tier": "2티어",
-      "winRate": "53.8%",
-      "pickRate": "9.3%",
-      "banRate": "7.2%",
-      "games": 171
+      "winRate": "54.7%",
+      "pickRate": "1.3%",
+      "banRate": "8.8%",
+      "games": 53
     },
     {
       "rank": 8,
-      "name": "마스터 이",
-      "id": "MasterYi",
+      "name": "니달리",
+      "id": "Nidalee",
       "tier": "3티어",
-      "winRate": "57.1%",
-      "pickRate": "1.5%",
-      "banRate": "0.6%",
-      "games": 28
+      "winRate": "52.3%",
+      "pickRate": "11.6%",
+      "banRate": "36.8%",
+      "games": 482
     },
     {
       "rank": 9,
-      "name": "자르반 4세",
-      "id": "JarvanIV",
+      "name": "렝가",
+      "id": "Rengar",
       "tier": "3티어",
-      "winRate": "53.0%",
-      "pickRate": "9.9%",
-      "banRate": "0.8%",
-      "games": 183
+      "winRate": "52.8%",
+      "pickRate": "3.0%",
+      "banRate": "16.9%",
+      "games": 125
     },
     {
       "rank": 10,
-      "name": "사일러스",
-      "id": "Sylas",
+      "name": "자헨",
+      "id": "Zaahen",
       "tier": "3티어",
-      "winRate": "53.5%",
-      "pickRate": "3.8%",
-      "banRate": "13.6%",
-      "games": 71
+      "winRate": "53.7%",
+      "pickRate": "1.3%",
+      "banRate": "0.1%",
+      "games": 54
     }
   ],
   "mid": [
@@ -211,304 +211,304 @@ window.RANKING_DATABASE = {
       "name": "카시오페아",
       "id": "Cassiopeia",
       "tier": "OP",
-      "winRate": "65.8%",
-      "pickRate": "4.0%",
-      "banRate": "6.1%",
-      "games": 73
+      "winRate": "61.2%",
+      "pickRate": "3.3%",
+      "banRate": "6.2%",
+      "games": 139
     },
     {
       "rank": 2,
-      "name": "블라디미르",
-      "id": "Vladimir",
+      "name": "흐웨이",
+      "id": "Hwei",
       "tier": "1티어",
-      "winRate": "63.3%",
-      "pickRate": "3.2%",
-      "banRate": "1.9%",
-      "games": 60
+      "winRate": "60.7%",
+      "pickRate": "2.8%",
+      "banRate": "0.3%",
+      "games": 117
     },
     {
       "rank": 3,
-      "name": "제라스",
-      "id": "Xerath",
+      "name": "카사딘",
+      "id": "Kassadin",
       "tier": "1티어",
-      "winRate": "69.6%",
-      "pickRate": "1.2%",
-      "banRate": "1.4%",
-      "games": 23
-    },
-    {
-      "rank": 4,
-      "name": "트위스티드 페이트",
-      "id": "TwistedFate",
-      "tier": "1티어",
-      "winRate": "56.1%",
-      "pickRate": "6.7%",
-      "banRate": "4.1%",
+      "winRate": "56.9%",
+      "pickRate": "3.0%",
+      "banRate": "0.4%",
       "games": 123
     },
     {
+      "rank": 4,
+      "name": "키아나",
+      "id": "Qiyana",
+      "tier": "1티어",
+      "winRate": "57.3%",
+      "pickRate": "2.5%",
+      "banRate": "61.6%",
+      "games": 103
+    },
+    {
       "rank": 5,
-      "name": "카타리나",
-      "id": "Katarina",
+      "name": "오로라",
+      "id": "Aurora",
       "tier": "2티어",
-      "winRate": "55.8%",
-      "pickRate": "5.6%",
-      "banRate": "5.5%",
-      "games": 104
+      "winRate": "55.6%",
+      "pickRate": "3.2%",
+      "banRate": "0.5%",
+      "games": 133
     },
     {
       "rank": 6,
-      "name": "흐웨이",
-      "id": "Hwei",
+      "name": "블라디미르",
+      "id": "Vladimir",
       "tier": "2티어",
-      "winRate": "57.8%",
-      "pickRate": "2.4%",
-      "banRate": "0.4%",
-      "games": 45
+      "winRate": "56.5%",
+      "pickRate": "2.0%",
+      "banRate": "1.2%",
+      "games": 85
     },
     {
       "rank": 7,
-      "name": "애니",
-      "id": "Annie",
+      "name": "판테온",
+      "id": "Pantheon",
       "tier": "2티어",
-      "winRate": "61.9%",
-      "pickRate": "1.1%",
-      "banRate": "0.3%",
-      "games": 21
+      "winRate": "55.2%",
+      "pickRate": "3.2%",
+      "banRate": "10.2%",
+      "games": 134
     },
     {
       "rank": 8,
-      "name": "카사딘",
-      "id": "Kassadin",
+      "name": "카타리나",
+      "id": "Katarina",
       "tier": "3티어",
-      "winRate": "56.4%",
-      "pickRate": "2.1%",
-      "banRate": "0.4%",
-      "games": 39
+      "winRate": "54.1%",
+      "pickRate": "5.3%",
+      "banRate": "5.7%",
+      "games": 222
     },
     {
       "rank": 9,
-      "name": "오리아나",
-      "id": "Orianna",
+      "name": "벡스",
+      "id": "Vex",
       "tier": "3티어",
-      "winRate": "53.4%",
-      "pickRate": "11.0%",
-      "banRate": "7.6%",
-      "games": 204
+      "winRate": "53.8%",
+      "pickRate": "2.9%",
+      "banRate": "1.7%",
+      "games": 119
     },
     {
       "rank": 10,
-      "name": "리산드라",
-      "id": "Lissandra",
+      "name": "사일러스",
+      "id": "Sylas",
       "tier": "3티어",
-      "winRate": "54.4%",
-      "pickRate": "4.3%",
-      "banRate": "1.9%",
-      "games": 79
+      "winRate": "52.5%",
+      "pickRate": "7.8%",
+      "banRate": "14.2%",
+      "games": 324
     }
   ],
   "adc": [
     {
       "rank": 1,
-      "name": "제라스",
-      "id": "Xerath",
+      "name": "스웨인",
+      "id": "Swain",
       "tier": "OP",
-      "winRate": "70.6%",
-      "pickRate": "1.8%",
-      "banRate": "1.4%",
-      "games": 34
+      "winRate": "63.3%",
+      "pickRate": "1.4%",
+      "banRate": "0.3%",
+      "games": 60
     },
     {
       "rank": 2,
       "name": "탈리야",
       "id": "Taliyah",
       "tier": "1티어",
-      "winRate": "64.5%",
-      "pickRate": "1.7%",
-      "banRate": "5.7%",
-      "games": 31
+      "winRate": "63.0%",
+      "pickRate": "1.3%",
+      "banRate": "5.3%",
+      "games": 54
     },
     {
       "rank": 3,
-      "name": "스웨인",
-      "id": "Swain",
+      "name": "제라스",
+      "id": "Xerath",
       "tier": "1티어",
-      "winRate": "65.4%",
+      "winRate": "59.3%",
       "pickRate": "1.4%",
-      "banRate": "0.2%",
-      "games": 26
+      "banRate": "1.3%",
+      "games": 59
     },
     {
       "rank": 4,
-      "name": "자야",
-      "id": "Xayah",
+      "name": "트리스타나",
+      "id": "Tristana",
       "tier": "1티어",
-      "winRate": "55.8%",
-      "pickRate": "11.1%",
-      "banRate": "1.7%",
-      "games": 206
+      "winRate": "55.2%",
+      "pickRate": "5.1%",
+      "banRate": "6.5%",
+      "games": 212
     },
     {
       "rank": 5,
-      "name": "코르키",
-      "id": "Corki",
+      "name": "유나라",
+      "id": "Yunara",
       "tier": "2티어",
-      "winRate": "55.4%",
-      "pickRate": "11.5%",
-      "banRate": "0.5%",
-      "games": 213
+      "winRate": "53.7%",
+      "pickRate": "11.4%",
+      "banRate": "3.4%",
+      "games": 473
     },
     {
       "rank": 6,
-      "name": "아우렐리온 솔",
-      "id": "AurelionSol",
+      "name": "코르키",
+      "id": "Corki",
       "tier": "2티어",
-      "winRate": "60.7%",
-      "pickRate": "1.5%",
+      "winRate": "53.5%",
+      "pickRate": "11.2%",
       "banRate": "0.8%",
-      "games": 28
+      "games": 465
     },
     {
       "rank": 7,
-      "name": "케이틀린",
-      "id": "Caitlyn",
+      "name": "빅토르",
+      "id": "Viktor",
       "tier": "2티어",
-      "winRate": "54.6%",
-      "pickRate": "6.4%",
-      "banRate": "5.1%",
-      "games": 119
+      "winRate": "53.9%",
+      "pickRate": "1.8%",
+      "banRate": "3.4%",
+      "games": 76
     },
     {
       "rank": 8,
-      "name": "제리",
-      "id": "Zeri",
+      "name": "흐웨이",
+      "id": "Hwei",
       "tier": "3티어",
-      "winRate": "52.2%",
-      "pickRate": "8.5%",
-      "banRate": "0.4%",
-      "games": 157
+      "winRate": "53.3%",
+      "pickRate": "1.8%",
+      "banRate": "0.3%",
+      "games": 75
     },
     {
       "rank": 9,
-      "name": "시비르",
-      "id": "Sivir",
+      "name": "자야",
+      "id": "Xayah",
       "tier": "3티어",
-      "winRate": "53.3%",
-      "pickRate": "2.4%",
-      "banRate": "0.7%",
-      "games": 45
+      "winRate": "51.6%",
+      "pickRate": "11.9%",
+      "banRate": "3.1%",
+      "games": 494
     },
     {
       "rank": 10,
-      "name": "바루스",
-      "id": "Varus",
+      "name": "드레이븐",
+      "id": "Draven",
       "tier": "3티어",
-      "winRate": "51.7%",
-      "pickRate": "3.1%",
-      "banRate": "0.2%",
-      "games": 58
+      "winRate": "51.4%",
+      "pickRate": "4.4%",
+      "banRate": "24.6%",
+      "games": 185
     }
   ],
   "support": [
     {
       "rank": 1,
-      "name": "블리츠크랭크",
-      "id": "Blitzcrank",
+      "name": "뽀삐",
+      "id": "Poppy",
       "tier": "OP",
-      "winRate": "60.7%",
-      "pickRate": "4.8%",
-      "banRate": "2.5%",
-      "games": 89
+      "winRate": "55.9%",
+      "pickRate": "4.3%",
+      "banRate": "17.6%",
+      "games": 179
     },
     {
       "rank": 2,
-      "name": "알리스타",
-      "id": "Alistar",
+      "name": "블리츠크랭크",
+      "id": "Blitzcrank",
       "tier": "1티어",
-      "winRate": "56.1%",
-      "pickRate": "24.3%",
-      "banRate": "8.4%",
-      "games": 449
+      "winRate": "54.2%",
+      "pickRate": "6.2%",
+      "banRate": "4.6%",
+      "games": 260
     },
     {
       "rank": 3,
-      "name": "갈리오",
-      "id": "Galio",
+      "name": "알리스타",
+      "id": "Alistar",
       "tier": "1티어",
-      "winRate": "66.7%",
-      "pickRate": "1.1%",
-      "banRate": "4.3%",
-      "games": 21
+      "winRate": "53.0%",
+      "pickRate": "20.5%",
+      "banRate": "8.7%",
+      "games": 855
     },
     {
       "rank": 4,
       "name": "타릭",
       "id": "Taric",
       "tier": "1티어",
-      "winRate": "60.0%",
-      "pickRate": "1.6%",
-      "banRate": "0.2%",
-      "games": 30
+      "winRate": "54.2%",
+      "pickRate": "1.7%",
+      "banRate": "0.1%",
+      "games": 72
     },
     {
       "rank": 5,
-      "name": "마오카이",
-      "id": "Maokai",
+      "name": "엘리스",
+      "id": "Elise",
       "tier": "2티어",
-      "winRate": "54.8%",
-      "pickRate": "3.4%",
-      "banRate": "0.3%",
-      "games": 62
+      "winRate": "53.7%",
+      "pickRate": "2.3%",
+      "banRate": "8.8%",
+      "games": 95
     },
     {
       "rank": 6,
-      "name": "쓰레쉬",
-      "id": "Thresh",
+      "name": "레나타 글라스크",
+      "id": "Renata",
       "tier": "2티어",
-      "winRate": "52.7%",
-      "pickRate": "8.0%",
-      "banRate": "7.4%",
-      "games": 148
+      "winRate": "52.2%",
+      "pickRate": "4.9%",
+      "banRate": "1.4%",
+      "games": 203
     },
     {
       "rank": 7,
-      "name": "렐",
-      "id": "Rell",
+      "name": "세라핀",
+      "id": "Seraphine",
       "tier": "2티어",
-      "winRate": "52.5%",
-      "pickRate": "11.0%",
-      "banRate": "2.4%",
-      "games": 204
+      "winRate": "52.9%",
+      "pickRate": "1.6%",
+      "banRate": "0.1%",
+      "games": 68
     },
     {
       "rank": 8,
-      "name": "브라움",
-      "id": "Braum",
+      "name": "쓰레쉬",
+      "id": "Thresh",
       "tier": "3티어",
-      "winRate": "53.0%",
-      "pickRate": "4.5%",
-      "banRate": "1.7%",
-      "games": 83
+      "winRate": "51.9%",
+      "pickRate": "9.0%",
+      "banRate": "10.9%",
+      "games": 376
     },
     {
       "rank": 9,
-      "name": "니코",
-      "id": "Neeko",
+      "name": "스웨인",
+      "id": "Swain",
       "tier": "3티어",
-      "winRate": "53.3%",
-      "pickRate": "2.4%",
-      "banRate": "0.5%",
-      "games": 45
+      "winRate": "53.5%",
+      "pickRate": "1.0%",
+      "banRate": "0.3%",
+      "games": 43
     },
     {
       "rank": 10,
-      "name": "라칸",
-      "id": "Rakan",
+      "name": "렝가",
+      "id": "Rengar",
       "tier": "3티어",
-      "winRate": "51.9%",
-      "pickRate": "14.5%",
-      "banRate": "1.8%",
-      "games": 268
+      "winRate": "52.9%",
+      "pickRate": "1.2%",
+      "banRate": "16.9%",
+      "games": 51
     }
   ]
 };
