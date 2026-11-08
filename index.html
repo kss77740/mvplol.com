@@ -281,13 +281,23 @@
         <div id="side-right" class="lg:col-span-3 lg:self-start lg:mt-4 flex flex-col gap-4 w-full">
             <div id="card-build" class="hextech-card side-card rounded-2xl px-4 py-3">
                 <h3 class="text-sm font-bold pb-1.5 mb-2 border-b border-amber-500/30 flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 text-yellow-300">챔피언 빌드 & 룬</span>
-                    <span class="flex items-center gap-2">
-                        <span id="side-build-label" class="text-[10px] text-slate-500 font-normal"></span>
-                        <button type="button" id="side-build-more" onclick="renderPage('champs', true)" class="text-[11px] text-amber-400 font-normal cursor-pointer hover:text-amber-300">챔피언 선택 ➔</button>
-                    </span>
+                    <span class="text-yellow-300">챔피언 빌드 & 룬</span>
+                    <button type="button" onclick="renderPage('champs', true)" class="text-[11px] text-amber-400 font-normal cursor-pointer hover:text-amber-300">전체 보기 ➔</button>
                 </h3>
-                <div id="side-build" class="text-xs text-slate-400">불러오는 중...</div>
+                <div class="relative mb-2">
+                    <input id="build-search" type="text" autocomplete="off" placeholder="챔피언 검색 (예: 아트, ㅇㅌㄹㅅ)"
+                        class="w-full py-2 px-3 text-xs text-slate-900 font-bold bg-white rounded-xl outline-none border-2 border-amber-400/60 focus:ring-2 focus:ring-yellow-400 placeholder:font-normal placeholder:text-slate-400">
+                    <div id="build-suggest" class="absolute left-0 right-0 top-full mt-1 bg-slate-950/95 border border-amber-500/40 rounded-xl shadow-2xl z-40 hidden p-1 space-y-0.5"></div>
+                </div>
+                <div id="build-tabs" class="grid grid-cols-6 gap-1 mb-2 text-[10px] font-bold">
+                    <button type="button" data-line="all" class="side-tab active rounded-lg py-1 bg-slate-800 text-white">전체</button>
+                    <button type="button" data-line="top" class="side-tab rounded-lg py-1 bg-slate-800 text-white">탑</button>
+                    <button type="button" data-line="jungle" class="side-tab rounded-lg py-1 bg-slate-800 text-white">정글</button>
+                    <button type="button" data-line="mid" class="side-tab rounded-lg py-1 bg-slate-800 text-white">미드</button>
+                    <button type="button" data-line="adc" class="side-tab rounded-lg py-1 bg-slate-800 text-white">원딜</button>
+                    <button type="button" data-line="support" class="side-tab rounded-lg py-1 bg-slate-800 text-white">서폿</button>
+                </div>
+                <div id="side-build" class="grid grid-cols-6 gap-1 max-h-44 overflow-y-auto pr-0.5 text-xs text-slate-400">불러오는 중...</div>
             </div>
 
             <div id="card-patch" class="hextech-card side-card rounded-2xl px-4 py-3">
@@ -1071,8 +1081,6 @@
                 sideRole = (role && roles[role]) ? role
                     : Object.keys(roles).sort((x, y) =>roles[y].games - roles[x].games)[0];
             }
-            renderSideBuild();
-            renderSideCounter();
         };
 
         function renderSidePopular() {
@@ -1137,99 +1145,85 @@
                 + `<p class="text-[10px] text-slate-500 mt-1">${escHtml(pn.date)} 적용 · 아이콘을 누르면 챔피언 상세</p>`;
         }
 
+        // 챔피언 이름 검색 (이름 / 줄임말 / 초성 / 영어) + 라인 필터
+        function filterChampNames(query, line = 'all') {
+            const q = String(query || '').trim().replace(/\s+/g, '').toLowerCase();
+            const aliasHits = new Set(Object.entries(champAliases)
+                .filter(([alias]) => q && alias.toLowerCase().includes(q)).map(([, official]) => official));
+            return Object.keys(champDataList).sort((a, b) => a.localeCompare(b, 'ko')).filter(name => {
+                if (line !== 'all' && champMainRole(name) !== line) return false;
+                if (!q) return true;
+                const plain = name.replace(/\s+/g, '').toLowerCase();
+                return plain.includes(q) || toChosung(plain).includes(q) || aliasHits.has(name)
+                    || String(champDataList[name]).toLowerCase().includes(q);
+            });
+        }
+
+        let buildLine = 'all';
         function renderSideBuild() {
             const el = document.getElementById('side-build');
-            const label = document.getElementById('side-build-label');
             if (!el) return;
-            const data = window.CHAMP_DATA;
-            if (!data || !data.champs) { el.innerHTML = noDataText('데이터를 모으는 중이에요. 매일 새벽에 갱신돼요.'); label.textContent = ''; return; }
-            if (!sideChamp) {
-                el.innerHTML = noDataText('1vs1 검색에서 MY로 내 챔피언을 고르거나, 왼쪽 OP 챔피언을 누르면 빌드가 나와요.');
-                label.textContent = '';
+            const names = filterChampNames('', buildLine);
+            if (!names.length) {
+                el.innerHTML = `<p class="col-span-full text-xs text-slate-500 leading-relaxed py-2">${buildLine === 'all' ? '챔피언 정보를 불러오는 중이에요.' : '라인 데이터를 모으는 중이에요. 매일 새벽에 갱신돼요.'}</p>`;
                 return;
             }
-            const champ = data.champs[sideChamp];
-            if (!champ || !sideRole) {
-                el.innerHTML = noDataText(`${escHtml(sideChamp)}: 이번 패치 표본이 부족해서 아직 빌드를 보여줄 수 없어요.`);
-                label.textContent = '';
-                return;
-            }
-            const r = champ.roles[sideRole];
-            label.textContent = `${Number(r.games).toLocaleString()}판 기준`;
-            const roleTabs = Object.keys(champ.roles).length >1
-                ? `<div class="flex flex-wrap gap-1 mb-2">${Object.keys(champ.roles).map(k => `
-                    <button type="button" onclick="setSideChamp('${escJs(sideChamp)}', '${k}')" class="side-tab ${k === sideRole ? 'active' : ''} text-[10px] font-bold rounded-md px-2 py-0.5 bg-slate-800 text-white">${LINE_NAMES[k]}</button>`).join('')}</div>`
-                : '';
-            const items = (r.items || []).slice(0, 3).map(it =>iconImg(getItemImgUrl(it.id), `${it.name} (픽 ${it.pick}, 승률 ${it.winRate})`, 'w-8 h-8')).join('');
-            const boots = r.boots ? iconImg(getItemImgUrl(r.boots.id), `${r.boots.name} (픽 ${r.boots.pick})`, 'w-8 h-8', 'opacity-90') : '';
-            const runeBase = 'https://ddragon.leagueoflegends.com/cdn/img/';
-            const keystone = r.keystone ? `
-                <div class="flex items-center gap-1.5 min-w-0">
-                    ${iconImg(runeBase + r.keystone.icon, r.keystone.name, 'w-8 h-8', 'rounded-full')}
-                    ${r.secondary ? iconImg(runeBase + r.secondary.icon, r.secondary.name, 'w-5 h-5', 'rounded-full border-0') : ''}
-                    <span class="text-[11px] font-bold text-white truncate">${escHtml(r.keystone.name)}</span>
-                </div>` : '';
-            const spells = r.spells ? r.spells.list.map(sp =>
-                iconImg(`https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/${sp.id}.png`, sp.name, 'w-7 h-7')).join('') : '';
-
-            el.innerHTML = `
-                <div class="flex items-center gap-2 mb-2">
-                    ${iconImg(champImg(sideChamp, champ.id), sideChamp, 'w-10 h-10', 'border-amber-400')}
-                    <div class="min-w-0">
-                        <div class="text-sm font-black text-white truncate">${escHtml(sideChamp)}</div>
-                        <div class="text-[11px] text-slate-400">${LINE_NAMES[sideRole]} · 승률 <span class="${wrColor(r.winRate)} font-bold">${r.winRate}</span> · 픽 ${r.pickRate}</div>
-                    </div>
-                </div>
-                ${roleTabs}
-                <div class="text-[10px] text-slate-500 mb-1">핵심 아이템 · 신발</div>
-                <div class="flex items-center gap-1.5 mb-2">${items}${boots ? '<span class="text-slate-600 mx-0.5">|</span>' + boots : ''}</div>
-                <div class="flex items-center justify-between gap-2">
-                    <div class="min-w-0">
-                        <div class="text-[10px] text-slate-500 mb-1">룬</div>
-                        ${keystone}
-                    </div>
-                    <div class="flex-shrink-0">
-                        <div class="text-[10px] text-slate-500 mb-1 text-right">스펠</div>
-                        <div class="flex gap-1">${spells}</div>
-                    </div>
-                </div>`;
+            el.innerHTML = names.map(name => `
+                <button type="button" data-build-name="${escHtml(name)}" class="side-chip rounded-lg" title="${escHtml(name)}">
+                    <img src="${getChampImgUrl(name)}" alt="${escHtml(name)}" loading="lazy" class="w-full aspect-square rounded-lg object-cover border border-slate-700 bg-slate-800 hover:border-amber-400">
+                </button>`).join('');
         }
 
-        function renderSideCounter() {
-            const el = document.getElementById('side-counter');
-            if (!el) return;
-            const data = window.CHAMP_DATA;
-            const champ = data && data.champs && sideChamp ? data.champs[sideChamp] : null;
-            if (!data || !data.champs) { el.innerHTML = noDataText('데이터를 모으는 중이에요.'); return; }
-            if (!sideChamp) { el.innerHTML = noDataText('내 챔피언을 고르면 상대하기 어려운 / 쉬운 챔피언이 나와요.'); return; }
-            if (!champ || !sideRole) { el.innerHTML = noDataText('표본이 부족해요.'); return; }
-            const r = champ.roles[sideRole];
-            const col = (list, title, color) => `
-                <div class="min-w-0">
-                    <div class="text-[10px] font-bold ${color} mb-1">${title}</div>
-                    <div class="flex flex-col gap-1">
-                        ${list.length ? list.map(o => `
-                            <button type="button" onclick="openMatchupFromSide('${escJs(sideChamp)}', '${escJs(o.name)}')" class="side-chip flex items-center gap-1.5 w-full px-1.5 py-1 rounded-lg border border-slate-700 bg-slate-900/60 text-left min-w-0" title="${escHtml(o.games)}판">
-                                ${iconImg(champImg(o.name, o.id), o.name, 'w-6 h-6')}
-                                <span class="text-[11px] font-bold text-white truncate">${escHtml(o.name)}</span>
-                                <span class="text-[10px] font-black ${wrColor(o.winRate)} ml-auto flex-shrink-0">${o.winRate}</span>
-                            </button>`).join('') : '<span class="text-[10px] text-slate-500">표본 부족</span>'}
-                    </div>
-                </div>`;
-            el.innerHTML = `<div class="grid grid-cols-2 gap-2">${col(r.hard || [], '어려운 상대', 'text-rose-400')}${col(r.easy || [], '쉬운 상대', 'text-emerald-400')}</div>
-                <p class="text-[10px] text-slate-500 mt-1.5">${escHtml(sideChamp)} 기준 승률</p>`;
-        }
+        (function setupBuildCard() {
+            const input = document.getElementById('build-search');
+            const box = document.getElementById('build-suggest');
+            const grid = document.getElementById('side-build');
+            const tabs = document.getElementById('build-tabs');
+            if (!input) return;
+
+            const hide = () => { box.classList.add('hidden'); box.innerHTML = ''; };
+            input.addEventListener('input', () => {
+                const list = input.value.trim() ? filterChampNames(input.value).slice(0, 6) : [];
+                if (!list.length) { hide(); return; }
+                box.innerHTML = list.map(name => `
+                    <button type="button" data-build-name="${escHtml(name)}" class="w-full flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-800 text-left">
+                        <img src="${getChampImgUrl(name)}" alt="" class="w-7 h-7 rounded-md object-cover border border-slate-700 bg-slate-800">
+                        <span class="text-xs font-bold text-white">${escHtml(name)}</span>
+                    </button>`).join('');
+                box.classList.remove('hidden');
+            });
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const first = filterChampNames(input.value)[0];
+                    if (first) { input.value = ''; hide(); openChampPage(first); }
+                } else if (e.key === 'Escape') hide();
+            });
+            document.addEventListener('click', (e) => {
+                if (!input.contains(e.target) && !box.contains(e.target)) hide();
+            });
+            const pick = (e) => {
+                const btn = e.target.closest('[data-build-name]');
+                if (!btn) return;
+                input.value = ''; hide();
+                openChampPage(btn.dataset.buildName);
+            };
+            box.addEventListener('click', pick);
+            grid.addEventListener('click', pick);
+            tabs.addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-line]');
+                if (!btn) return;
+                buildLine = btn.dataset.line;
+                tabs.querySelectorAll('.side-tab').forEach(b => b.classList.toggle('active', b === btn));
+                renderSideBuild();
+            });
+        })();
 
         function renderSidePanels() {
             renderSidePopular();
             renderSideOp();
             renderSidePatch();
-            if (!sideChamp && window.RANKING_DATABASE && window.RANKING_META) {
-                const first = (window.RANKING_DATABASE.top || [])[0];
-                if (first) { setSideChamp(first.name, 'top'); return; }
-            }
             renderSideBuild();
-            renderSideCounter();
         }
 
         document.getElementById('side-op-tabs').addEventListener('click', (e) => {
@@ -1273,17 +1267,7 @@
                 </div>`;
 
             const drawGrid = () => {
-                const q = champSelectQuery.trim().replace(/\s+/g, '').toLowerCase();
-                const aliasHits = new Set(Object.entries(champAliases)
-                    .filter(([alias]) => q && alias.toLowerCase().includes(q)).map(([, official]) => official));
-                const names = Object.keys(champDataList).sort((a, b) => a.localeCompare(b, 'ko'));
-                const list = names.filter(name => {
-                    if (champSelectLine !== 'all' && champMainRole(name) !== champSelectLine) return false;
-                    if (!q) return true;
-                    const plain = name.replace(/\s+/g, '').toLowerCase();
-                    return plain.includes(q) || toChosung(plain).includes(q) || aliasHits.has(name)
-                        || String(champDataList[name]).toLowerCase().includes(q);
-                });
+                const list = filterChampNames(champSelectQuery, champSelectLine);
                 const grid = document.getElementById('cs-grid');
                 grid.innerHTML = list.length ? list.map(name => `
                     <button type="button" data-cs-name="${escHtml(name)}" class="side-chip group flex flex-col items-center gap-1 p-1.5 rounded-xl border border-transparent hover:border-amber-400 hover:bg-slate-800/80" title="${escHtml(name)}">
@@ -1453,7 +1437,7 @@
             card.setAttribute('role', 'link');
             card.setAttribute('tabindex', '0');
             card.addEventListener('click', (e) => {
-                if (e.target.closest('button, a')) return;
+                if (e.target.closest('button, a, input')) return;
                 go();
             });
             card.addEventListener('keydown', (e) => {
