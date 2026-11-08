@@ -95,7 +95,7 @@
             height: auto;
             min-height: 105px;
             justify-content: flex-start;
-            cursor: default;
+            cursor: pointer;
         }
         .side-chip { cursor: pointer; transition: all 0.15s ease; }
         .side-chip:hover { border-color: rgba(250, 204, 21, 0.8); background: rgba(250, 204, 21, 0.12); }
@@ -1100,7 +1100,7 @@
             const list = (db && db[sideOpLine]) || [];
             if (!window.RANKING_META || !list.length) { el.innerHTML = noDataText('데이터를 모으는 중이에요. 매일 새벽에 갱신돼요.'); return; }
             el.innerHTML = list.slice(0, 3).map(c => `
-                <button type="button" onclick="setSideChamp('${escJs(c.name)}', '${sideOpLine}')" class="side-chip flex items-center justify-between gap-2 w-full px-2 py-1.5 rounded-lg border border-slate-700 bg-slate-900/60 text-left">
+                <button type="button" onclick="openChampPage('${escJs(c.name)}', '${sideOpLine}')" class="side-chip flex items-center justify-between gap-2 w-full px-2 py-1.5 rounded-lg border border-slate-700 bg-slate-900/60 text-left">
                     <span class="flex items-center gap-2 min-w-0">
                         <span class="text-yellow-400 font-black text-xs w-3">${c.rank}</span>
                         ${iconImg(champImg(c.name, c.id), c.name, 'w-7 h-7')}
@@ -1129,12 +1129,12 @@
                     <div class="flex items-center gap-2 mb-1.5">
                         <span class="text-[10px] font-black px-1.5 py-0.5 rounded border flex-shrink-0 ${patchChangeClass(change)}">${change}</span>
                         <div class="flex flex-wrap gap-1">
-                            ${list.map(c => `<button type="button" onclick="setSideChamp('${escJs(c.name)}')" class="side-chip rounded-lg">${iconImg(getChampImgUrl(c.name), c.name, 'w-7 h-7')}</button>`).join('')}
+                            ${list.map(c => `<button type="button" onclick="openChampPage('${escJs(c.name)}')" class="side-chip rounded-lg">${iconImg(getChampImgUrl(c.name), c.name, 'w-7 h-7')}</button>`).join('')}
                         </div>
                     </div>`;
             };
             el.innerHTML = group('상향') + group('하향') + group('조정')
-                + `<p class="text-[10px] text-slate-500 mt-1">${escHtml(pn.date)} 적용 · 아이콘을 누르면 빌드 보기</p>`;
+                + `<p class="text-[10px] text-slate-500 mt-1">${escHtml(pn.date)} 적용 · 아이콘을 누르면 챔피언 상세</p>`;
         }
 
         function renderSideBuild() {
@@ -1176,7 +1176,7 @@
                 iconImg(`https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/${sp.id}.png`, sp.name, 'w-7 h-7')).join('') : '';
 
             el.innerHTML = `
-                <div class="flex items-center gap-2 mb-2 cursor-pointer hover:opacity-90" onclick="openChampPage(sideChamp, sideRole)" title="상세보기">
+                <div class="flex items-center gap-2 mb-2">
                     ${iconImg(champImg(sideChamp, champ.id), sideChamp, 'w-10 h-10', 'border-amber-400')}
                     <div class="min-w-0">
                         <div class="text-sm font-black text-white truncate">${escHtml(sideChamp)}</div>
@@ -1251,6 +1251,7 @@
                 const roles = champ.roles;
                 if (!role || !roles[role]) role = Object.keys(roles).sort((x, y) => roles[y].games - roles[x].games)[0];
             }
+            if (champ) setSideChamp(name, role);
             renderChampPage(name, role);
             switchToDetailView('champ', `${name}|${role || ''}`, pushHistory);
         };
@@ -1366,6 +1367,27 @@
             return `${major < 20 ? major + 10 : major}.${m[2]}`;
         }
 
+        // 카드 아무 곳이나 누르면 해당 상세페이지로 이동 (카드 안 버튼은 각자 동작)
+        const SIDE_CARD_TARGET = {
+            'card-popular': () => renderPage('hot', true),
+            'card-op': () => renderPage('ranking', true),
+            'card-build': () => { if (sideChamp) openChampPage(sideChamp, sideRole); },
+            'card-patch': () => renderPage('patch', true),
+        };
+        Object.entries(SIDE_CARD_TARGET).forEach(([id, go]) => {
+            const card = document.getElementById(id);
+            if (!card) return;
+            card.setAttribute('role', 'link');
+            card.setAttribute('tabindex', '0');
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('button, a')) return;
+                go();
+            });
+            card.addEventListener('keydown', (e) => {
+                if ((e.key === 'Enter' || e.key === ' ') && e.target === card) { e.preventDefault(); go(); }
+            });
+        });
+
         let hotLine = 'top';
         function renderHotPage() {
             const all = (window.CHAMP_DATA && window.CHAMP_DATA.popular) || [];
@@ -1411,7 +1433,7 @@
                 return;
             }
             const champRows = (change) =>(pn.champions || []).filter(c =>c.change === change).map(c => `
-                <button type="button" onclick="setSideChamp('${escJs(c.name)}'); showMainView(true);" class="side-chip flex items-center gap-2 p-2 rounded-xl border border-slate-700 bg-slate-800/80 text-left">
+                <button type="button" onclick="openChampPage('${escJs(c.name)}')" class="side-chip flex items-center gap-2 p-2 rounded-xl border border-slate-700 bg-slate-800/80 text-left">
                     ${iconImg(getChampImgUrl(c.name), c.name, 'w-9 h-9')}
                     <span class="text-sm font-bold text-white">${escHtml(c.name)}</span>
                 </button>`).join('');
