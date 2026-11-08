@@ -1534,8 +1534,8 @@
                     ${section('소환사 주문', spells ? `<div class="space-y-2">${spells}</div>` : noDataText('표본 부족'))}
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
-                    ${section('어려운 상대', (r.hard || []).length ? `<div class="space-y-2">${r.hard.map(oppBtn).join('')}</div>` : noDataText('표본 부족'), '누르면 상성 보기')}
-                    ${section('쉬운 상대', (r.easy || []).length ? `<div class="space-y-2">${r.easy.map(oppBtn).join('')}</div>` : noDataText('표본 부족'), '누르면 상성 보기')}
+                    ${section('어려운 상대 TOP 3', (r.hard || []).length ? `<div class="space-y-2">${r.hard.map(oppBtn).join('')}</div>` : noDataText('표본 부족'), '누르면 상성 보기')}
+                    ${section('쉬운 상대 TOP 3', (r.easy || []).length ? `<div class="space-y-2">${r.easy.map(oppBtn).join('')}</div>` : noDataText('표본 부족'), '누르면 상성 보기')}
                 </div>
                 ${vsList.length ? section('상대별 승률 전체', `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${vsList.map(oppBtn).join('')}</div>`, '승률 낮은 순 · 자주 만난 상대 최대 20명') : ''}
             `);
