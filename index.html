@@ -471,6 +471,19 @@
             return `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/${fileName}`;
         }
 
+        // 스펠 설명 문장에서 실제로 언급된 스펠을 순서대로 찾아 아이콘을 맞춰줌 (없으면 점멸/점화)
+        function getSpellNames(spellText) {
+            const names = ['점멸', '점화', '순간이동', '텔레포트', '회복', '정화', '강타', '탈진', '보호막', '유체화'];
+            const text = String(spellText || '');
+            const found = names
+                .map(n => ({ n, i: text.indexOf(n) }))
+                .filter(o => o.i !== -1)
+                .sort((a, b) => a.i - b.i)
+                .map(o => (o.n === '텔레포트' ? '순간이동' : o.n));
+            const unique = [...new Set(found)].slice(0, 2);
+            return unique.length ? unique : ['점멸', '점화'];
+        }
+
         function getItemImgUrl(itemId) {
             return `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/item/${itemId}.png`;
         }
@@ -866,7 +879,7 @@
                             </h4>
                             <div class="flex items-center gap-4 bg-slate-800/90 p-4 rounded-2xl border border-slate-700">
                                 <img src="${getItemImgUrl(String(data.item).match(/^\d+/) ? String(data.item).match(/^\d+/)[0] : '3152')}" alt="추천 아이템" class="w-16 h-16 rounded-xl border border-amber-500/50 shadow-md object-cover bg-slate-900 flex-shrink-0" onerror="this.src='https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/3152.png'">
-                                <div>
+                                <div class="min-w-0">
                                     <span class="text-white font-bold text-sm block mb-1 leading-snug">${data.item}</span>
                                     <span class="text-[11px] text-slate-400 leading-relaxed">상대방의 유지력과 딜교환에 맞춘 핵심 장비 및 빌드업 팁입니다.</span>
                                 </div>
@@ -880,11 +893,10 @@
                                 <span>⚡</span> 추천 소환사 스펠
                             </h4>
                             <div class="flex items-center gap-4 bg-slate-800/90 p-4 rounded-2xl border border-slate-700">
-                                <div class="flex items-center gap-2">
-                                    <img src="${getSpellImgUrl('점멸')}" alt="점멸" class="w-12 h-12 rounded-xl border border-indigo-400/50 shadow-md object-cover bg-slate-900">
-                                    <img src="${getSpellImgUrl('점화')}" alt="점화" class="w-12 h-12 rounded-xl border border-rose-400/50 shadow-md object-cover bg-slate-900">
+                                <div class="flex items-center gap-2 flex-shrink-0">
+                                    ${getSpellNames(data.spell).map(s => `<img src="${getSpellImgUrl(s)}" alt="${s}" class="w-12 h-12 rounded-xl border border-indigo-400/50 shadow-md object-cover bg-slate-900 flex-shrink-0">`).join('')}
                                 </div>
-                                <div>
+                                <div class="min-w-0">
                                     <span class="text-white font-bold text-base block mb-1">${data.spell || '점멸 / 점화'}</span>
                                     <span class="text-xs text-slate-300 leading-relaxed">초반 교전 킬 각 및 라인 복귀력 극대화 스펠 조합</span>
                                 </div>
@@ -1101,12 +1113,19 @@
             ]
         };
 
+        function getRankingMetaText() {
+            const m = window.RANKING_META;
+            if (!m || !window.RANKING_DATABASE) return '※ 예시 데이터입니다 (실제 통계 아님)';
+            return `패치 ${m.patch} · 한국 서버 ${m.tierLabel} 솔로랭크 ${Number(m.games).toLocaleString()}판 기준 · ${m.updatedAt} 갱신`;
+        }
+
         function renderRankingPage() {
             detailDynamicContent.innerHTML = `
                 <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-xl max-w-4xl mx-auto">
                     <div class="text-center mb-6">
                         <h2 class="text-2xl sm:text-3xl font-black text-yellow-300 mb-2">📊 챔프 별 승률 및 메타 데이터 (TOP 10)</h2>
-                        <p class="text-xs sm:text-sm text-slate-300">상성 보기를 클릭하여 원하는 상대 챔피언과 매치업 구도를 검색하세요.</p>
+                        <p class="text-xs sm:text-sm text-slate-300">상성 버튼을 눌러 원하는 상대 챔피언과 매치업 구도를 검색하세요.</p>
+                        <p class="text-[11px] text-slate-500 mt-2">${getRankingMetaText()}</p>
                     </div>
 
                     <div id="ranking-tabs" class="flex flex-wrap justify-center gap-2 mb-6">
@@ -1131,30 +1150,37 @@
                     return;
                 }
 
-                listContainer.innerHTML = data.map(item => `
-                    <div class="flex items-center justify-between p-4 bg-slate-800/90 hover:bg-slate-850 rounded-2xl border border-slate-700 transition-all shadow">
-                        <div class="flex items-center gap-4">
-                            <span class="text-lg font-black text-yellow-400 w-6 text-center">${item.rank}</span>
-                            <img src="${getChampImgUrl(item.name)}" alt="${item.name}" class="w-12 h-12 rounded-xl object-cover border border-slate-600 bg-slate-900">
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <span class="font-black text-base text-white">${item.name}</span>
-                                    <span class="text-[10px] px-2 py-0.5 rounded font-bold ${item.tier === 'OP' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40' : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40'}">${item.tier}</span>
+                listContainer.innerHTML = data.map(item => {
+                    const imgUrl = item.id
+                        ? `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${item.id}.png`
+                        : getChampImgUrl(item.name);
+                    const tierClass = item.tier === 'OP'
+                        ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40'
+                        : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40';
+                    return `
+                    <div class="flex items-center justify-between gap-2 p-3 sm:p-4 bg-slate-800/90 rounded-2xl border border-slate-700 transition-all shadow">
+                        <div class="flex items-center gap-2 sm:gap-4 min-w-0">
+                            <span class="text-base sm:text-lg font-black text-yellow-400 w-5 sm:w-6 text-center flex-shrink-0">${item.rank}</span>
+                            <img src="${imgUrl}" alt="${item.name}" class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl object-cover border border-slate-600 bg-slate-900 flex-shrink-0">
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="font-black text-sm sm:text-base text-white whitespace-nowrap">${item.name}</span>
+                                    <span class="text-[10px] px-1.5 py-0.5 rounded font-bold whitespace-nowrap ${tierClass}">${item.tier}</span>
                                 </div>
-                                <span class="text-xs text-slate-400">픽률 ${item.pickRate} | 밴률 ${item.banRate}</span>
+                                <span class="text-[11px] sm:text-xs text-slate-400 whitespace-nowrap">픽 ${item.pickRate} · 밴 ${item.banRate}</span>
                             </div>
                         </div>
-                        <div class="flex items-center gap-4 text-right">
+                        <div class="flex items-center gap-2 sm:gap-4 text-right flex-shrink-0">
                             <div>
-                                <span class="text-base font-black text-emerald-400 block">${item.winRate}</span>
-                                <span class="text-[11px] text-slate-400">승률</span>
+                                <span class="text-sm sm:text-base font-black text-emerald-400 block whitespace-nowrap">${item.winRate}</span>
+                                <span class="text-[10px] sm:text-[11px] text-slate-400">승률</span>
                             </div>
-                            <button type="button" onclick="openMatchupModal('${item.name}')" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs rounded-xl cursor-pointer shadow transition-all">
-                                상성 보기 ➔
+                            <button type="button" onclick="openMatchupModal('${item.name}')" class="px-2.5 sm:px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs rounded-xl cursor-pointer shadow transition-all whitespace-nowrap">
+                                상성 ➔
                             </button>
                         </div>
-                    </div>
-                `).join('');
+                    </div>`;
+                }).join('');
             }
 
             drawList('top');
