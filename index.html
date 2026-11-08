@@ -133,7 +133,7 @@
     <main id="main-view" class="w-full max-w-7xl mx-auto my-auto py-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
         
         <!-- 좌측 영역: 이번 패치 메타 -->
-        <div class="lg:col-span-3 flex flex-col gap-4 w-full">
+        <div class="lg:col-span-3 lg:self-start lg:mt-4 flex flex-col gap-4 w-full">
             <div class="hextech-card side-card rounded-2xl px-4 py-3">
                 <h3 class="text-sm font-bold pb-1.5 mb-2 border-b border-amber-500/30 flex items-center justify-between">
                     <span class="flex items-center gap-1.5 text-yellow-300">이번 패치 인기 구도</span>
@@ -157,13 +157,6 @@
                 <div id="side-op" class="flex flex-col gap-1.5 text-xs text-slate-400">불러오는 중...</div>
             </div>
 
-            <div class="hextech-card side-card rounded-2xl px-4 py-3">
-                <h3 class="text-sm font-bold pb-1.5 mb-2 border-b border-amber-500/30 flex items-center justify-between">
-                    <span id="side-patch-title" class="text-yellow-300">패치노트 한눈에 보기</span>
-                    <button type="button" data-page="patch" class="text-[11px] text-amber-400 font-normal cursor-pointer hover:text-amber-300">더보기 ➔</button>
-                </h3>
-                <div id="side-patch" class="text-xs text-slate-400">불러오는 중...</div>
-            </div>
         </div>
 
         <!-- 중앙 영역 -->
@@ -284,34 +277,25 @@
 
         </div>
 
-        <!-- 우측 영역: 내 챔피언 맞춤 -->
-        <div class="lg:col-span-3 flex flex-col gap-4 w-full">
+        <!-- 우측 영역: 챔피언 빌드 / 패치 요약 -->
+        <div class="lg:col-span-3 lg:self-start lg:mt-4 flex flex-col gap-4 w-full">
             <div class="hextech-card side-card rounded-2xl px-4 py-3">
                 <h3 class="text-sm font-bold pb-1.5 mb-2 border-b border-amber-500/30 flex items-center justify-between">
                     <span class="flex items-center gap-1.5 text-yellow-300">챔피언 빌드 & 룬</span>
-                    <span id="side-build-label" class="text-[10px] text-slate-500 font-normal"></span>
+                    <span class="flex items-center gap-2">
+                        <span id="side-build-label" class="text-[10px] text-slate-500 font-normal"></span>
+                        <button type="button" id="side-build-more" onclick="if (sideChamp) openChampPage(sideChamp, sideRole)" class="text-[11px] text-amber-400 font-normal cursor-pointer hover:text-amber-300 hidden">상세보기 ➔</button>
+                    </span>
                 </h3>
                 <div id="side-build" class="text-xs text-slate-400">불러오는 중...</div>
             </div>
 
             <div class="hextech-card side-card rounded-2xl px-4 py-3">
                 <h3 class="text-sm font-bold pb-1.5 mb-2 border-b border-amber-500/30 flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 text-yellow-300">상대 난이도</span>
-                    <span class="text-[10px] text-slate-500 font-normal">누르면 상성 보기</span>
+                    <span id="side-patch-title" class="text-yellow-300">패치노트 한눈에 보기</span>
+                    <button type="button" data-page="patch" class="text-[11px] text-amber-400 font-normal cursor-pointer hover:text-amber-300">더보기 ➔</button>
                 </h3>
-                <div id="side-counter" class="text-xs text-slate-400">불러오는 중...</div>
-            </div>
-
-            <div data-page="feedback" role="button" tabindex="0" class="hextech-card rounded-2xl px-4 py-3 justify-between">
-                <div class="pointer-events-none w-full">
-                    <h3 class="text-sm font-bold pb-1.5 mb-1.5 border-b border-amber-500/30 flex items-center justify-between text-yellow-300">
-                        <span class="flex items-center gap-1.5">공략 제보 & 요청</span>
-                        <span class="text-[11px] text-amber-400 font-normal">작성하기 ➔</span>
-                    </h3>
-                    <p class="text-xs text-slate-300 leading-relaxed truncate">
-                        찾으시는 챔피언 구도가 없으신가요? 꿀팁 제보를 환영합니다!
-                    </p>
-                </div>
+                <div id="side-patch" class="text-xs text-slate-400">불러오는 중...</div>
             </div>
         </div>
 
@@ -1182,10 +1166,13 @@
             const el = document.getElementById('side-build');
             const label = document.getElementById('side-build-label');
             if (!el) return;
+            const more = document.getElementById('side-build-more');
+            const champOk = window.CHAMP_DATA && window.CHAMP_DATA.champs && sideChamp && window.CHAMP_DATA.champs[sideChamp] && sideRole;
+            if (more) more.classList.toggle('hidden', !champOk);
             const data = window.CHAMP_DATA;
             if (!data || !data.champs) { el.innerHTML = noDataText('데이터를 모으는 중이에요. 매일 새벽에 갱신돼요.'); label.textContent = ''; return; }
             if (!sideChamp) {
-                el.innerHTML = noDataText('1vs1 검색에서  MY로 내 챔피언을 고르거나, 왼쪽 OP 챔피언을 누르면 빌드가 나와요.');
+                el.innerHTML = noDataText('1vs1 검색에서 MY로 내 챔피언을 고르거나, 왼쪽 OP 챔피언을 누르면 빌드가 나와요.');
                 label.textContent = '';
                 return;
             }
@@ -1201,7 +1188,7 @@
                 ? `<div class="flex flex-wrap gap-1 mb-2">${Object.keys(champ.roles).map(k => `
                     <button type="button" onclick="setSideChamp('${escJs(sideChamp)}', '${k}')" class="side-tab ${k === sideRole ? 'active' : ''} text-[10px] font-bold rounded-md px-2 py-0.5 bg-slate-800 text-white">${LINE_NAMES[k]}</button>`).join('')}</div>`
                 : '';
-            const items = (r.items || []).map(it =>iconImg(getItemImgUrl(it.id), `${it.name} (픽 ${it.pick}, 승률 ${it.winRate})`, 'w-8 h-8')).join('');
+            const items = (r.items || []).slice(0, 3).map(it =>iconImg(getItemImgUrl(it.id), `${it.name} (픽 ${it.pick}, 승률 ${it.winRate})`, 'w-8 h-8')).join('');
             const boots = r.boots ? iconImg(getItemImgUrl(r.boots.id), `${r.boots.name} (픽 ${r.boots.pick})`, 'w-8 h-8', 'opacity-90') : '';
             const runeBase = 'https://ddragon.leagueoflegends.com/cdn/img/';
             const keystone = r.keystone ? `
@@ -1214,7 +1201,7 @@
                 iconImg(`https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/${sp.id}.png`, sp.name, 'w-7 h-7')).join('') : '';
 
             el.innerHTML = `
-                <div class="flex items-center gap-2 mb-2">
+                <div class="flex items-center gap-2 mb-2 cursor-pointer hover:opacity-90" onclick="openChampPage(sideChamp, sideRole)" title="상세보기">
                     ${iconImg(champImg(sideChamp, champ.id), sideChamp, 'w-10 h-10', 'border-amber-400')}
                     <div class="min-w-0">
                         <div class="text-sm font-black text-white truncate">${escHtml(sideChamp)}</div>
@@ -1281,13 +1268,141 @@
             renderSideOp();
         });
 
+        // ───────────── 챔피언 상세페이지 ─────────────
+        window.openChampPage = function(name, role, pushHistory = true) {
+            const data = window.CHAMP_DATA;
+            const champ = data && data.champs ? data.champs[name] : null;
+            if (champ) {
+                const roles = champ.roles;
+                if (!role || !roles[role]) role = Object.keys(roles).sort((x, y) => roles[y].games - roles[x].games)[0];
+            }
+            renderChampPage(name, role);
+            switchToDetailView('champ', `${name}|${role || ''}`, pushHistory);
+        };
+
+        function statBar(pick) {
+            const n = Math.max(0, Math.min(100, parseFloat(pick) || 0));
+            return `<div class="h-1.5 rounded-full bg-slate-700 overflow-hidden"><div class="h-full bg-amber-400" style="width:${n}%"></div></div>`;
+        }
+
+        function statRow(iconHtml, title, o) {
+            return `
+                <div class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-800/80 border border-slate-700">
+                    ${iconHtml}
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <span class="text-sm font-bold text-white truncate">${title}</span>
+                            <span class="text-xs font-black ${wrColor(o.winRate)} flex-shrink-0">${o.winRate}</span>
+                        </div>
+                        ${statBar(o.pick)}
+                        <div class="text-[10px] text-slate-500 mt-1">픽 ${o.pick}${o.games != null ? ` · ${Number(o.games).toLocaleString()}판` : ''}</div>
+                    </div>
+                </div>`;
+        }
+
+        function renderChampPage(name, role) {
+            const data = window.CHAMP_DATA;
+            const champ = data && data.champs ? data.champs[name] : null;
+            const box = (inner) => `<div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-xl max-w-4xl mx-auto">${inner}</div>`;
+            if (!champ || !role) {
+                detailDynamicContent.innerHTML = box(`
+                    <div class="flex flex-col items-center gap-3 text-center">
+                        ${iconImg(getChampImgUrl(name), name, 'w-16 h-16')}
+                        <h2 class="text-2xl font-black text-yellow-300">${escHtml(name)}</h2>
+                        ${noDataText('이번 패치 표본이 부족해서 아직 상세 정보를 보여줄 수 없어요. 데이터가 쌓이면 나타나요.')}
+                    </div>`);
+                return;
+            }
+            const r = champ.roles[role];
+            const meta = data.meta || {};
+            const runeBase = 'https://ddragon.leagueoflegends.com/cdn/img/';
+            const roleTabs = Object.keys(champ.roles).map(k => `
+                <button type="button" onclick="openChampPage('${escJs(name)}', '${k}', false)" class="px-3 py-1.5 rounded-xl font-bold text-xs cursor-pointer ${k === role ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-white hover:bg-slate-700'}">${LINE_NAMES[k]}</button>`).join('');
+            const statBox = (label, value, cls = 'text-white') => `
+                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl px-3 py-2 text-center">
+                    <div class="text-[10px] text-slate-500">${label}</div>
+                    <div class="text-base font-black ${cls}">${value}</div>
+                </div>`;
+            const section = (title, inner, sub = '') => `
+                <div class="mb-6">
+                    <div class="flex items-end justify-between mb-2">
+                        <h3 class="text-base font-black text-yellow-300">${title}</h3>
+                        <span class="text-[10px] text-slate-500">${sub}</span>
+                    </div>
+                    ${inner}
+                </div>`;
+
+            const items = (r.items || []).map(it => statRow(iconImg(getItemImgUrl(it.id), it.name, 'w-10 h-10'), escHtml(it.name), it)).join('');
+            const boots = (r.bootsList || (r.boots ? [r.boots] : [])).map(it => statRow(iconImg(getItemImgUrl(it.id), it.name, 'w-10 h-10'), escHtml(it.name), it)).join('');
+            const keystones = (r.keystones || (r.keystone ? [r.keystone] : [])).map(k => statRow(iconImg(runeBase + k.icon, k.name, 'w-10 h-10', 'rounded-full'), escHtml(k.name), k)).join('');
+            const secondaries = (r.secondaries || []).map(k => statRow(iconImg(runeBase + k.icon, k.name, 'w-10 h-10', 'rounded-full border-0'), `보조 ${escHtml(k.name)}`, k)).join('');
+            const spells = (r.spellsList || (r.spells ? [r.spells] : [])).map(sp => statRow(
+                `<div class="flex gap-1 flex-shrink-0">${sp.list.map(x => iconImg(`https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/${x.id}.png`, x.name, 'w-9 h-9')).join('')}</div>`,
+                sp.list.map(x => escHtml(x.name)).join(' + '), sp)).join('');
+
+            const oppBtn = (o) => `
+                <button type="button" onclick="openMatchupFromSide('${escJs(name)}', '${escJs(o.name)}')" class="side-chip flex items-center gap-2 w-full p-2 rounded-xl border border-slate-700 bg-slate-800/80 text-left">
+                    ${iconImg(champImg(o.name, o.id), o.name, 'w-9 h-9')}
+                    <span class="text-sm font-bold text-white truncate flex-1 min-w-0">${escHtml(o.name)}</span>
+                    <span class="text-right flex-shrink-0">
+                        <span class="block text-sm font-black ${wrColor(o.winRate)}">${o.winRate}</span>
+                        <span class="block text-[10px] text-slate-500">${Number(o.games).toLocaleString()}판</span>
+                    </span>
+                </button>`;
+            const vsList = (r.vs || []).slice().sort((a, b) => parseFloat(a.winRate) - parseFloat(b.winRate));
+
+            detailDynamicContent.innerHTML = box(`
+                <div class="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
+                    ${iconImg(champImg(name, champ.id), name, 'w-20 h-20', 'rounded-2xl border-2 border-amber-400')}
+                    <div class="flex-1 min-w-0">
+                        <h2 class="text-3xl font-black text-white mb-2">${escHtml(name)}</h2>
+                        <div class="flex flex-wrap gap-1.5">${roleTabs}</div>
+                    </div>
+                    <button type="button" onclick="selectDraftChamp1('${escJs(name)}', 'mine'); showMainView(true);" class="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-sm rounded-xl cursor-pointer shadow self-start sm:self-center">내 챔피언으로 상성 검색</button>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-2">
+                    ${statBox('승률', r.winRate, wrColor(r.winRate))}
+                    ${statBox('픽률', r.pickRate)}
+                    ${statBox('밴률', r.banRate)}
+                    ${statBox('표본', `${Number(r.games).toLocaleString()}판`)}
+                </div>
+                <p class="text-[10px] text-slate-500 mb-6">${meta.patch ? `패치 ${escHtml(displayPatch(meta.patch))} · 한국 서버 ${escHtml(meta.tierLabel || '')} 솔로랭크 ${LINE_NAMES[role]} 기준` : ''}</p>
+
+                ${section('핵심 아이템', items ? `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${items}</div>` : noDataText('표본 부족'), '많이 가는 순서 · 막대는 픽률')}
+                ${section('신발', boots ? `<div class="grid grid-cols-1 sm:grid-cols-3 gap-2">${boots}</div>` : noDataText('표본 부족'))}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+                    ${section('룬', (keystones || secondaries) ? `<div class="space-y-2">${keystones}${secondaries}</div>` : noDataText('표본 부족'))}
+                    ${section('소환사 주문', spells ? `<div class="space-y-2">${spells}</div>` : noDataText('표본 부족'))}
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+                    ${section('어려운 상대', (r.hard || []).length ? `<div class="space-y-2">${r.hard.map(oppBtn).join('')}</div>` : noDataText('표본 부족'), '누르면 상성 보기')}
+                    ${section('쉬운 상대', (r.easy || []).length ? `<div class="space-y-2">${r.easy.map(oppBtn).join('')}</div>` : noDataText('표본 부족'), '누르면 상성 보기')}
+                </div>
+                ${vsList.length ? section('상대별 승률 전체', `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${vsList.map(oppBtn).join('')}</div>`, '승률 낮은 순 · 자주 만난 상대 최대 20명') : ''}
+            `);
+        }
+
+        // 경기 데이터 버전(16.22)으로 저장된 예전 파일도 실제 패치 이름(26.22)으로 보여줌
+        function displayPatch(p) {
+            const m = String(p || '').match(/^(\d+)\.(\d+)/);
+            if (!m) return p;
+            const major = Number(m[1]);
+            return `${major < 20 ? major + 10 : major}.${m[2]}`;
+        }
+
+        let hotLine = 'top';
         function renderHotPage() {
-            const list = (window.CHAMP_DATA && window.CHAMP_DATA.popular) || [];
+            const all = (window.CHAMP_DATA && window.CHAMP_DATA.popular) || [];
             const meta = (window.CHAMP_DATA && window.CHAMP_DATA.meta) || {};
+            const list = all.filter(m => m.role === hotLine).slice(0, 5);
+            const tabs = Object.entries(LINE_NAMES).map(([k, v]) => `
+                <button type="button" data-hot-line="${k}" class="px-4 py-2 rounded-xl font-bold text-sm cursor-pointer shadow ${k === hotLine ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-white hover:bg-slate-700'}">${v}</button>`).join('');
             detailDynamicContent.innerHTML = `
                 <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-xl max-w-3xl mx-auto">
-                    <h2 class="text-2xl font-black text-yellow-300 mb-1 text-center">이번 패치 인기 구도 TOP 20</h2>
-                    <p class="text-[11px] text-slate-500 text-center mb-5">${meta.patch ? `패치 ${escHtml(meta.patch)} · 같은 라인에서 가장 많이 만난 조합` : ''}</p>
+                    <h2 class="text-2xl font-black text-yellow-300 mb-1 text-center">라인별 인기 구도 TOP 5</h2>
+                    <p class="text-[11px] text-slate-500 text-center mb-5">${meta.patch ? `패치 ${escHtml(displayPatch(meta.patch))} · 같은 라인에서 가장 많이 만난 조합` : ''}</p>
+                    <div id="hot-tabs" class="flex flex-wrap justify-center gap-2 mb-6">${tabs}</div>
                     <div class="space-y-2">
                         ${list.length ? list.map((m, i) => `
                             <button type="button" onclick="openMatchupFromSide('${escJs(m.a)}', '${escJs(m.b)}')" class="side-chip w-full flex items-center justify-between gap-2 p-3 bg-slate-800/90 rounded-2xl border border-slate-700 text-left">
@@ -1300,12 +1415,18 @@
                                     <span class="font-bold text-white text-sm truncate">${escHtml(m.b)}</span>
                                 </span>
                                 <span class="text-right flex-shrink-0">
-                                    <span class="block text-xs text-slate-300">${LINE_NAMES[m.role]} · ${Number(m.games).toLocaleString()}판</span>
+                                    <span class="block text-xs text-slate-300">${Number(m.games).toLocaleString()}판</span>
                                     <span class="block text-[11px] text-slate-500">${escHtml(m.a)} 승률 <b class="${wrColor(m.aWinRate)}">${m.aWinRate}</b></span>
                                 </span>
-                            </button>`).join('') : noDataText('데이터를 모으는 중이에요. 매일 새벽에 갱신돼요.')}
+                            </button>`).join('') : noDataText('이 라인은 아직 표본이 부족해요. 데이터가 쌓이면 나타나요.')}
                     </div>
                 </div>`;
+            document.getElementById('hot-tabs').addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-hot-line]');
+                if (!btn) return;
+                hotLine = btn.dataset.hotLine;
+                renderHotPage();
+            });
         }
 
         function renderPatchPage() {
@@ -1439,14 +1560,14 @@
         function getRankingMetaText() {
             const m = window.RANKING_META;
             if (!m || !window.RANKING_DATABASE) return '※ 예시 데이터입니다 (실제 통계 아님)';
-            return `패치 ${m.patch} · 한국 서버 ${m.tierLabel} 솔로랭크 ${Number(m.games).toLocaleString()}판 기준 · ${m.updatedAt} 갱신`;
+            return `패치 ${displayPatch(m.patch)} · 한국 서버 ${m.tierLabel} 솔로랭크 ${Number(m.games).toLocaleString()}판 기준 · ${m.updatedAt} 갱신`;
         }
 
         function renderRankingPage() {
             detailDynamicContent.innerHTML = `
                 <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-xl max-w-4xl mx-auto">
                     <div class="text-center mb-6">
-                        <h2 class="text-2xl sm:text-3xl font-black text-yellow-300 mb-2">라인 별 챔피언 승률 랭킹 (TOP 10)</h2>
+                        <h2 class="text-2xl sm:text-3xl font-black text-yellow-300 mb-2">라인별 챔피언 승률 랭킹 (TOP 10)</h2>
                         <p class="text-xs sm:text-sm text-slate-300">상성 버튼을 눌러 원하는 상대 챔피언과 매치업 구도를 검색하세요.</p>
                         <p class="text-[11px] text-slate-500 mt-2">${getRankingMetaText()}</p>
                     </div>
@@ -1596,6 +1717,10 @@
         window.addEventListener('popstate', (e) => {
             if (e.state && e.state.view === 'detail') {
                 if (e.state.type === 'search') runSearch(e.state.subType, false);
+                else if (e.state.type === 'champ') {
+                    const [n, r] = String(e.state.subType || '').split('|');
+                    openChampPage(n, r || null, false);
+                }
                 else renderPage(e.state.type, false);
             } else {
                 showMainView(false);
