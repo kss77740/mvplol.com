@@ -35,7 +35,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ranking_data.js data/ranking_state.json
+          for f in ranking_data.js champ_data.js data/ranking_state.json; do
+            if [ -e "$f" ]; then git add "$f"; fi
+          done
           if git diff --cached --quiet; then
             echo "바뀐 내용이 없어요."
           else
