@@ -1,0 +1,45 @@
+name: 챔피언 랭킹 자동 갱신
+
+on:
+  schedule:
+    - cron: "17 18 * * *"   # 매일 한국 시간 새벽 3시 17분 (UTC 18:17)
+  workflow_dispatch:         # Actions 탭에서 수동 실행 버튼
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-ranking
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - name: 저장소 가져오기
+        uses: actions/checkout@v4
+
+      - name: 파이썬 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 랭킹 계산
+        env:
+          RIOT_API_KEY: ${{ secrets.RIOT_API_KEY }}
+          MAX_RUNTIME_MIN: "50"
+        run: python scripts/update_ranking.py
+
+      - name: 변경사항 저장
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ranking_data.js data/ranking_state.json
+          if git diff --cached --quiet; then
+            echo "바뀐 내용이 없어요."
+          else
+            git commit -m "챔피언 랭킹 자동 갱신 ($(TZ=Asia/Seoul date +%Y-%m-%d))"
+            git pull --rebase
+            git push
+          fi
