@@ -133,8 +133,8 @@
     <main id="main-view" class="w-full max-w-7xl mx-auto my-auto py-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
         
         <!-- 좌측 영역: 이번 패치 메타 -->
-        <div class="lg:col-span-3 lg:self-start lg:mt-4 flex flex-col gap-4 w-full">
-            <div class="hextech-card side-card rounded-2xl px-4 py-3">
+        <div id="side-left" class="lg:col-span-3 lg:self-start lg:mt-4 flex flex-col gap-4 w-full">
+            <div id="card-popular" class="hextech-card side-card rounded-2xl px-4 py-3">
                 <h3 class="text-sm font-bold pb-1.5 mb-2 border-b border-amber-500/30 flex items-center justify-between">
                     <span class="flex items-center gap-1.5 text-yellow-300">이번 패치 인기 구도</span>
                     <button type="button" data-page="hot" class="text-[11px] text-amber-400 font-normal cursor-pointer hover:text-amber-300">더보기 ➔</button>
@@ -142,7 +142,7 @@
                 <div id="side-popular" class="flex flex-col gap-1.5 text-xs text-slate-400">불러오는 중...</div>
             </div>
 
-            <div class="hextech-card side-card rounded-2xl px-4 py-3">
+            <div id="card-op" class="hextech-card side-card rounded-2xl px-4 py-3">
                 <h3 class="text-sm font-bold pb-1.5 mb-2 border-b border-amber-500/30 flex items-center justify-between">
                     <span class="flex items-center gap-1.5 text-yellow-300">라인별 OP 챔피언</span>
                     <button type="button" data-page="ranking" class="text-[11px] text-amber-400 font-normal cursor-pointer hover:text-amber-300">더보기 ➔</button>
@@ -278,8 +278,8 @@
         </div>
 
         <!-- 우측 영역: 챔피언 빌드 / 패치 요약 -->
-        <div class="lg:col-span-3 lg:self-start lg:mt-4 flex flex-col gap-4 w-full">
-            <div class="hextech-card side-card rounded-2xl px-4 py-3">
+        <div id="side-right" class="lg:col-span-3 lg:self-start lg:mt-4 flex flex-col gap-4 w-full">
+            <div id="card-build" class="hextech-card side-card rounded-2xl px-4 py-3">
                 <h3 class="text-sm font-bold pb-1.5 mb-2 border-b border-amber-500/30 flex items-center justify-between">
                     <span class="flex items-center gap-1.5 text-yellow-300">챔피언 빌드 & 룬</span>
                     <span class="flex items-center gap-2">
@@ -290,7 +290,7 @@
                 <div id="side-build" class="text-xs text-slate-400">불러오는 중...</div>
             </div>
 
-            <div class="hextech-card side-card rounded-2xl px-4 py-3">
+            <div id="card-patch" class="hextech-card side-card rounded-2xl px-4 py-3">
                 <h3 class="text-sm font-bold pb-1.5 mb-2 border-b border-amber-500/30 flex items-center justify-between">
                     <span id="side-patch-title" class="text-yellow-300">패치노트 한눈에 보기</span>
                     <button type="button" data-page="patch" class="text-[11px] text-amber-400 font-normal cursor-pointer hover:text-amber-300">더보기 ➔</button>
@@ -301,44 +301,19 @@
 
     </main>
 
-    <!-- 하단 스크롤 가능한 빈 카드 4개 섹션 -->
-    <section class="w-full max-w-7xl mx-auto my-8">
-        <div class="flex items-center justify-between mb-4 pb-2 border-b border-amber-500/30">
-            <h2 class="text-lg font-black text-yellow-300 flex items-center gap-2">
-                추가 확장 콘텐츠 구역 (스크롤)
-            </h2>
-            <span class="text-xs text-slate-400">총 4개 슬롯</span>
-        </div>
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="hextech-card rounded-2xl p-5 h-36 flex flex-col items-center justify-center text-center group">
-                <span class="text-xs font-bold text-slate-300">확장 카드 슬롯 1</span>
-                <span class="text-[10px] text-slate-500 mt-1">추후 내용을 채워넣으세요</span>
-            </div>
-            <div class="hextech-card rounded-2xl p-5 h-36 flex flex-col items-center justify-center text-center group">
-                <span class="text-xs font-bold text-slate-300">확장 카드 슬롯 2</span>
-                <span class="text-[10px] text-slate-500 mt-1">추후 내용을 채워넣으세요</span>
-            </div>
-            <div class="hextech-card rounded-2xl p-5 h-36 flex flex-col items-center justify-center text-center group">
-                <span class="text-xs font-bold text-slate-300">확장 카드 슬롯 3</span>
-                <span class="text-[10px] text-slate-500 mt-1">추후 내용을 채워넣으세요</span>
-            </div>
-            <div class="hextech-card rounded-2xl p-5 h-36 flex flex-col items-center justify-center text-center group">
-                <span class="text-xs font-bold text-slate-300">확장 카드 슬롯 4</span>
-                <span class="text-[10px] text-slate-500 mt-1">추후 내용을 채워넣으세요</span>
-            </div>
-        </div>
-    </section>
 
     <!-- Detail Container -->
-    <main id="detail-view" class="w-full max-w-5xl mx-auto py-4 hidden flex-col items-center">
-        <div class="w-full flex items-center justify-start mb-6 bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl">
+    <main id="detail-view" class="w-full max-w-7xl mx-auto py-4 hidden flex-col items-center">
+        <!-- 상세페이지 상단: 메인 화면 양옆 카드 4개를 그대로 옮겨와서 보여줌 -->
+        <section id="extension-zone" class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start mb-6"></section>
+
+        <div class="w-full max-w-5xl flex items-center justify-start mb-6 bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl">
             <button id="back-to-home" type="button" class="flex items-center gap-2 text-yellow-300 hover:text-yellow-400 font-bold text-sm transition-colors cursor-pointer">
                 <span>←</span>메인으로 돌아가기
             </button>
         </div>
 
-        <div id="detail-dynamic-content" class="w-full space-y-6"></div>
+        <div id="detail-dynamic-content" class="w-full max-w-5xl space-y-6"></div>
     </main>
 
     <footer class="w-full max-w-7xl mx-auto text-center text-xs text-white/60 pt-4 border-t border-amber-500/20 mt-6">
@@ -1696,10 +1671,25 @@
             }
         };
 
+        // 메인 화면 양옆 카드 4개를 상세페이지 상단으로 옮기거나 다시 제자리로 돌려놓음
+        const SIDE_CARD_HOME = [
+            ['card-popular', 'side-left'], ['card-op', 'side-left'],
+            ['card-build', 'side-right'], ['card-patch', 'side-right'],
+        ];
+        function placeSideCards(toDetail) {
+            const zone = document.getElementById('extension-zone');
+            SIDE_CARD_HOME.forEach(([cardId, homeId]) => {
+                const card = document.getElementById(cardId);
+                if (!card) return;
+                (toDetail ? zone : document.getElementById(homeId)).appendChild(card);
+            });
+        }
+
         function switchToDetailView(type, subType, pushHistory = true) {
             if (typeof subType === 'boolean') { pushHistory = subType; subType = type; }
             mainView.classList.add('hidden'); mainView.classList.remove('grid');
             detailView.classList.remove('hidden'); detailView.classList.add('flex');
+            placeSideCards(true);
             searchSuggestions1.classList.add('hidden'); searchSuggestions2.classList.add('hidden');
             if (pushHistory) history.pushState({ view: 'detail', type, subType }, '', '');
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1707,6 +1697,7 @@
 
         function showMainView(pushHistory = true) {
             detailView.classList.add('hidden'); detailView.classList.remove('flex');
+            placeSideCards(false);
             mainView.classList.remove('hidden'); mainView.classList.add('grid');
             searchInput1.value = ''; searchInput2.value = '';
             searchSuggestions1.classList.add('hidden'); searchSuggestions2.classList.add('hidden');
