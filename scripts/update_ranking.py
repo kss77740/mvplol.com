@@ -2,7 +2,8 @@
 Mvp.lol 챔피언 랭킹 자동 계산 스크립트
 
 라이엇 공식 API로 한국 서버 솔로랭크 경기를 모아서
-라인별 승률 / 픽률 / 밴률 TOP 10을 직접 계산하고 ranking_data.js 로 저장합니다.
+라인별 승률 / 픽률 / 밴률 TOP 10 → ranking_data.js
+챔피언별 빌드, 룬, 스펠, 카운터, 인기 구도, 급상승/급하락 → champ_data.js
 
 - GitHub Actions에서 하루 한 번 실행되도록 만들어져 있습니다.
 - API 키는 저장소 Secrets 의 RIOT_API_KEY 에서 읽습니다. (코드에 절대 직접 쓰지 마세요)
@@ -49,6 +50,11 @@ SMOOTHING_GAMES = 50           # 판수가 적은 챔프의 승률을 50% 쪽으
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATE_PATH = os.path.join(ROOT, "data", "ranking_state.json")
 OUTPUT_PATH = os.path.join(ROOT, "ranking_data.js")
+CHAMP_OUTPUT_PATH = os.path.join(ROOT, "champ_data.js")
+
+MIN_ROLE_GAMES = 30        # 챔피언 상세(빌드/카운터)를 보여줄 최소 판수
+MIN_VS_GAMES = 8           # 상대별 승률을 보여줄 최소 판수
+MIN_TREND_GAMES = 40       # 급상승/급하락 비교에 필요한 패치별 최소 판수
 
 ROLE_MAP = {"TOP": "top", "JUNGLE": "jungle", "MIDDLE": "mid", "BOTTOM": "adc", "UTILITY": "support"}
 LINES = ["top", "jungle", "mid", "adc", "support"]
@@ -122,20 +128,47 @@ def riot_region(path):
     return http_get_json(f"https://{REGION}.api.riotgames.com{path}")
 
 
-# ───────────────────────── 챔피언 이름 (Data Dragon) ─────────────────────────
-def load_champion_names():
+# ───────────────────────── 게임 데이터 (Data Dragon) ─────────────────────────
+def load_game_data():
+    """챔피언 / 아이템 / 룬 / 스펠 이름 정보 (한국어)"""
     versions = http_get_json("https://ddragon.leagueoflegends.com/api/versions.json", riot=False)
-    version = versions[0]
-    data = http_get_json(
-        f"https://ddragon.leagueoflegends.com/cdn/{version}/data/ko_KR/champion.json", riot=False
-    )["data"]
-    # 숫자 챔피언 ID → (한국어 이름, 영어 ID)
-    return {c["key"]: (c["name"], c["id"]) for c in data.values()}
+    v = versions[0]
+    base = f"https://ddragon.leagueoflegends.com/cdn/{v}/data/ko_KR"
+
+    champs = http_get_json(f"{base}/champion.json", riot=False)["data"]
+    names = {c["key"]: (c["name"], c["id"]) for c in champs.values()}
+
+    items_raw = http_get_json(f"{base}/item.json", riot=False)["data"]
+    items, boots = {}, {}
+    for iid, it in items_raw.items():
+        if not (it.get("maps", {}).get("11") and it.get("gold", {}).get("purchasable")):
+            continue
+        if it.get("requiredChampion") or it.get("requiredAlly"):
+            continue
+        tags = it.get("tags", [])
+        if "Boots" in tags and "1001" in it.get("from", []):
+            boots[iid] = it["name"]                      # 2단계 신발
+        elif not it.get("into") and it["gold"].get("total", 0) >= 2000 and "Consumable" not in tags:
+            items[iid] = it["name"]                      # 완성 아이템
+
+    runes = {}
+    styles = {}
+    for style in http_get_json(f"{base}/runesReforged.json", riot=False):
+        styles[str(style["id"])] = {"name": style["name"], "icon": style["icon"]}
+        for rune in style["slots"][0]["runes"]:          # 핵심 룬만
+            runes[str(rune["id"])] = {"name": rune["name"], "icon": rune["icon"]}
+
+    spells = {}
+    for sp in http_get_json(f"{base}/summoner.json", riot=False)["data"].values():
+        spells[sp["key"]] = {"id": sp["id"], "name": sp["name"]}
+
+    return {"names": names, "items": items, "boots": boots, "runes": runes,
+            "styles": styles, "spells": spells}
 
 
 # ───────────────────────── 상태 저장 ─────────────────────────
 def empty_bucket(patch):
-    return {"patch": patch, "games": 0, "picks": {}, "bans": {}}
+    return {"patch": patch, "games": 0, "picks": {}, "bans": {}, "detail": {}}
 
 
 def load_state():
@@ -185,17 +218,52 @@ def get_players():
     return puuids
 
 
-def add_match_to_bucket(bucket, info):
+def _inc(d, key, win):
+    rec = d.setdefault(str(key), [0, 0])  # [판수, 승리]
+    rec[0] += 1
+    if win:
+        rec[1] += 1
+
+
+def add_match_to_bucket(bucket, info, game):
     bucket["games"] += 1
+    detail = bucket.setdefault("detail", {})
+    lane = {}  # (라인, 팀) → 참가자
+
     for p in info["participants"]:
         role = ROLE_MAP.get(p.get("teamPosition") or "")
         if not role:
             continue
         cid = str(p["championId"])
-        rec = bucket["picks"].setdefault(role, {}).setdefault(cid, [0, 0])  # [판수, 승리]
-        rec[0] += 1
-        if p.get("win"):
-            rec[1] += 1
+        win = bool(p.get("win"))
+        _inc(bucket["picks"].setdefault(role, {}), cid, win)
+        lane[(role, p.get("teamId"))] = p
+
+        d = detail.setdefault(role, {}).setdefault(cid, {})
+        inv = {str(p.get(f"item{i}", 0)) for i in range(6)}
+        for iid in inv:
+            if iid in game["items"]:
+                _inc(d.setdefault("items", {}), iid, win)
+            elif iid in game["boots"]:
+                _inc(d.setdefault("boots", {}), iid, win)
+        try:
+            styles = p["perks"]["styles"]
+            _inc(d.setdefault("keys", {}), styles[0]["selections"][0]["perk"], win)
+            _inc(d.setdefault("sec", {}), styles[1]["style"], win)
+        except (KeyError, IndexError, TypeError):
+            pass
+        pair = "_".join(sorted([str(p.get("summoner1Id")), str(p.get("summoner2Id"))]))
+        _inc(d.setdefault("spells", {}), pair, win)
+
+    # 같은 라인 맞상대 기록
+    for role in LINES:
+        a, b = lane.get((role, 100)), lane.get((role, 200))
+        if not a or not b:
+            continue
+        for me, opp in ((a, b), (b, a)):
+            d = detail[role][str(me["championId"])]
+            _inc(d.setdefault("vs", {}), opp["championId"], bool(me.get("win")))
+
     banned = set()
     for team in info.get("teams", []):
         for b in team.get("bans", []):
@@ -215,7 +283,7 @@ def is_valid_match(info):
     return True
 
 
-def collect(state):
+def collect(state, game):
     puuids = get_players()
     if not puuids:
         log("유저 목록을 못 받아왔어요. 이번 실행은 집계만 다시 합니다.")
@@ -261,13 +329,13 @@ def collect(state):
                 state["oldCutoff"] = 0
 
             if patch == cur["patch"]:
-                add_match_to_bucket(cur, info)
+                add_match_to_bucket(cur, info, game)
                 added += 1
             else:
                 # 지난 패치 경기: 이전 패치 집계에 보태고, 다음부터 그 시점 이전은 안 봄
                 prev = state.get("previous")
                 if prev and prev["patch"] == patch:
-                    add_match_to_bucket(prev, info)
+                    add_match_to_bucket(prev, info, game)
                 end_ts = int(info.get("gameEndTimestamp", info.get("gameCreation", 0)) / 1000)
                 state["oldCutoff"] = max(state.get("oldCutoff", 0), end_ts)
                 start_ts = max(start_ts, state["oldCutoff"])
@@ -350,15 +418,129 @@ def write_output(bucket, names):
     return True
 
 
+# ───────────────────────── 챔피언 상세 데이터 ─────────────────────────
+def _wr(rec):
+    return rec[1] / rec[0] if rec[0] else 0
+
+
+def _top(d, n, min_games=1):
+    rows = [(k, v) for k, v in (d or {}).items() if v[0] >= min_games]
+    rows.sort(key=lambda kv: kv[1][0], reverse=True)
+    return rows[:n]
+
+
+def _smooth(rec, k=20):
+    return (rec[1] + 0.5 * k) / (rec[0] + k)
+
+
+def build_champ_data(bucket, prev, game):
+    names, total = game["names"], bucket["games"]
+    detail = bucket.get("detail", {})
+    champs = {}
+
+    for role in LINES:
+        for cid, rec in bucket["picks"].get(role, {}).items():
+            if rec[0] < MIN_ROLE_GAMES:
+                continue
+            name, ddid = names.get(cid, (cid, None))
+            d = detail.get(role, {}).get(cid, {})
+            # 빌드 정보가 기록된 판수 (예전 버전 스크립트로 모은 경기는 빌드 정보가 없어서 따로 셈)
+            games = sum(v[0] for v in (d.get("spells") or {}).values()) or rec[0]
+
+            items = [{"id": k, "name": game["items"].get(k, k), "pick": fmt(v[0] / games), "winRate": fmt(_wr(v))}
+                     for k, v in _top(d.get("items"), 3)]
+            boots = [{"id": k, "name": game["boots"].get(k, k), "pick": fmt(v[0] / games), "winRate": fmt(_wr(v))}
+                     for k, v in _top(d.get("boots"), 1)]
+            keystone = None
+            for k, v in _top(d.get("keys"), 1):
+                r = game["runes"].get(k, {"name": k, "icon": ""})
+                keystone = {"name": r["name"], "icon": r["icon"], "pick": fmt(v[0] / games), "winRate": fmt(_wr(v))}
+            secondary = None
+            for k, v in _top(d.get("sec"), 1):
+                st = game["styles"].get(k, {"name": k, "icon": ""})
+                secondary = {"name": st["name"], "icon": st["icon"]}
+            spells = None
+            for k, v in _top(d.get("spells"), 1):
+                ids = k.split("_")
+                sp = [game["spells"].get(i, {"id": "SummonerFlash", "name": "?"}) for i in ids]
+                sp.sort(key=lambda x: 0 if x["id"] == "SummonerFlash" else 1)  # 점멸을 앞으로
+                spells = {"list": sp, "pick": fmt(v[0] / games), "winRate": fmt(_wr(v))}
+
+            vs_rows = []
+            for ocid, v in (d.get("vs") or {}).items():
+                if v[0] < MIN_VS_GAMES:
+                    continue
+                oname, oid = names.get(ocid, (ocid, None))
+                vs_rows.append({"name": oname, "id": oid, "games": v[0], "winRate": fmt(_wr(v)), "_s": _smooth(v)})
+            vs_rows.sort(key=lambda r: r["_s"])
+            hard = [{k: r[k] for k in ("name", "id", "games", "winRate")} for r in vs_rows[:3]]
+            easy = [{k: r[k] for k in ("name", "id", "games", "winRate")} for r in reversed(vs_rows[-3:])] if len(vs_rows) > 3 else []
+
+            entry = champs.setdefault(name, {"id": ddid, "roles": {}})
+            entry["roles"][role] = {
+                "games": rec[0], "winRate": fmt(_wr(rec)), "pickRate": fmt(rec[0] / total),
+                "banRate": fmt(bucket["bans"].get(cid, 0) / total),
+                "items": items, "boots": boots[0] if boots else None,
+                "keystone": keystone, "secondary": secondary, "spells": spells,
+                "hard": hard, "easy": easy,
+            }
+
+    # 인기 구도: 같은 라인에서 가장 많이 만난 조합
+    popular = []
+    for role in LINES:
+        for cid, d in detail.get(role, {}).items():
+            for ocid, v in (d.get("vs") or {}).items():
+                if int(cid) < int(ocid) and v[0] >= MIN_VS_GAMES:
+                    a, aid = names.get(cid, (cid, None))
+                    b, bid = names.get(ocid, (ocid, None))
+                    popular.append({"a": a, "aId": aid, "b": b, "bId": bid, "role": role,
+                                    "games": v[0], "aWinRate": fmt(_wr(v))})
+    popular.sort(key=lambda r: r["games"], reverse=True)
+
+    # 급상승 / 급하락: 지난 패치 대비 승률 변화
+    trend = {"up": [], "down": [], "from": prev["patch"] if prev else None}
+    if prev:
+        rows = []
+        for role in LINES:
+            for cid, rec in bucket["picks"].get(role, {}).items():
+                old = prev["picks"].get(role, {}).get(cid)
+                if rec[0] < MIN_TREND_GAMES or not old or old[0] < MIN_TREND_GAMES:
+                    continue
+                name, ddid = names.get(cid, (cid, None))
+                delta = _wr(rec) - _wr(old)
+                rows.append({"name": name, "id": ddid, "role": role, "winRate": fmt(_wr(rec)),
+                             "delta": f"{delta * 100:+.1f}%p", "_d": delta})
+        rows.sort(key=lambda r: r["_d"], reverse=True)
+        clean = lambda r: {k: v for k, v in r.items() if k != "_d"}
+        trend["up"] = [clean(r) for r in rows[:10] if r["_d"] > 0]
+        trend["down"] = [clean(r) for r in reversed(rows[-10:]) if r["_d"] < 0]
+
+    return {"champs": champs, "popular": popular[:20], "trend": trend}
+
+
+def write_champ_data(bucket, prev, game):
+    data = build_champ_data(bucket, prev, game)
+    data["meta"] = {"patch": bucket["patch"], "games": bucket["games"], "tierLabel": TIER_LABEL,
+                    "updatedAt": datetime.now(KST).strftime("%Y-%m-%d")}
+    content = (
+        "// 자동 생성 파일입니다. 직접 수정하지 마세요. (scripts/update_ranking.py)\n"
+        f"window.CHAMP_DATA = {json.dumps(data, ensure_ascii=False, separators=(',', ':'))};\n"
+    )
+    with open(CHAMP_OUTPUT_PATH, "w", encoding="utf-8") as f:
+        f.write(content)
+    log(f"champ_data.js 저장 완료 (챔피언 {len(data['champs'])}명, 인기 구도 {len(data['popular'])}개)")
+
+
 # ───────────────────────── 실행 ─────────────────────────
 def main():
     if not API_KEY:
         sys.exit("RIOT_API_KEY 가 없어요. 저장소 Settings → Secrets and variables → Actions 에 등록하세요.")
 
-    names = load_champion_names()
+    game = load_game_data()
+    names = game["names"]
     state = load_state()
 
-    added = collect(state)
+    added = collect(state, game)
     save_state(state)
     log(f"이번 실행에서 새로 모은 경기: {added}판")
 
@@ -373,6 +555,7 @@ def main():
 
     if target:
         write_output(target, names)
+        write_champ_data(target, prev if target is cur else None, game)
     else:
         log("집계된 경기가 아직 없어요.")
 
