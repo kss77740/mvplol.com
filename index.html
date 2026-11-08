@@ -406,6 +406,7 @@
         let ddragonVersion = '14.1.1';
         let champDataList = {}; 
         let normalizedChampMap = {}; 
+        let itemNameToId = {};
 
         const champAliases = {
             "갱플": "갱플랭크", "글가": "그라가스", "그브": "그레이브즈", "노틸": "노틸러스", "누누": "누누와 윌럼프",
@@ -435,6 +436,19 @@
                     const normalized = champ.name.replace(/\s+/g, '');
                     normalizedChampMap[normalized] = champ.name;
                 });
+
+                // 아이템 이름 → 번호 (소환사의 협곡에서 살 수 있는 아이템만)
+                try {
+                    const itemRes = await fetch(`https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/data/ko_KR/item.json`);
+                    const itemJson = await itemRes.json();
+                    Object.entries(itemJson.data).forEach(([id, item]) => {
+                        if (item.maps && item.maps['11'] && item.gold && item.gold.purchasable && item.name) {
+                            if (!itemNameToId[item.name]) itemNameToId[item.name] = id;
+                        }
+                    });
+                } catch (e) {
+                    console.error('아이템 데이터 연동 실패:', e);
+                }
             } catch (err) {
                 console.error("DataDragon 연동 실패:", err);
                 const backupList = ['마스터 이', '신 짜오', '리 신', '미스 포츈', '아우렐리온 솔', '트위스티드 페이트', '탐 켄치', '누누와 윌럼프', '트런들', '베인', '탈론', '제드', '사일러스', '야스오', '케이틀린', '트리스타나', '블리츠크랭크', '이즈리얼', '레오나', '징크스', '쓰레쉬', '가렌', '아트록스', '레넥톤', '오공', '피오라', '카밀', '제이스', '그레이브즈', '아칼리', '사일러스', '오리아나', '신드라', '애쉬', '케이틀린', '자이라', '렐'];
@@ -482,6 +496,22 @@
                 .map(o => (o.n === '텔레포트' ? '순간이동' : o.n));
             const unique = [...new Set(found)].slice(0, 2);
             return unique.length ? unique : ['점멸', '점화'];
+        }
+
+        // 템트리 문장에서 처음 나오는 아이템 이름을 찾아 번호로 바꿔줌 (맨 앞에 숫자가 있으면 그 번호 사용)
+        function getItemIdFromText(itemText) {
+            const text = String(itemText || '');
+            const num = text.match(/^\d+/);
+            if (num) return num[0];
+            let best = null;
+            for (const [name, id] of Object.entries(itemNameToId)) {
+                const i = text.indexOf(name);
+                if (i === -1) continue;
+                if (!best || i < best.i || (i === best.i && name.length > best.name.length)) {
+                    best = { i, name, id };
+                }
+            }
+            return best ? best.id : '3152';
         }
 
         function getItemImgUrl(itemId) {
@@ -878,7 +908,7 @@
                                 <span>🛡️</span> 상대 맞춤 카운터 템트리 추천
                             </h4>
                             <div class="flex items-center gap-4 bg-slate-800/90 p-4 rounded-2xl border border-slate-700">
-                                <img src="${getItemImgUrl(String(data.item).match(/^\d+/) ? String(data.item).match(/^\d+/)[0] : '3152')}" alt="추천 아이템" class="w-16 h-16 rounded-xl border border-amber-500/50 shadow-md object-cover bg-slate-900 flex-shrink-0" onerror="this.src='https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/3152.png'">
+                                <img src="${getItemImgUrl(getItemIdFromText(data.item))}" alt="추천 아이템" class="w-16 h-16 rounded-xl border border-amber-500/50 shadow-md object-cover bg-slate-900 flex-shrink-0" onerror="this.src='https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/3152.png'">
                                 <div class="min-w-0">
                                     <span class="text-white font-bold text-sm block mb-1 leading-snug">${data.item}</span>
                                     <span class="text-[11px] text-slate-400 leading-relaxed">상대방의 유지력과 딜교환에 맞춘 핵심 장비 및 빌드업 팁입니다.</span>
