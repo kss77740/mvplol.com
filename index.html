@@ -91,15 +91,15 @@
         }
 
         /* 데이터가 들어가는 양옆 카드: 높이 자동 */
-        /* 양옆 카드 4개: 크기를 모두 똑같이 맞춤 (메인 / 상세페이지 상단 공통) */
+        /* 양옆 카드: 내용만큼 높이 (원래 크기 유지) */
         .hextech-card.side-card {
-            height: 288px;
+            height: auto;
+            min-height: 105px;
             justify-content: flex-start;
             cursor: pointer;
-            overflow: hidden;
         }
-        /* 빌드 카드는 검색 후보 목록이 카드 밖으로 펼쳐져야 해서 잘리지 않게 */
-        #card-build { overflow: visible; position: relative; }
+        /* 빌드 카드만 다른 카드(인기 구도) 높이에 맞춰 자름. 실제 높이는 스크립트가 맞춰줌 */
+        #card-build { height: 285px; position: relative; }
         #card-build:focus-within { z-index: 30; }
 
         /* 사이트 분위기에 맞춘 금색 스크롤바 */
@@ -1239,11 +1239,22 @@
             });
         })();
 
+        // 빌드 카드 높이를 인기 구도 카드 높이에 맞춤 (메인 / 상세페이지 상단 둘 다)
+        function syncBuildCardHeight() {
+            const ref = document.getElementById('card-popular');
+            const build = document.getElementById('card-build');
+            if (!ref || !build) return;
+            const h = ref.offsetHeight;
+            if (h > 0) build.style.height = h + 'px';
+        }
+        window.addEventListener('resize', syncBuildCardHeight);
+
         function renderSidePanels() {
             renderSidePopular();
             renderSideOp();
             renderSidePatch();
             renderSideBuild();
+            requestAnimationFrame(syncBuildCardHeight);
         }
 
         document.getElementById('side-op-tabs').addEventListener('click', (e) => {
@@ -1353,6 +1364,93 @@
                 </div>`;
         }
 
+        // 1·2·3코어 빌드 순서
+        function renderCoreBuild(cores) {
+            const arrow = `<div class="hidden sm:flex items-center justify-center text-amber-400 font-black text-xl">›</div>`;
+            const col = (opts, k) => {
+                const main = opts[0];
+                const alts = opts.slice(1);
+                return `
+                    <div class="flex-1 min-w-0 bg-slate-800/80 border border-slate-700 rounded-2xl p-3">
+                        <div class="text-[11px] font-black text-amber-400 mb-2">${k}코어</div>
+                        <div class="flex items-center gap-2.5 mb-2">
+                            ${iconImg(getItemImgUrl(main.id), main.name, 'w-12 h-12', 'border-amber-400/70')}
+                            <div class="min-w-0">
+                                <div class="text-sm font-black text-white leading-tight">${escHtml(main.name)}</div>
+                                <div class="text-[11px] text-slate-400 mt-0.5">픽 ${main.pick} · 승률 <b class="${wrColor(main.winRate)}">${main.winRate}</b></div>
+                            </div>
+                        </div>
+                        ${alts.length ? `<div class="border-t border-slate-700 pt-2 space-y-1">
+                            <div class="text-[10px] text-slate-500">다른 선택</div>
+                            ${alts.map(a => `
+                                <div class="flex items-center gap-2">
+                                    ${iconImg(getItemImgUrl(a.id), a.name, 'w-6 h-6')}
+                                    <span class="text-[11px] text-slate-300 truncate flex-1 min-w-0">${escHtml(a.name)}</span>
+                                    <span class="text-[10px] text-slate-500 flex-shrink-0">${a.pick}</span>
+                                </div>`).join('')}
+                        </div>` : ''}
+                    </div>`;
+            };
+            const parts = [];
+            cores.forEach((opts, i) => { if (i) parts.push(arrow); parts.push(col(opts, i + 1)); });
+            return `<div class="flex flex-col sm:flex-row gap-2 sm:gap-1">${parts.join('')}</div>`;
+        }
+
+        // 인게임 룬 화면처럼 그리기: 고른 룬은 밝게, 나머지는 흐리게
+        function renderRunePage(page, tree) {
+            const base = 'https://ddragon.leagueoflegends.com/cdn/img/';
+            const styleOf = (id) => (tree.styles || []).find(st => st.id === id);
+            const prim = styleOf(page.primary.style);
+            const sub = styleOf(page.sub.style);
+            if (!prim || !sub) return noDataText('룬 정보를 불러오지 못했어요.');
+            const chosen = new Set([...page.primary.perks, ...page.sub.perks]);
+            const runeIcon = (r, big) => {
+                const on = chosen.has(r.id);
+                const size = big ? 'w-11 h-11' : 'w-8 h-8';
+                return `<img src="${base}${r.icon}" alt="${escHtml(r.name)}" title="${escHtml(r.name)}" onerror="this.style.visibility='hidden'"
+                    class="${size} rounded-full flex-shrink-0 ${on ? 'ring-2 ring-amber-400 bg-slate-900' : 'opacity-25 grayscale'}">`;
+            };
+            const header = (st) => `
+                <div class="flex items-center gap-2 mb-3">
+                    <img src="${base}${st.icon}" alt="" class="w-6 h-6" onerror="this.style.visibility='hidden'">
+                    <span class="text-sm font-black text-white">${escHtml(st.name)}</span>
+                </div>`;
+            const rows = (slots, bigFirst) => slots.map((row, i) => `
+                <div class="flex items-center justify-center gap-2 ${i === 0 && bigFirst ? 'pb-2 mb-1 border-b border-slate-700' : ''}">
+                    ${row.map(r => runeIcon(r, i === 0 && bigFirst)).join('')}
+                </div>`).join('');
+            const chosenNames = (st, perks) => perks.map(id => {
+                for (const row of st.slots) { const r = row.find(x => x.id === id); if (r) return r.name; }
+                return '';
+            }).filter(Boolean);
+
+            const shards = tree.shards || {};
+            const shardRows = (tree.shardRows || []).map((row, i) => `
+                <div class="flex items-center justify-center gap-2">
+                    ${row.map(id => {
+                        const sh = shards[String(id)] || { name: id, icon: '' };
+                        const on = page.shards[i] === Number(id);
+                        return `<img src="${base}${sh.icon}" alt="${escHtml(sh.name)}" title="${escHtml(sh.name)}" onerror="this.style.visibility='hidden'"
+                            class="w-6 h-6 rounded-full p-0.5 ${on ? 'ring-2 ring-amber-400 bg-slate-900' : 'opacity-25 grayscale'}">`;
+                    }).join('')}
+                </div>`).join('');
+
+            const names = [...chosenNames(prim, page.primary.perks), ...chosenNames(sub, page.sub.perks)];
+            const shardNames = page.shards.map(id => (shards[String(id)] || {}).name).filter(Boolean);
+            return `
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-3 space-y-2">${header(prim)}${rows(prim.slots, true)}</div>
+                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-3 space-y-2">${header(sub)}${rows(sub.slots.slice(1), false)}</div>
+                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-3">
+                        <div class="text-sm font-black text-white mb-3">능력치 파편</div>
+                        <div class="space-y-2">${shardRows}</div>
+                    </div>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-2 leading-relaxed">
+                    <b class="text-slate-200">${names.map(escHtml).join(' · ')}</b>${shardNames.length ? ` / 파편: ${shardNames.map(escHtml).join(', ')}` : ''}
+                </p>`;
+        }
+
         function renderChampPage(name, role) {
             const data = window.CHAMP_DATA;
             const champ = data && data.champs ? data.champs[name] : null;
@@ -1422,10 +1520,17 @@
                 </div>
                 <p class="text-[10px] text-slate-500 mb-6">${meta.patch ? `패치 ${escHtml(displayPatch(meta.patch))} · 한국 서버 ${escHtml(meta.tierLabel || '')} 솔로랭크 ${LINE_NAMES[role]} 기준` : ''}</p>
 
-                ${section('핵심 아이템', items ? `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${items}</div>` : noDataText('표본 부족'), '많이 가는 순서 · 막대는 픽률')}
-                ${section('신발', boots ? `<div class="grid grid-cols-1 sm:grid-cols-3 gap-2">${boots}</div>` : noDataText('표본 부족'))}
+                ${(r.cores || []).length
+                    ? section('핵심 아이템 빌드 순서', renderCoreBuild(r.cores), '구매 순서 기준 · 코어별 가장 많이 산 아이템')
+                    : section('핵심 아이템', items ? `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${items}</div>` : noDataText('표본 부족'), '많이 가는 순서 · 막대는 픽률')}
+                ${(r.runePages || []).length && data.runeTree
+                    ? section('추천 룬', `${r.runePages.length > 1 ? `<div id="rune-tabs" class="flex gap-1.5 mb-3">${r.runePages.map((pg, i) => `
+                        <button type="button" data-rune-idx="${i}" class="px-3 py-1 rounded-lg text-xs font-bold cursor-pointer ${i === 0 ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-white hover:bg-slate-700'}">${i + 1}순위 · 픽 ${pg.pick} · 승률 ${pg.winRate}</button>`).join('')}</div>` : ''}
+                        <div id="rune-page-box">${renderRunePage(r.runePages[0], data.runeTree)}</div>`,
+                        `가장 많이 쓰는 룬 · 픽 ${r.runePages[0].pick} · 승률 ${r.runePages[0].winRate}`)
+                    : section('룬', (keystones || secondaries) ? `<div class="space-y-2">${keystones}${secondaries}</div>` : noDataText('표본 부족'))}
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
-                    ${section('룬', (keystones || secondaries) ? `<div class="space-y-2">${keystones}${secondaries}</div>` : noDataText('표본 부족'))}
+                    ${section('신발', boots ? `<div class="space-y-2">${boots}</div>` : noDataText('표본 부족'))}
                     ${section('소환사 주문', spells ? `<div class="space-y-2">${spells}</div>` : noDataText('표본 부족'))}
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
@@ -1434,6 +1539,18 @@
                 </div>
                 ${vsList.length ? section('상대별 승률 전체', `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${vsList.map(oppBtn).join('')}</div>`, '승률 낮은 순 · 자주 만난 상대 최대 20명') : ''}
             `);
+            const runeTabs = document.getElementById('rune-tabs');
+            if (runeTabs) runeTabs.addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-rune-idx]');
+                if (!btn) return;
+                const idx = Number(btn.dataset.runeIdx);
+                document.getElementById('rune-page-box').innerHTML = renderRunePage(r.runePages[idx], data.runeTree);
+                runeTabs.querySelectorAll('[data-rune-idx]').forEach(b => {
+                    const on = b === btn;
+                    b.classList.toggle('bg-amber-500', on); b.classList.toggle('text-slate-950', on);
+                    b.classList.toggle('bg-slate-800', !on); b.classList.toggle('text-white', !on);
+                });
+            });
         }
 
         // 경기 데이터 버전(16.22)으로 저장된 예전 파일도 실제 패치 이름(26.22)으로 보여줌
@@ -1784,6 +1901,7 @@
                 if (!card) return;
                 (toDetail ? zone : document.getElementById(homeId)).appendChild(card);
             });
+            requestAnimationFrame(syncBuildCardHeight);
         }
 
         function switchToDetailView(type, subType, pushHistory = true) {
