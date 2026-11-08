@@ -15,7 +15,7 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 70
+    timeout-minutes: 130
     steps:
       - name: 저장소 가져오기
         uses: actions/checkout@v4
@@ -28,7 +28,7 @@ jobs:
       - name: 랭킹 계산
         env:
           RIOT_API_KEY: ${{ secrets.RIOT_API_KEY }}
-          MAX_RUNTIME_MIN: "50"
+          MAX_RUNTIME_MIN: "110"
         run: python scripts/update_ranking.py
 
       - name: 변경사항 저장
