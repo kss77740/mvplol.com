@@ -1244,8 +1244,18 @@
             const ref = document.getElementById('card-popular');
             const build = document.getElementById('card-build');
             if (!ref || !build) return;
+            ['card-op', 'card-patch'].forEach(id => {      // 기준 높이를 재기 전에 초기화
+                const el = document.getElementById(id);
+                if (el) el.style.minHeight = '';
+            });
             const h = ref.offsetHeight;
-            if (h > 0) build.style.height = h + 'px';
+            if (h <= 0) return;
+            build.style.height = h + 'px';
+            // OP 챔피언, 패치 카드도 최소한 같은 높이로 (내용이 많으면 늘어남)
+            ['card-op', 'card-patch'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.minHeight = h + 'px';
+            });
         }
         window.addEventListener('resize', syncBuildCardHeight);
 
@@ -1263,6 +1273,7 @@
             sideOpLine = btn.dataset.line;
             document.querySelectorAll('#side-op-tabs .side-tab').forEach(b =>b.classList.toggle('active', b === btn));
             renderSideOp();
+            requestAnimationFrame(syncBuildCardHeight);
         });
 
         // ───────────── 챔피언 선택 페이지 (전체 챔피언 초상화) ─────────────
