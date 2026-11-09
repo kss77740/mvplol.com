@@ -134,17 +134,8 @@
         </a>
 
         <nav class="flex flex-wrap justify-center gap-2 sm:gap-3 text-base sm:text-lg font-bold" aria-label="주요 메뉴">
-            <button type="button" data-page="ranking" class="px-4 py-2.5 rounded-xl text-white/95 hover:text-white hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-2 cursor-pointer shadow">
-                챔프 별 승률 데이터
-            </button>
-            <button type="button" data-page="matchup_all" class="px-4 py-2.5 rounded-xl text-white/95 hover:text-white hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-2 cursor-pointer shadow">
-                전체 구도
-            </button>
-            <button type="button" data-page="patch" class="px-4 py-2.5 rounded-xl text-white/95 hover:text-white hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-2 cursor-pointer shadow">
-                패치노트
-            </button>
-            <button type="button" data-page="feedback" class="px-4 py-2.5 rounded-xl text-white/95 hover:text-white hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-2 cursor-pointer shadow">
-                공략 제보
+            <button type="button" data-page="bug" class="px-4 py-2.5 rounded-xl text-white/95 hover:text-white hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-2 cursor-pointer shadow">
+                버그 문의
             </button>
         </nav>
     </header>
@@ -232,9 +223,10 @@
                             />
                             <button
                                 type="submit"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-3.5 py-2 rounded-xl text-xs sm:text-sm transition-all cursor-pointer shadow"
+                                aria-label="검색"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-xl text-amber-500 hover:bg-amber-100 hover:text-amber-600 transition-all cursor-pointer"
                             >
-                                검색
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                             </button>
                         </div>
                     </form>
@@ -284,9 +276,10 @@
                             />
                             <button
                                 type="submit"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-3.5 py-2 rounded-xl text-xs sm:text-sm transition-all cursor-pointer shadow"
+                                aria-label="검색"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-xl text-amber-500 hover:bg-amber-100 hover:text-amber-600 transition-all cursor-pointer"
                             >
-                                검색
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                             </button>
                         </div>
                     </form>
@@ -855,8 +848,8 @@
                                 placeholder="다른 매치업 검색 (예: 가렌, 트타 / 리신 제드)"
                                 class="w-full py-3 px-16 text-center text-slate-900 font-bold text-sm bg-white rounded-xl outline-none focus:ring-4 focus:ring-yellow-400 shadow"
                             />
-                            <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs cursor-pointer">
-                                검색
+                            <button type="submit" aria-label="검색" class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-lg text-amber-500 hover:bg-amber-100 hover:text-amber-600 cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                             </button>
                         </div>
                     </form>
@@ -970,8 +963,8 @@
                                 placeholder="다른 매치업 검색 (예: 가렌, 트타 / 리신 제드)"
                                 class="w-full py-3 px-16 text-center text-slate-900 font-bold text-sm bg-white rounded-xl outline-none focus:ring-4 focus:ring-yellow-400 shadow"
                             />
-                            <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs cursor-pointer">
-                                검색
+                            <button type="submit" aria-label="검색" class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-lg text-amber-500 hover:bg-amber-100 hover:text-amber-600 cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                             </button>
                         </div>
                     </form>
@@ -1276,6 +1269,40 @@
             requestAnimationFrame(syncBuildCardHeight);
         });
 
+        // ───────────── 버그 문의 페이지 ─────────────
+        const BUG_TYPES = ['화면이 깨지거나 이상하게 보여요', '통계·데이터가 이상해요', '검색이나 버튼이 동작하지 않아요', '상성 정보가 틀렸어요', '기타 / 건의사항'];
+        function renderBugPage() {
+            const field = 'w-full bg-slate-800 text-white p-3.5 rounded-2xl border border-slate-700 outline-none focus:border-amber-400 placeholder:text-slate-500';
+            detailDynamicContent.innerHTML = `
+                <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-xl max-w-2xl mx-auto">
+                    <h2 class="text-2xl font-black text-yellow-300 mb-1 text-center">버그 문의</h2>
+                    <p class="text-xs text-slate-400 text-center mb-6">사이트를 쓰다가 이상한 점이 있으면 알려 주세요. 확인 후 빠르게 고칠게요.</p>
+                    <form id="bug-form" class="space-y-4 text-sm" novalidate>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5" for="bug-type">문의 유형</label>
+                            <select id="bug-type" name="bugType" class="${field} cursor-pointer">
+                                ${BUG_TYPES.map(t => `<option value="${escHtml(t)}">${escHtml(t)}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5" for="bug-where">어디서 생겼나요? <span class="text-slate-500 font-normal">(선택)</span></label>
+                            <input id="bug-where" name="where" type="text" placeholder="예: 가렌 빌드 페이지, 1vs1 검색창" class="${field}">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5" for="bug-content">내용 <span class="text-rose-400">*</span></label>
+                            <textarea id="bug-content" name="content" rows="6" placeholder="어떤 문제가 있었는지 자세히 적어 주세요. (무엇을 눌렀는지, 어떻게 보였는지 등)" class="${field}"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5" for="bug-contact">답변 받을 연락처 <span class="text-slate-500 font-normal">(선택 · 이메일이나 디스코드)</span></label>
+                            <input id="bug-contact" name="contact" type="text" placeholder="답변이 필요 없으면 비워 두세요" class="${field}">
+                        </div>
+                        <p id="bug-error" class="text-xs text-rose-400 hidden">내용을 입력해 주세요.</p>
+                        <button type="submit" class="w-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-black py-4 rounded-2xl cursor-pointer shadow-lg transition-all">문의 보내기</button>
+                        <p class="text-[11px] text-slate-500 text-center">사용 중인 브라우저 정보가 함께 전송돼요. 문제를 재현하는 데만 써요.</p>
+                    </form>
+                </div>`;
+        }
+
         // ───────────── 챔피언 선택 페이지 (전체 챔피언 초상화) ─────────────
         const CHOSUNG = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
         function toChosung(str) {
@@ -1302,8 +1329,13 @@
                     <p class="text-xs text-slate-400 text-center mb-5">빌드를 보고 싶은 챔피언을 선택하세요.</p>
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-5">
                         <div id="cs-tabs" class="flex flex-wrap justify-center gap-1.5">${tabs}</div>
-                        <input id="cs-search" type="text" autocomplete="off" value="${escHtml(champSelectQuery)}" placeholder="챔피언 검색 (예: 아트, ㅇㅌㄹㅅ)"
-                            class="w-full sm:w-64 py-2 px-4 text-sm text-slate-900 font-bold bg-white rounded-xl outline-none border-2 border-amber-400/60 focus:ring-4 focus:ring-yellow-400 placeholder:font-normal placeholder:text-slate-400">
+                        <div class="relative w-full sm:w-64">
+                            <input id="cs-search" type="text" autocomplete="off" value="${escHtml(champSelectQuery)}" placeholder="챔피언 검색 (예: 아트, ㅇㅌㄹㅅ)"
+                                class="w-full py-2 pl-4 pr-10 text-sm text-slate-900 font-bold bg-white rounded-xl outline-none border-2 border-amber-400/60 focus:ring-4 focus:ring-yellow-400 placeholder:font-normal placeholder:text-slate-400">
+                            <button type="button" id="cs-search-btn" aria-label="검색" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-lg text-amber-500 hover:bg-amber-100 hover:text-amber-600 cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            </button>
+                        </div>
                     </div>
                     <div id="cs-grid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2"></div>
                 </div>`;
@@ -1336,6 +1368,16 @@
                 champSelectQuery = e.target.value;
                 drawGrid();
             });
+            // 엔터 또는 돋보기: 검색 결과 첫 번째 챔피언으로 바로 이동
+            const openFirst = () => {
+                const first = filterChampNames(champSelectQuery, champSelectLine)[0];
+                if (champSelectQuery.trim() && first) openChampPage(first);
+                else document.getElementById('cs-search').focus();
+            };
+            document.getElementById('cs-search').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); openFirst(); }
+            });
+            document.getElementById('cs-search-btn').addEventListener('click', openFirst);
             document.getElementById('cs-grid').addEventListener('click', (e) => {
                 const btn = e.target.closest('[data-cs-name]');
                 if (btn) openChampPage(btn.dataset.csName);
@@ -1687,6 +1729,8 @@
                 detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">30초 로딩 창 활용 가이드</h2></div>`;
             } else if (type === 'patch') {
                 renderPatchPage();
+            } else if (type === 'bug') {
+                renderBugPage();
             } else if (type === 'feedback') {
                 detailDynamicContent.innerHTML = `
                     <div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl max-w-2xl mx-auto">
@@ -1781,7 +1825,7 @@
                 <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-xl max-w-4xl mx-auto">
                     <div class="text-center mb-6">
                         <h2 class="text-2xl sm:text-3xl font-black text-yellow-300 mb-2">라인별 챔피언 승률 랭킹 (TOP 10)</h2>
-                        <p class="text-xs sm:text-sm text-slate-300">상성 버튼을 눌러 원하는 상대 챔피언과 매치업 구도를 검색하세요.</p>
+                        <p class="text-xs sm:text-sm text-slate-300">승률, 픽률, 밴률을 종합한 점수 순이에요. 상성 버튼을 눌러 매치업을 확인하세요.</p>
                         <p class="text-[11px] text-slate-500 mt-2">${getRankingMetaText()}</p>
                     </div>
 
@@ -1824,7 +1868,7 @@
                                     <span class="font-black text-sm sm:text-base text-white whitespace-nowrap">${item.name}</span>
                                     <span class="text-[10px] px-1.5 py-0.5 rounded font-bold whitespace-nowrap ${tierClass}">${item.tier}</span>
                                 </div>
-                                <span class="text-[11px] sm:text-xs text-slate-400 whitespace-nowrap">픽 ${item.pickRate} · 밴 ${item.banRate}</span>
+                                <span class="text-[11px] sm:text-xs text-slate-400 whitespace-nowrap">픽 ${item.pickRate} · 밴 ${item.banRate}${item.games ? ` · ${Number(item.games).toLocaleString()}판` : ''}</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-2 sm:gap-4 text-right flex-shrink-0">
@@ -2007,6 +2051,41 @@
 
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape' && !modalContainer.classList.contains('hidden')) closeAlertModal();
+        });
+
+        document.addEventListener('submit', async e => {
+            if (e.target.id !== 'bug-form') return;
+            e.preventDefault();
+            const form = e.target;
+            const content = form.content.value.trim();
+            const err = document.getElementById('bug-error');
+            if (!content) { err.classList.remove('hidden'); form.content.focus(); return; }
+            err.classList.add('hidden');
+            const btn = form.querySelector('button[type="submit"]');
+            btn.disabled = true; btn.textContent = '보내는 중...';
+            // 기존 제보용 구글 시트로 같이 보냄 (구도 칸 = 문의 유형, 내용 칸 = 상세 내용)
+            const tip = [
+                content,
+                form.where.value.trim() ? `[위치] ${form.where.value.trim()}` : '',
+                form.contact.value.trim() ? `[연락처] ${form.contact.value.trim()}` : '',
+                `[브라우저] ${navigator.userAgent}`,
+                `[화면] ${window.innerWidth}x${window.innerHeight}`,
+            ].filter(Boolean).join('\n');
+            try {
+                const body = new URLSearchParams({ matchup: `[버그 문의] ${form.bugType.value}`, tip, page: location.href });
+                await fetch(SHEET_URL, { method: 'POST', body, mode: 'no-cors' });
+                detailDynamicContent.innerHTML = `
+                    <div class="bg-slate-900/95 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center max-w-xl mx-auto py-16">
+                        <h2 class="text-2xl font-black text-yellow-300 mb-2">문의가 접수되었어요</h2>
+                        <p class="text-sm text-slate-300 mb-6">알려 주셔서 감사해요. 확인 후 반영할게요.</p>
+                        <button type="button" onclick="showMainView(true)" class="bg-amber-400 hover:bg-amber-500 text-slate-950 font-black px-6 py-3 rounded-2xl text-sm cursor-pointer shadow-lg">메인으로 돌아가기</button>
+                    </div>`;
+            } catch (error) {
+                console.error('전송 실패:', error);
+                btn.disabled = false; btn.textContent = '문의 보내기';
+                err.textContent = '전송에 실패했어요. 잠시 후 다시 시도해 주세요.';
+                err.classList.remove('hidden');
+            }
         });
 
         document.addEventListener('submit', async e => {
