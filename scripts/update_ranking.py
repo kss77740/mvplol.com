@@ -49,12 +49,19 @@ MIN_CHAMP_GAMES = 20           # 최소 표본 판수
 SMOOTHING_GAMES = 50           # 판수가 적은 챔프의 승률을 50% 쪽으로 보정하는 강도
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATE_PATH = os.path.join(ROOT, "data", "ranking_state.json")
-OUTPUT_PATH = os.path.join(ROOT, "ranking_data.js")
-CHAMP_OUTPUT_PATH = os.path.join(ROOT, "champ_data.js")
+# DATA_DIR 를 주면 데이터 파일을 그 폴더(= data 브랜치)에 저장. 없으면 저장소 안에 저장.
+DATA_DIR = os.environ.get("DATA_DIR", "").strip()
+if DATA_DIR:
+    STATE_PATH = os.path.join(DATA_DIR, "ranking_state.json")
+    OUTPUT_PATH = os.path.join(DATA_DIR, "ranking_data.js")
+    CHAMP_OUTPUT_PATH = os.path.join(DATA_DIR, "champ_data.js")
+else:
+    STATE_PATH = os.path.join(ROOT, "data", "ranking_state.json")
+    OUTPUT_PATH = os.path.join(ROOT, "ranking_data.js")
+    CHAMP_OUTPUT_PATH = os.path.join(ROOT, "champ_data.js")
 
 MIN_ROLE_GAMES = 30        # 챔피언 상세(빌드/카운터)를 보여줄 최소 판수
-MIN_VS_GAMES = 5           # 상대별 승률을 보여줄 최소 판수
+MIN_VS_GAMES = 3           # 상대별 승률을 보여줄 최소 판수
 MIN_TREND_GAMES = 40       # 급상승/급하락 비교에 필요한 패치별 최소 판수
 
 ROLE_MAP = {"TOP": "top", "JUNGLE": "jungle", "MIDDLE": "mid", "BOTTOM": "adc", "UTILITY": "support"}
@@ -506,6 +513,10 @@ def _top(d, n, min_games=1):
     return rows[:n]
 
 
+def _wr_str(row):
+    return float(row["winRate"].rstrip("%")) / 100
+
+
 def _smooth(rec, k=20):
     return (rec[1] + 0.5 * k) / (rec[0] + k)
 
@@ -550,11 +561,10 @@ def build_champ_data(bucket, prev, game):
                 vs_rows.append({"name": oname, "id": oid, "games": v[0], "winRate": fmt(_wr(v)), "_s": _smooth(v)})
             pick4 = lambda r: {k: r[k] for k in ("name", "id", "games", "winRate")}
             vs_rows.sort(key=lambda r: r["_s"])
-            # 어려운 상대 / 쉬운 상대 각각 최대 3명 (후보가 6명보다 적으면 반씩 나눔)
-            n_hard = min(3, (len(vs_rows) + 1) // 2)
-            hard = [pick4(r) for r in vs_rows[:n_hard]]
-            rest = vs_rows[n_hard:]
-            easy = [pick4(r) for r in reversed(rest[-3:])]
+            # 어려운 상대 / 쉬운 상대 각각 최대 3명
+            # 승률 50% 미만 = 어려운 상대, 50% 초과 = 쉬운 상대
+            hard = [pick4(r) for r in vs_rows if _wr_str(r) < 0.5][:3]
+            easy = [pick4(r) for r in reversed(vs_rows) if _wr_str(r) > 0.5][:3]
 
             # 1·2·3코어: 순서별로 가장 많이 산 아이템 (앞 코어와 겹치지 않게) + 대안 2개
             cores, used = [], set()
@@ -584,7 +594,7 @@ def build_champ_data(bucket, prev, game):
                     })
                 except ValueError:
                     continue
-            vs_all = [pick4(r) for r in sorted(vs_rows, key=lambda r: r["games"], reverse=True)[:20]]
+            vs_all = [pick4(r) for r in sorted(vs_rows, key=lambda r: r["games"], reverse=True)[:30]]
 
             entry = champs.setdefault(name, {"id": ddid, "roles": {}})
             entry["roles"][role] = {
