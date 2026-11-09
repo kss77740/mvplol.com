@@ -29,8 +29,11 @@ REGION = "asia"            # match-v5 는 지역 단위
 QUEUE_ID = 420             # 솔로랭크
 
 # 수집할 티어: 챌린저, 그랜드마스터, 마스터 (+ 다이아 I 일부)
-INCLUDE_DIAMOND1_PAGES = int(os.environ.get("DIAMOND1_PAGES", "2"))
-TIER_LABEL = "다이아 I+" if INCLUDE_DIAMOND1_PAGES > 0 else "마스터+"
+# 수집할 티어: 에메랄드 이상 (OP.GG 기본값과 같은 구간)
+# 티어별로 몇 페이지(1페이지 = 약 205명)씩 표본 유저를 뽑을지
+EMERALD_PAGES = int(os.environ.get("EMERALD_PAGES", "4"))   # 에메랄드 I~IV 각각
+DIAMOND_PAGES = int(os.environ.get("DIAMOND_PAGES", "2"))   # 다이아 I~IV 각각
+TIER_LABEL = "에메랄드+"
 
 MAX_RUNTIME_MIN = float(os.environ.get("MAX_RUNTIME_MIN", "110"))  # 한 번 실행 시 최대 수집 시간
 FETCH_TIMELINE = os.environ.get("FETCH_TIMELINE", "1") == "1"      # 아이템 구매 순서(1·2·3코어)용 타임라인 수집
@@ -239,23 +242,24 @@ def patch_key(p):
 
 # ───────────────────────── 수집 ─────────────────────────
 def get_players():
-    """마스터+ (와 다이아 I 일부) 유저 puuid 목록. LP 높은 순."""
+    """에메랄드+ 유저 puuid 목록. 티어가 골고루 섞이도록 순서를 섞어서 돌려줌."""
+    import hashlib
     entries = []
     for kind in ("challengerleagues", "grandmasterleagues", "masterleagues"):
         res = riot_platform(f"/lol/league/v4/{kind}/by-queue/RANKED_SOLO_5x5")
         if res:
             entries += res.get("entries", [])
-    for page in range(1, INCLUDE_DIAMOND1_PAGES + 1):
-        res = riot_platform(f"/lol/league/v4/entries/RANKED_SOLO_5x5/DIAMOND/I?page={page}")
-        if res:
-            entries += res
-    entries.sort(key=lambda e: e.get("leaguePoints", 0), reverse=True)
+    for tier, pages in (("DIAMOND", DIAMOND_PAGES), ("EMERALD", EMERALD_PAGES)):
+        for division in ("I", "II", "III", "IV"):
+            for page in range(1, pages + 1):
+                res = riot_platform(f"/lol/league/v4/entries/RANKED_SOLO_5x5/{tier}/{division}?page={page}")
+                if res:
+                    entries += res
 
-    puuids = []
-    for e in entries:
-        if e.get("puuid"):
-            puuids.append(e["puuid"])
-    log(f"수집 대상 유저 {len(puuids)}명")
+    puuids = list(dict.fromkeys(e["puuid"] for e in entries if e.get("puuid")))
+    # 항상 같은 순서로 섞기 (매 실행마다 이어서 돌 수 있게, 티어는 골고루 섞이게)
+    puuids.sort(key=lambda p: hashlib.md5(p.encode()).hexdigest())
+    log(f"수집 대상 유저 {len(puuids)}명 (에메랄드+)")
     return puuids
 
 
@@ -447,22 +451,42 @@ def tier_for(rank):
     return "3티어"
 
 
+RANK_MIN_GAMES = [100, 50, 20]   # 순위에 넣을 최소 판수 (데이터가 적을 땐 단계적으로 완화)
+RANK_SMOOTHING = 200             # 판수가 적은 챔피언의 승률을 50% 쪽으로 당기는 강도
+
+
+def rank_score(r):
+    """OP.GG 방식처럼 승률 + 픽률 + 밴률을 함께 보는 점수.
+    - 승률: 50%에서 1%p 높을 때마다 +2점 (판수가 적으면 50% 쪽으로 보정)
+    - 픽률: 많이 쓰일수록 가산 (제곱근이라 너무 크게 튀지 않음)
+    - 밴률: 조금 가산"""
+    return ((r["adj"] - 0.5) * 200
+            + 1.2 * (r["pick"] * 100) ** 0.5
+            + 0.6 * (r["ban"] * 100) ** 0.5)
+
+
 def build_ranking(bucket, names):
     total = bucket["games"]
     result = {}
     for line in LINES:
-        rows = []
+        all_rows = []
         for cid, (games, wins) in bucket["picks"].get(line, {}).items():
             pick = games / total
-            if games < MIN_CHAMP_GAMES or pick < MIN_PICK_SHARE:
+            if pick < MIN_PICK_SHARE:
                 continue
-            raw_wr = wins / games
-            adj_wr = (wins + 0.5 * SMOOTHING_GAMES) / (games + SMOOTHING_GAMES)
-            ban = bucket["bans"].get(cid, 0) / total
             name, ddid = names.get(cid, (cid, None))
-            rows.append({"cid": cid, "name": name, "id": ddid, "games": games,
-                         "wr": raw_wr, "adj": adj_wr, "pick": pick, "ban": ban})
-        rows.sort(key=lambda r: r["adj"], reverse=True)
+            all_rows.append({
+                "cid": cid, "name": name, "id": ddid, "games": games,
+                "wr": wins / games,
+                "adj": (wins + 0.5 * RANK_SMOOTHING) / (games + RANK_SMOOTHING),
+                "pick": pick, "ban": bucket["bans"].get(cid, 0) / total,
+            })
+        rows = []
+        for min_games in RANK_MIN_GAMES:
+            rows = [r for r in all_rows if r["games"] >= min_games]
+            if len(rows) >= 10:
+                break
+        rows.sort(key=rank_score, reverse=True)
         result[line] = [
             {
                 "rank": i + 1,
