@@ -157,6 +157,11 @@
             pointer-events: none;
         }
         .hero-splash.loaded { opacity: 0.55; transform: scale(1); }
+
+        /* 라인 아이콘 (탑/정글/미드/원딜/서폿) */
+        .lane-icon { width: 14px; height: 14px; object-fit: contain; flex-shrink: 0; opacity: 0.9; }
+        .lane-decorated { display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+        .side-tab.active .lane-icon, .bg-amber-500 > .lane-icon { filter: brightness(0); opacity: 0.75; }
     </style>
 </head>
 <body class="flex flex-col justify-between min-h-screen px-4 py-6 md:px-8">
@@ -1296,6 +1301,34 @@
         }
         window.addEventListener('resize', syncBuildCardHeight);
 
+        // ───────────── 라인 아이콘 (Community Dragon: 라이엇 게임 클라이언트 이미지) ─────────────
+        const LANE_ICON_FILE = { top: 'top', jungle: 'jungle', mid: 'middle', adc: 'bottom', support: 'utility' };
+        function laneIconUrl(lane) {
+            const f = LANE_ICON_FILE[lane];
+            return f ? `https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-clash/global/default/assets/images/position-selector/positions/icon-position-${f}.png` : null;
+        }
+        // 탑/정글/미드/원딜/서폿 버튼마다 아이콘을 자동으로 붙여 줌
+        function decorateLaneButtons() {
+            document.querySelectorAll('[data-line], [data-hot-line], [data-cs-line], [data-lane-icon]').forEach(el => {
+                if (el.querySelector('.lane-icon')) return;
+                const lane = el.dataset.laneIcon || el.dataset.line || el.dataset.hotLine || el.dataset.csLine;
+                const url = laneIconUrl(lane);
+                if (!url) return;
+                const img = document.createElement('img');
+                img.src = url; img.alt = ''; img.className = 'lane-icon'; img.loading = 'lazy';
+                img.onerror = () => img.remove();   // 아이콘을 못 불러오면 글자만 보이게
+                el.prepend(img);
+                el.classList.add('lane-decorated');
+            });
+        }
+        let laneDecoratePending = false;
+        new MutationObserver(() => {
+            if (laneDecoratePending) return;
+            laneDecoratePending = true;
+            requestAnimationFrame(() => { laneDecoratePending = false; decorateLaneButtons(); });
+        }).observe(document.body, { childList: true, subtree: true });
+        decorateLaneButtons();
+
         // ───────────── 상단 메타 띠 + 로고 뒤 OP 챔피언 일러스트 ─────────────
         function champIdOf(name, id) {
             return id || (champDataList && champDataList[name] && typeof champDataList[name] === 'string' ? champDataList[name] : null);
@@ -1633,7 +1666,7 @@
             const meta = data.meta || {};
             const runeBase = 'https://ddragon.leagueoflegends.com/cdn/img/';
             const roleTabs = Object.keys(champ.roles).map(k => `
-                <button type="button" onclick="openChampPage('${escJs(name)}', '${k}', false)" class="px-3 py-1.5 rounded-xl font-bold text-xs cursor-pointer ${k === role ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-white hover:bg-slate-700'}">${LINE_NAMES[k]}</button>`).join('');
+                <button type="button" onclick="openChampPage('${escJs(name)}', '${k}', false)" data-lane-icon="${k}" class="px-3 py-1.5 rounded-xl font-bold text-xs cursor-pointer ${k === role ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-white hover:bg-slate-700'}">${LINE_NAMES[k]}</button>`).join('');
             const statBox = (label, value, cls = 'text-white') => `
                 <div class="bg-slate-800/80 border border-slate-700 rounded-2xl px-3 py-2 text-center">
                     <div class="text-[10px] text-slate-500">${label}</div>
