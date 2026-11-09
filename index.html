@@ -236,6 +236,15 @@
         .hex-ornament.right .hex-ring { animation-direction: reverse; }
         @keyframes hex-ring-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         body.reduce-motion .hex-ornament .hex-ring { animation: none; }
+        /* 빌드 상세 카드(코어·룬) 양옆 작은 마법공학 테두리: 고정 크기, 글자·아이콘과 안 겹치게 안쪽 여백 확보 */
+        .hex-box { position: relative; overflow: hidden; padding-left: 2.6rem !important; padding-right: 2.6rem !important; }
+        /* 테두리 들어간 룬 칸: 핵심 룬 4개가 한 줄에 들어가게 살짝 작게 */
+        .hex-box .rune-key { width: 2.5rem !important; height: 2.5rem !important; }
+        .hex-box .rune-row { gap: 0.375rem !important; }
+        .hex-box > *:not(.box-ornament) { position: relative; z-index: 1; }
+        .hex-ornament.box-ornament { top: 50%; height: 150px; z-index: 0; opacity: 0.9; }
+        .hex-ornament.box-ornament.left { left: 0; transform: translate(-30%, -50%); }
+        .hex-ornament.box-ornament.right { left: auto; right: 0; transform: translate(30%, -50%) scaleX(-1); }
         /* 페이지 양옆 마법공학 테두리: 화면에 고정, 콘텐츠 바깥 여백에만 */
         .hex-ornament.page-ornament {
             position: fixed;
@@ -1896,13 +1905,23 @@
         }
 
         // 1·2·3코어 빌드 순서
+        // 카드 양옆 마법공학 테두리 (로고 카드 테두리를 작게 복사해서 씀)
+        let _hexBoxN = 0;
+        function hexBoxOrn() {
+            const src = document.querySelector('.hextech-hero-card .hex-ornament.left');
+            if (!src) return '';
+            const n = ++_hexBoxN;
+            const svg = src.outerHTML.replace(/(id="|url\(#)(f[A-Za-z]+?)L(["\)])/g, `$1$2B${n}$3`);
+            return ['left', 'right'].map(side => svg.replace('class="hex-ornament left"', `class="hex-ornament box-ornament ${side}"`)).join('');
+        }
+
         function renderCoreBuild(cores) {
             const arrow = `<div class="hidden sm:flex items-center justify-center text-amber-400 font-black text-xl">›</div>`;
             const col = (opts, k) => {
                 const main = opts[0];
                 const alts = opts.slice(1);
                 return `
-                    <div class="flex-1 min-w-0 bg-slate-800/80 border border-slate-700 rounded-2xl p-3">
+                    <div class="hex-box flex-1 min-w-0 bg-slate-800/80 border border-slate-700 rounded-2xl p-3">${hexBoxOrn()}
                         <div class="text-[11px] font-black text-amber-400 mb-2">${k}코어</div>
                         <div class="flex items-center gap-2.5 mb-2">
                             ${iconImg(getItemImgUrl(main.id), main.name, 'w-12 h-12', 'border-amber-400/70')}
@@ -1937,7 +1956,7 @@
             const chosen = new Set([...page.primary.perks, ...page.sub.perks]);
             const runeIcon = (r, big) => {
                 const on = chosen.has(r.id);
-                const size = big ? 'w-11 h-11' : 'w-8 h-8';
+                const size = big ? 'w-11 h-11 rune-key' : 'w-8 h-8';
                 return `<img src="${base}${r.icon}" alt="${escHtml(r.name)}" title="${escHtml(r.name)}" onerror="this.style.visibility='hidden'"
                     class="${size} rounded-full flex-shrink-0 ${on ? 'ring-2 ring-amber-400 bg-slate-900' : 'opacity-25 grayscale'}">`;
             };
@@ -1947,7 +1966,7 @@
                     <span class="text-sm font-black text-white">${escHtml(st.name)}</span>
                 </div>`;
             const rows = (slots, bigFirst) => slots.map((row, i) => `
-                <div class="flex items-center justify-center gap-2 ${i === 0 && bigFirst ? 'pb-2 mb-1 border-b border-slate-700' : ''}">
+                <div class="rune-row flex items-center justify-center gap-2 ${i === 0 && bigFirst ? 'pb-2 mb-1 border-b border-slate-700' : ''}">
                     ${row.map(r => runeIcon(r, i === 0 && bigFirst)).join('')}
                 </div>`).join('');
             const chosenNames = (st, perks) => perks.map(id => {
@@ -1970,12 +1989,12 @@
             const shardNames = page.shards.map(id => (shards[String(id)] || {}).name).filter(Boolean);
             return `
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-3 space-y-2">${header(prim)}${rows(prim.slots, true)}</div>
-                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-3 flex flex-col">
+                    <div class="hex-box bg-slate-800/80 border border-slate-700 rounded-2xl p-3 space-y-2">${hexBoxOrn()}${header(prim)}${rows(prim.slots, true)}</div>
+                    <div class="hex-box bg-slate-800/80 border border-slate-700 rounded-2xl p-3 flex flex-col">${hexBoxOrn()}
                         ${header(sub)}
                         <div class="flex-1 flex flex-col justify-center gap-2">${rows(sub.slots.slice(1), false)}</div>
                     </div>
-                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-3 flex flex-col">
+                    <div class="hex-box bg-slate-800/80 border border-slate-700 rounded-2xl p-3 flex flex-col">${hexBoxOrn()}
                         <div class="text-sm font-black text-white mb-3">능력치 파편</div>
                         <div class="flex-1 flex flex-col justify-center gap-2">${shardRows}</div>
                     </div>
