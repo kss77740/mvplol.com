@@ -1133,6 +1133,44 @@
             return topFileLoads[name];
         }
 
+        // 매치업 상세: 두 챔피언이 같은 라인에서 맞붙었을 때 승률로 우세/불리 표시
+        function laneMatchupStat(mine, opp) {
+            const champs = ((window.CHAMP_DATA || {}).champs) || {};
+            const norm = (x) => String(x || '').replace(/\s+/g, '');
+            const findChamp = (n) => champs[n] || champs[Object.keys(champs).find(k => norm(k) === norm(n))];
+            let best = null;
+            const scan = (a, b, flip) => {
+                const c = findChamp(a);
+                if (!c || !c.roles) return;
+                for (const [role, r] of Object.entries(c.roles)) {
+                    const v = (r.vs || []).find(x => norm(x.name) === norm(b));
+                    if (!v) continue;
+                    const wr = parseFloat(v.winRate);
+                    if (isNaN(wr)) continue;
+                    if (!best || v.games > best.games) best = { role, games: v.games, wr: flip ? 100 - wr : wr };
+                }
+            };
+            scan(mine, opp, false);
+            scan(opp, mine, true);
+            return best;
+        }
+
+        function laneBadge(stat, mineSide) {
+            if (!stat) {
+                return `<div class="mt-3 px-3 py-1 rounded-full text-xs font-bold bg-slate-800/90 border border-slate-600 text-slate-400">맞라인 통계 수집 중</div>`;
+            }
+            const wr = mineSide ? stat.wr : 100 - stat.wr;
+            let label = '비슷', cls = 'bg-slate-700/80 border-slate-500 text-slate-100';
+            if (wr >= 53) { label = '우세'; cls = 'bg-emerald-500/20 border-emerald-400 text-emerald-300'; }
+            else if (wr <= 47) { label = '불리'; cls = 'bg-rose-500/20 border-rose-400 text-rose-300'; }
+            const laneKo = { top: '탑', jungle: '정글', mid: '미드', adc: '원딜', support: '서폿' }[stat.role] || '';
+            return `
+                <div class="mt-3 flex flex-col items-center gap-1">
+                    <span class="px-4 py-1 rounded-full border-2 text-sm font-black ${cls}">라인전 ${label}</span>
+                    <span class="text-[11px] text-slate-400 font-bold">${laneKo ? laneKo + ' ' : ''}맞라인 승률 ${wr.toFixed(1)}% · ${stat.games}판${stat.games < 10 ? ' (표본 적음)' : ''}</span>
+                </div>`;
+        }
+
         async function runSearch(query, pushHistory = true) {
             const val = query.trim();
             if (!val) return;
@@ -1165,6 +1203,7 @@
                 spell: `점멸 / 점화`
             };
 
+            const laneStat = laneMatchupStat(mine, opp);
             detailDynamicContent.innerHTML = `
                 <div class="w-full bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl mb-6 relative">
                     <form id="detail-search-form" class="w-full relative" role="search">
@@ -1192,6 +1231,7 @@
                         </div>
                         <span class="text-sm text-indigo-300 font-extrabold tracking-wider mb-1">MY CHAMPION</span>
                         <h2 class="text-3xl sm:text-4xl font-black text-white">${mine}</h2>
+                        ${laneBadge(laneStat, true)}
                     </div>
 
                     <div class="flex flex-col items-center justify-center my-2 md:my-0">
@@ -1205,6 +1245,7 @@
                         </div>
                         <span class="text-sm text-rose-300 font-extrabold tracking-wider mb-1">ENEMY CHAMPION</span>
                         <h2 class="text-3xl sm:text-4xl font-black text-white">${opp}</h2>
+                        ${laneBadge(laneStat, false)}
                     </div>
                 </div>
 
