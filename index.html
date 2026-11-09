@@ -242,6 +242,7 @@
         .hex-box .rune-key { width: 2.5rem !important; height: 2.5rem !important; }
         .hex-box .rune-row { gap: 0.375rem !important; }
         .hex-box > *:not(.box-ornament) { position: relative; z-index: 1; }
+        .vs-card > *:not(.hex-ornament) { position: relative; z-index: 1; }
         .box-ornament { position: absolute; top: 8px; bottom: 8px; width: 53px; display: flex; flex-direction: column; pointer-events: none; z-index: 0; opacity: 0.9; }
         .box-ornament.left { left: 0; transform: translateX(-30%); }
         .box-ornament.right { right: 0; transform: translateX(30%) scaleX(-1); }
@@ -1133,6 +1134,18 @@
             return topFileLoads[name];
         }
 
+        // 마법공학 테두리 ver.1 (로고 카드와 같은 모양)을 다른 카드 양옆에 복사
+        let _hexCardN = 0;
+        function hexCardOrn() {
+            const n = ++_hexCardN;
+            return ['left', 'right'].map(side => {
+                const src = document.querySelector(`.hextech-hero-card .hex-ornament.${side}`);
+                if (!src) return '';
+                const suf = side === 'left' ? 'L' : 'R';
+                return src.outerHTML.replace(new RegExp(`(id="|url\\(#)(f[A-Za-z]+?)${suf}(["\\)])`, 'g'), `$1$2C${n}${suf}$3`);
+            }).join('');
+        }
+
         // 매치업 상세: 두 챔피언이 같은 라인에서 맞붙었을 때 승률로 우세/불리 표시
         function laneMatchupStat(mine, opp) {
             const champs = ((window.CHAMP_DATA || {}).champs) || {};
@@ -1224,7 +1237,8 @@
                     <div id="detail-search-suggestions" class="absolute left-4 right-4 top-full mt-2 bg-slate-950/95 border border-amber-500/40 rounded-2xl shadow-2xl max-h-72 overflow-y-auto z-50 hidden p-2 space-y-1 backdrop-blur-md"></div>
                 </div>
 
-                <div class="w-full bg-slate-900/90 rounded-3xl p-8 mb-6 border-2 border-amber-500/50 shadow-2xl flex flex-col md:flex-row items-center justify-around gap-6">
+                <div class="vs-card relative overflow-hidden w-full bg-slate-900/90 rounded-3xl p-8 mb-6 border-2 border-amber-500/50 shadow-2xl flex flex-col md:flex-row items-center justify-center gap-6 md:gap-16">
+                    ${hexCardOrn()}
                     <div class="flex flex-col items-center text-center">
                         <div class="relative w-36 h-36 mb-4 rounded-3xl overflow-hidden border-4 border-indigo-400 shadow-2xl bg-slate-800">
                             <img src="${getChampImgUrl(mine)}" alt="${mine}" class="w-full h-full object-cover">
