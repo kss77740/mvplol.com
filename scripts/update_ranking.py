@@ -63,7 +63,7 @@ else:
     OUTPUT_PATH = os.path.join(ROOT, "ranking_data.js")
     CHAMP_OUTPUT_PATH = os.path.join(ROOT, "champ_data.js")
 
-MIN_ROLE_GAMES = 30        # 챔피언 상세(빌드/카운터)를 보여줄 최소 판수
+MIN_ROLE_GAMES = 10        # 챔피언 상세(빌드/카운터)를 보여줄 최소 판수 (30판 미만은 사이트에서 '표본 적음' 안내)
 MIN_VS_GAMES = 3           # 상대별 승률을 보여줄 최소 판수
 MIN_TREND_GAMES = 40       # 급상승/급하락 비교에 필요한 패치별 최소 판수
 
