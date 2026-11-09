@@ -2426,8 +2426,10 @@
                         <span class="font-bold ${afterCls(change)}">${escHtml(after)}</span>
                     </div>
                 </div>`).join('');
-            const card = (x, img, onclick) => `
-                <div class="bg-slate-800/70 border border-slate-700 rounded-2xl p-4">
+            const card = (x, img, onclick) => {
+                const wide = (x.list || []).length > 4;   // 멜처럼 바뀐 게 많은 카드는 가로로 넓게
+                return `
+                <div class="patch-card v3-box bg-slate-800/70 p-4 ${wide ? 'wide md:col-span-2' : ''}">
                     <div class="flex items-center gap-3 mb-2">
                         ${onclick ? `<button type="button" onclick="${onclick}" class="flex-shrink-0 cursor-pointer" title="챔피언 상세 보기">${iconImg(img, x.name, 'w-12 h-12')}</button>` : iconImg(img, x.name, 'w-12 h-12')}
                         <div class="min-w-0 flex-1">
@@ -2438,16 +2440,17 @@
                             ${x.tldr ? `<p class="text-sm text-amber-100/90 font-bold mt-0.5 leading-snug">${escHtml(x.tldr)}</p>` : ''}
                         </div>
                     </div>
-                    ${x.list && x.list.length ? `<div class="bg-slate-900/70 rounded-xl px-3 py-1 mt-3">${changeRows(x.list, x.change)}</div>` : ''}
+                    ${x.list && x.list.length ? `<div class="bg-slate-900/70 rounded-xl px-3 py-1 mt-3 ${wide ? 'md:grid md:grid-cols-2 md:gap-x-6 md:[&>*:nth-child(2)]:border-t-0' : ''}">${changeRows(x.list, x.change)}</div>` : ''}
                     ${x.why ? `<p class="text-xs text-slate-400 mt-2.5 leading-relaxed"><b class="text-slate-300">바뀐 이유</b> · ${escHtml(x.why)}</p>` : ''}
                 </div>`;
+            };
             const section = (change) => {
                 const list = (pn.champions || []).filter(c => c.change === change);
                 if (!list.length) return '';
                 return `
                     <div class="mb-6">
                         <h3 class="inline-block text-sm font-black px-2.5 py-0.5 rounded border mb-3 ${patchChangeClass(change)}">${change} · ${list.length}명</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">${list.map(c => card(c, getChampImgUrl(c.name), `openChampPage('${escJs(c.name)}')`)).join('')}</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">${list.map(c => card(c, getChampImgUrl(c.name), `openChampPage('${escJs(c.name)}')`)).join('')}</div>
                     </div>`;
             };
             const items = (pn.items || []).map(it => card(it, getItemImgUrl(getItemIdFromText(it.name)), '')).join('');
@@ -2464,7 +2467,19 @@
                     ${items ? `<h3 class="text-lg font-black text-white mb-3">아이템</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-7">${items}</div>` : ''}
                     ${pn.url ? `<a href="${escHtml(pn.url)}" target="_blank" rel="noopener" class="block text-center bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-3 rounded-2xl">공식 패치노트 전체 보기</a>` : ''}
                 </div>`;
+            requestAnimationFrame(equalizePatchCards);
         }
+
+        // 패치 카드 높이를 전부 같게 (가장 큰 카드 기준, 넓은 카드는 따로)
+        function equalizePatchCards() {
+            const cards = [...document.querySelectorAll('.patch-card:not(.wide)')];
+            if (!cards.length) return;
+            cards.forEach(c => { c.style.minHeight = ''; });
+            if (window.innerWidth < 768) return;
+            const h = Math.max(...cards.map(c => c.offsetHeight));
+            cards.forEach(c => { c.style.minHeight = h + 'px'; });
+        }
+        window.addEventListener('resize', () => requestAnimationFrame(equalizePatchCards));
 
         function renderPage(type, pushHistory = true) {
             if (type === 'hot') {
