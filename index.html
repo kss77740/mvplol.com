@@ -121,6 +121,42 @@
         .side-chip:hover { border-color: rgba(250, 204, 21, 0.8); background: rgba(250, 204, 21, 0.12); }
         .side-tab { cursor: pointer; }
         .side-tab.active { background: #f59e0b; color: #020617; }
+
+        /* 메타 소식 흐르는 띠 */
+        .meta-ticker {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            background: linear-gradient(90deg, rgba(120, 53, 15, 0.25), rgba(15, 23, 42, 0.6) 20%, rgba(15, 23, 42, 0.6) 80%, rgba(120, 53, 15, 0.25));
+            -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+                    mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+        }
+        .meta-ticker-track {
+            display: inline-flex;
+            white-space: nowrap;
+            animation: ticker-move var(--ticker-duration, 45s) linear infinite;
+        }
+        .meta-ticker:hover .meta-ticker-track { animation-play-state: paused; }
+        @keyframes ticker-move {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .meta-ticker-track { animation: none; }
+        }
+
+        /* 로고 카드 뒤 챔피언 일러스트 */
+        .hero-splash {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center 22%;
+            opacity: 0;
+            transform: scale(1.06);
+            transition: opacity 1.2s ease, transform 8s ease-out;
+            pointer-events: none;
+        }
+        .hero-splash.loaded { opacity: 0.55; transform: scale(1); }
     </style>
 </head>
 <body class="flex flex-col justify-between min-h-screen px-4 py-6 md:px-8">
@@ -139,6 +175,11 @@
             </button>
         </nav>
     </header>
+
+    <!-- 메타 소식 흐르는 띠 (데이터가 있을 때만 보임) -->
+    <div id="meta-ticker" class="meta-ticker w-full max-w-7xl mx-auto mt-4 rounded-xl py-2 hidden" aria-label="이번 패치 메타 소식">
+        <div id="meta-ticker-track" class="meta-ticker-track text-xs sm:text-sm"></div>
+    </div>
 
     <!-- Main Container -->
     <main id="main-view" class="w-full max-w-7xl mx-auto my-auto py-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
@@ -174,7 +215,10 @@
         <div class="lg:col-span-6 flex flex-col justify-center space-y-6 py-1 -mt-2">
             
             <div class="hextech-hero-card p-6 text-center">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-950/70 via-amber-950/40 to-blue-950/70 pointer-events-none"></div>
+                <div id="hero-splash" class="hero-splash" aria-hidden="true"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-950/80 via-slate-950/45 to-blue-950/80 pointer-events-none"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/30 pointer-events-none"></div>
+                <button type="button" id="hero-splash-caption" class="hidden absolute bottom-2 right-3 z-20 text-[10px] sm:text-[11px] text-amber-200/80 hover:text-amber-200 bg-slate-950/50 border border-amber-500/20 rounded-md px-2 py-0.5 cursor-pointer"></button>
 
                 <div class="relative z-10 flex flex-col items-center gap-2 px-14">
                     <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] flex items-center justify-center gap-4 m-0 p-0 leading-none">
@@ -1252,11 +1296,76 @@
         }
         window.addEventListener('resize', syncBuildCardHeight);
 
+        // ───────────── 상단 메타 띠 + 로고 뒤 OP 챔피언 일러스트 ─────────────
+        function champIdOf(name, id) {
+            return id || (champDataList && champDataList[name] && typeof champDataList[name] === 'string' ? champDataList[name] : null);
+        }
+
+        function renderMetaTicker() {
+            const box = document.getElementById('meta-ticker');
+            const track = document.getElementById('meta-ticker-track');
+            const meta = window.RANKING_META;
+            const db = window.RANKING_DATABASE;
+            if (!box || !meta || !db) return;
+
+            const sep = '<span class="mx-4 text-amber-500/50">|</span>';
+            const label = (t) => `<span class="text-amber-400 font-black mr-1.5">${t}</span>`;
+            const items = [];
+            items.push(`${label('패치')}<span class="text-white font-bold">${escHtml(displayPatch(meta.patch))}</span>`);
+            Object.entries(LINE_NAMES).forEach(([k, v]) => {
+                const c = (db[k] || [])[0];
+                if (!c) return;
+                items.push(`${label(v + ' OP')}<button type="button" class="text-white font-bold hover:text-amber-300 cursor-pointer" onclick="openChampPage('${escJs(c.name)}', '${k}')">${escHtml(c.name)}</button><span class="ml-1.5 ${wrColor(c.winRate)} font-bold">${c.winRate}</span>`);
+            });
+            const pn = window.PATCH_NOTES;
+            if (pn && pn.champions) {
+                const up = pn.champions.filter(c => c.change === '상향').map(c => c.name);
+                const down = pn.champions.filter(c => c.change === '하향').map(c => c.name);
+                if (up.length) items.push(`${label('상향')}<span class="text-emerald-300 font-bold">${escHtml(up.slice(0, 5).join(', '))}${up.length > 5 ? ' 외' : ''}</span>`);
+                if (down.length) items.push(`${label('하향')}<span class="text-rose-300 font-bold">${escHtml(down.slice(0, 5).join(', '))}${down.length > 5 ? ' 외' : ''}</span>`);
+            }
+            const pop = window.CHAMP_DATA && window.CHAMP_DATA.popular && window.CHAMP_DATA.popular[0];
+            if (pop) items.push(`${label('인기 구도')}<button type="button" class="text-white font-bold hover:text-amber-300 cursor-pointer" onclick="openMatchupFromSide('${escJs(pop.a)}', '${escJs(pop.b)}')">${escHtml(pop.a)} vs ${escHtml(pop.b)}</button>`);
+            items.push(`${label('분석 경기')}<span class="text-white font-bold">${Number(meta.games).toLocaleString()}판</span><span class="ml-1.5 text-slate-400">${escHtml(meta.tierLabel || '')}</span>`);
+            items.push(`${label('갱신')}<span class="text-slate-300">${escHtml(meta.updatedAt || '')}</span>`);
+
+            const once = `<span class="inline-flex items-center px-6">${items.join(sep)}</span>`;
+            track.innerHTML = once + once;   // 두 번 이어 붙여서 끊김 없이 흐르게
+            track.style.setProperty('--ticker-duration', Math.max(30, items.length * 6) + 's');
+            box.classList.remove('hidden');
+        }
+
+        function renderHeroSplash() {
+            const el = document.getElementById('hero-splash');
+            const cap = document.getElementById('hero-splash-caption');
+            const db = window.RANKING_DATABASE;
+            if (!el || !db || !window.RANKING_META) return;
+            // 라인별 1위 챔피언 중 하루에 한 명씩 돌아가며 보여줌
+            const picks = Object.keys(LINE_NAMES).map(k => ({ line: k, c: (db[k] || [])[0] })).filter(x => x.c);
+            if (!picks.length) return;
+            const day = Math.floor(Date.now() / 86400000);
+            const { line, c } = picks[day % picks.length];
+            const id = champIdOf(c.name, c.id);
+            if (!id) return;
+            const url = `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${id}_0.jpg`;
+            const img = new Image();
+            img.onload = () => {
+                el.style.backgroundImage = `url('${url}')`;
+                requestAnimationFrame(() => el.classList.add('loaded'));
+                cap.textContent = `오늘의 OP · ${c.name} (${LINE_NAMES[line]})`;
+                cap.onclick = () => openChampPage(c.name, line);
+                cap.classList.remove('hidden');
+            };
+            img.src = url;
+        }
+
         function renderSidePanels() {
             renderSidePopular();
             renderSideOp();
             renderSidePatch();
             renderSideBuild();
+            renderMetaTicker();
+            renderHeroSplash();
             requestAnimationFrame(syncBuildCardHeight);
         }
 
