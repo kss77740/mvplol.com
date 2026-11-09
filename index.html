@@ -2408,34 +2408,60 @@
                 detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center">${noDataText('패치노트 정보가 아직 없어요.')}</div>`;
                 return;
             }
-            const champRows = (change) =>(pn.champions || []).filter(c =>c.change === change).map(c => `
-                <button type="button" onclick="openChampPage('${escJs(c.name)}')" class="side-chip flex items-center gap-2 p-2 rounded-xl border border-slate-700 bg-slate-800/80 text-left">
-                    ${iconImg(getChampImgUrl(c.name), c.name, 'w-9 h-9')}
-                    <span class="text-sm font-bold text-white">${escHtml(c.name)}</span>
-                </button>`).join('');
+            // 바뀐 수치 한 줄: [스킬키] 스킬 이름 · 항목   이전 → 이후
+            const keyBadge = (k) => {
+                if (!k) return '';
+                const label = k === 'P' ? '패시브' : k;
+                return `<span class="inline-flex items-center justify-center min-w-[28px] h-6 px-1.5 rounded-md bg-slate-950 border border-amber-500/50 text-amber-300 text-xs font-black flex-shrink-0">${escHtml(label)}</span>`;
+            };
+            const afterCls = (change) => change === '상향' ? 'text-emerald-300' : change === '하향' ? 'text-rose-300' : 'text-sky-300';
+            const changeRows = (list, change) => (list || []).map(([k, skill, stat, before, after]) => `
+                <div class="py-2.5 border-t border-slate-700/70 first:border-t-0">
+                    <div class="flex items-center gap-2 mb-1">
+                        ${keyBadge(k)}
+                        <span class="text-sm font-bold text-white">${escHtml([skill, stat].filter(Boolean).join(' · '))}</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm pl-0.5">
+                        ${before && before !== '-' ? `<span class="text-slate-400">${escHtml(before)}</span><span class="text-amber-400 font-black">→</span>` : ''}
+                        <span class="font-bold ${afterCls(change)}">${escHtml(after)}</span>
+                    </div>
+                </div>`).join('');
+            const card = (x, img, onclick) => `
+                <div class="bg-slate-800/70 border border-slate-700 rounded-2xl p-4">
+                    <div class="flex items-center gap-3 mb-2">
+                        ${onclick ? `<button type="button" onclick="${onclick}" class="flex-shrink-0 cursor-pointer" title="챔피언 상세 보기">${iconImg(img, x.name, 'w-12 h-12')}</button>` : iconImg(img, x.name, 'w-12 h-12')}
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-2">
+                                <span class="text-base font-black text-white">${escHtml(x.name)}</span>
+                                <span class="text-[11px] font-black px-1.5 py-0.5 rounded border ${patchChangeClass(x.change)}">${escHtml(x.change)}</span>
+                            </div>
+                            ${x.tldr ? `<p class="text-sm text-amber-100/90 font-bold mt-0.5 leading-snug">${escHtml(x.tldr)}</p>` : ''}
+                        </div>
+                    </div>
+                    ${x.list && x.list.length ? `<div class="bg-slate-900/70 rounded-xl px-3 py-1 mt-3">${changeRows(x.list, x.change)}</div>` : ''}
+                    ${x.why ? `<p class="text-xs text-slate-400 mt-2.5 leading-relaxed"><b class="text-slate-300">바뀐 이유</b> · ${escHtml(x.why)}</p>` : ''}
+                </div>`;
             const section = (change) => {
-                const rows = champRows(change);
-                if (!rows) return '';
+                const list = (pn.champions || []).filter(c => c.change === change);
+                if (!list.length) return '';
                 return `
-                    <div class="mb-5">
-                        <h3 class="inline-block text-xs font-black px-2 py-0.5 rounded border mb-2 ${patchChangeClass(change)}">${change}</h3>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">${rows}</div>
+                    <div class="mb-6">
+                        <h3 class="inline-block text-sm font-black px-2.5 py-0.5 rounded border mb-3 ${patchChangeClass(change)}">${change} · ${list.length}명</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">${list.map(c => card(c, getChampImgUrl(c.name), `openChampPage('${escJs(c.name)}')`)).join('')}</div>
                     </div>`;
             };
-            const items = (pn.items || []).map(it => `
-                <div class="flex items-center gap-2 p-2 rounded-xl border border-slate-700 bg-slate-800/80">
-                    ${iconImg(getItemImgUrl(getItemIdFromText(it.name)), it.name, 'w-9 h-9')}
-                    <span class="text-sm font-bold text-white flex-1 min-w-0 truncate">${escHtml(it.name)}</span>
-                    <span class="text-[10px] font-black px-1.5 py-0.5 rounded border flex-shrink-0 ${patchChangeClass(it.change)}">${escHtml(it.change)}</span>
-                </div>`).join('');
+            const items = (pn.items || []).map(it => card(it, getItemImgUrl(getItemIdFromText(it.name)), '')).join('');
+            const summary = Array.isArray(pn.summary)
+                ? `<ul class="space-y-1.5">${pn.summary.map(t => `<li class="flex gap-2"><span class="text-amber-400 font-black">·</span><span>${escHtml(t)}</span></li>`).join('')}</ul>`
+                : escHtml(pn.summary || '');
             detailDynamicContent.innerHTML = `
-                <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-xl max-w-3xl mx-auto">
+                <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-xl max-w-4xl mx-auto">
                     <h2 class="text-2xl font-black text-yellow-300 mb-1 text-center">${escHtml(pn.patch)} 패치 한눈에 보기</h2>
-                    <p class="text-[11px] text-slate-500 text-center mb-4">${escHtml(pn.date)} 적용</p>
-                    ${pn.summary ? `<p class="text-sm text-slate-200 leading-relaxed bg-slate-800/60 border border-slate-700 rounded-2xl p-4 mb-6">${escHtml(pn.summary)}</p>` : ''}
-                    <h3 class="text-base font-black text-white mb-3">챔피언</h3>
+                    <p class="text-xs text-slate-500 text-center mb-5">${escHtml(pn.date)} 적용 · 챔피언 아이콘을 누르면 상세 빌드</p>
+                    ${pn.summary ? `<div class="text-[15px] text-slate-100 leading-relaxed bg-slate-800/60 border border-amber-500/30 rounded-2xl p-5 mb-7"><div class="text-sm font-black text-amber-300 mb-2">이번 패치 핵심</div>${summary}</div>` : ''}
+                    <h3 class="text-lg font-black text-white mb-3">챔피언</h3>
                     ${section('상향')}${section('하향')}${section('조정')}
-                    ${items ? `<h3 class="text-base font-black text-white mb-3">아이템</h3><div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-6">${items}</div>` : ''}
+                    ${items ? `<h3 class="text-lg font-black text-white mb-3">아이템</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-7">${items}</div>` : ''}
                     ${pn.url ? `<a href="${escHtml(pn.url)}" target="_blank" rel="noopener" class="block text-center bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-3 rounded-2xl">공식 패치노트 전체 보기</a>` : ''}
                 </div>`;
         }
