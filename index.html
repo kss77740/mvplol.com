@@ -232,6 +232,12 @@
 
         /* MVP LOL 로고 글자 */
         .logo-font, .logo-font * { font-family: 'Cinzel', 'Pretendard', serif !important; font-weight: 700 !important; letter-spacing: 0.02em; }
+        /* 대문자 높이 기준으로 위아래 여백을 잘라서, 글자가 가운데 엠블럼과 정확히 가운데 정렬되게 */
+        .logo-font > span {
+            display: block;
+            line-height: 1;
+            text-box: trim-both cap alphabetic;
+        }
     </style>
 </head>
 <body class="flex flex-col justify-between min-h-screen px-4 py-6 md:px-8">
