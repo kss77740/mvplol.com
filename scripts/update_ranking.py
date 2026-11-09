@@ -618,6 +618,28 @@ def build_champ_data(bucket, prev, game):
                     })
                 except ValueError:
                     continue
+            # 룬 하나하나의 픽률·승률 (OP.GG 룬 화면처럼): 모든 룬 페이지 기록을 룬별로 합산
+            #   prim = 주 룬으로 고른 판, sub = 보조 룬으로 고른 판, shard = "줄번호:파편id"
+            rune_stats = {"total": 0, "prim": {}, "sub": {}, "shard": {}}
+            def _acc(dst, key, v):
+                rec2 = dst.setdefault(str(key), [0, 0])
+                rec2[0] += v[0]
+                rec2[1] += v[1]
+            for key, v in (d.get("pages") or {}).items():
+                try:
+                    prim, sub, shards = key.split("|")
+                    pperks = prim.split(":")[1].split(",")
+                    sperks = sub.split(":")[1].split(",")
+                    shard_ids = shards.split(",")
+                except (ValueError, IndexError):
+                    continue
+                rune_stats["total"] += v[0]
+                for x in pperks:
+                    _acc(rune_stats["prim"], x, v)
+                for x in sperks:
+                    _acc(rune_stats["sub"], x, v)
+                for i, x in enumerate(shard_ids):
+                    _acc(rune_stats["shard"], f"{i}:{x}", v)
             vs_all = [pick4(r) for r in sorted(vs_rows, key=lambda r: r["games"], reverse=True)[:30]]
 
             entry = champs.setdefault(name, {"id": ddid, "roles": {}})
@@ -631,7 +653,7 @@ def build_champ_data(bucket, prev, game):
                 "secondary": secondaries[0] if secondaries else None, "secondaries": secondaries,
                 "spells": spells_list[0] if spells_list else None, "spellsList": spells_list,
                 "hard": hard, "easy": easy, "vs": vs_all,
-                "cores": cores, "runePages": rune_pages,
+                "cores": cores, "runePages": rune_pages, "runeStats": rune_stats,
             }
 
     # 인기 구도: 같은 라인에서 가장 많이 만난 조합

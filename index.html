@@ -2138,62 +2138,93 @@
             return `<div class="flex flex-col sm:flex-row gap-2 sm:gap-1">${parts.join('')}</div>`;
         }
 
-        // 인게임 룬 화면처럼 그리기: 고른 룬은 밝게, 나머지는 흐리게
-        function renderRunePage(page, tree) {
+        // 룬 화면 (OP.GG 룬 표처럼): 룬마다 아이콘 + 승률 / 픽률 / 판수, 고른 룬은 밝게
+        function runeNum(rec, total) {
+            const g = rec ? rec[0] : 0, w = rec ? rec[1] : 0;
+            const pct = (x) => (Math.round(x * 1000) / 10).toString().replace(/\.0$/, '') + '%';
+            return { g, wr: g ? pct(w / g) : '0%', pick: total ? pct(g / total) : '0%' };
+        }
+        function renderRunePage(page, tree, stats) {
             const base = 'https://ddragon.leagueoflegends.com/cdn/img/';
             const styleOf = (id) => (tree.styles || []).find(st => st.id === id);
             const prim = styleOf(page.primary.style);
             const sub = styleOf(page.sub.style);
             if (!prim || !sub) return noDataText('룬 정보를 불러오지 못했어요.');
+            const S = stats || { total: 0, prim: {}, sub: {}, shard: {} };
             const chosen = new Set([...page.primary.perks, ...page.sub.perks]);
-            const runeIcon = (r, big) => {
-                const on = chosen.has(r.id);
-                const size = big ? 'w-11 h-11 rune-key' : 'w-8 h-8';
-                return `<img src="${base}${r.icon}" alt="${escHtml(r.name)}" title="${escHtml(r.name)}" onerror="this.style.visibility='hidden'"
-                    class="${size} rounded-full flex-shrink-0 ${on ? 'ring-2 ring-amber-400 bg-slate-900' : 'opacity-25 grayscale'}">`;
+
+            const cell = (icon, name, on, rec, size) => {
+                const n = runeNum(rec, S.total);
+                return `
+                    <div class="flex flex-col items-center w-[58px] flex-shrink-0">
+                        <img src="${base}${icon}" alt="${escHtml(name)}" title="${escHtml(name)}" onerror="this.style.visibility='hidden'"
+                            class="${size} rounded-full ${on ? 'ring-2 ring-amber-400 bg-slate-950' : 'opacity-35 grayscale'}">
+                        ${stats ? `
+                        <div class="mt-1 text-[11px] leading-tight text-center">
+                            <div class="font-bold ${on ? 'text-sky-400' : 'text-slate-500'}">${n.wr}</div>
+                            <div class="font-black ${on ? 'text-white' : 'text-slate-500'}">${n.pick}</div>
+                            <div class="text-[10px] text-slate-600">${n.g.toLocaleString()}</div>
+                        </div>` : ''}
+                    </div>`;
             };
-            const header = (st) => `
-                <div class="flex items-center gap-2 mb-3">
-                    <img src="${base}${st.icon}" alt="" class="w-6 h-6" onerror="this.style.visibility='hidden'">
-                    <span class="text-sm font-black text-white">${escHtml(st.name)}</span>
-                </div>`;
-            const rows = (slots, bigFirst) => slots.map((row, i) => `
-                <div class="rune-row flex items-center justify-center gap-2 ${i === 0 && bigFirst ? 'pb-2 mb-1 border-b border-slate-700' : ''}">
-                    ${row.map(r => runeIcon(r, i === 0 && bigFirst)).join('')}
+            const treeRows = (st, slots, src) => slots.map((row, i) => `
+                <div class="flex items-start justify-center gap-1">
+                    ${row.map(r => cell(r.icon, r.name, chosen.has(r.id), S[src][String(r.id)], i === 0 && src === 'prim' ? 'w-11 h-11' : 'w-9 h-9')).join('')}
                 </div>`).join('');
-            const chosenNames = (st, perks) => perks.map(id => {
-                for (const row of st.slots) { const r = row.find(x => x.id === id); if (r) return r.name; }
-                return '';
-            }).filter(Boolean);
 
             const shards = tree.shards || {};
             const shardRows = (tree.shardRows || []).map((row, i) => `
-                <div class="flex items-center justify-center gap-2">
+                <div class="flex items-start justify-center gap-1">
                     ${row.map(id => {
                         const sh = shards[String(id)] || { name: id, icon: '' };
-                        const on = page.shards[i] === Number(id);
-                        return `<img src="${base}${sh.icon}" alt="${escHtml(sh.name)}" title="${escHtml(sh.name)}" onerror="this.style.visibility='hidden'"
-                            class="w-6 h-6 rounded-full p-0.5 ${on ? 'ring-2 ring-amber-400 bg-slate-900' : 'opacity-25 grayscale'}">`;
+                        return cell(sh.icon, sh.name, page.shards[i] === Number(id), S.shard[`${i}:${id}`], 'w-8 h-8 p-0.5');
                     }).join('')}
                 </div>`).join('');
 
-            const names = [...chosenNames(prim, page.primary.perks), ...chosenNames(sub, page.sub.perks)];
-            const shardNames = page.shards.map(id => (shards[String(id)] || {}).name).filter(Boolean);
+            const col = (inner, label, icon) => `
+                <div class="flex flex-col justify-between gap-4 py-1">
+                    <div class="flex flex-col gap-4">${inner}</div>
+                    <div class="flex items-center justify-center gap-1.5 text-sm font-bold text-slate-300">
+                        ${icon ? `<img src="${base}${icon}" alt="" class="w-5 h-5" onerror="this.style.visibility='hidden'">` : ''}${escHtml(label)}
+                    </div>
+                </div>`;
+            // 보조 룬·파편 칸은 핵심 룬 줄 높이만큼 비워서 줄을 맞춤
+            const spacer = `<div class="hidden md:block ${stats ? 'h-[88px]' : 'h-11'}"></div>`;
             return `
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div class="v3-box bg-slate-800/80 p-3 space-y-2">${header(prim)}${rows(prim.slots, true)}</div>
-                    <div class="v3-box bg-slate-800/80 p-3 flex flex-col">
-                        ${header(sub)}
-                        <div class="flex-1 flex flex-col justify-center gap-2">${rows(sub.slots.slice(1), false)}</div>
+                <div class="v3-box bg-slate-800/80 p-3">
+                    <div class="grid grid-cols-1 md:grid-cols-3 md:divide-x divide-slate-700/80 gap-y-6">
+                        ${col(treeRows(prim, prim.slots, 'prim'), prim.name, prim.icon)}
+                        ${col(spacer + treeRows(sub, sub.slots.slice(1), 'sub'), sub.name, sub.icon)}
+                        ${col(spacer + shardRows, '능력치 파편', '')}
                     </div>
-                    <div class="v3-box bg-slate-800/80 p-3 flex flex-col">
-                        <div class="text-sm font-black text-white mb-3">능력치 파편</div>
-                        <div class="flex-1 flex flex-col justify-center gap-2">${shardRows}</div>
-                    </div>
-                </div>
-                <p class="text-[11px] text-slate-400 mt-2 leading-relaxed">
-                    <b class="text-slate-200">${names.map(escHtml).join(' · ')}</b>${shardNames.length ? ` / 파편: ${shardNames.map(escHtml).join(', ')}` : ''}
-                </p>`;
+                </div>`;
+        }
+
+        // 룬 페이지 탭: 핵심 룬·주 룬·보조 룬 아이콘 + 픽률(판수) + 승률
+        function runeTabsHtml(pages, tree) {
+            const base = 'https://ddragon.leagueoflegends.com/cdn/img/';
+            const styleOf = (id) => (tree.styles || []).find(st => st.id === id);
+            const perkOf = (st, id) => st && st.slots.flat().find(r => r.id === id);
+            return pages.map((pg, i) => {
+                const prim = styleOf(pg.primary.style), sub = styleOf(pg.sub.style);
+                const key = perkOf(prim, pg.primary.perks[0]);
+                const img = (o, cls) => o ? `<img src="${base}${o.icon}" alt="${escHtml(o.name)}" title="${escHtml(o.name)}" class="${cls}" onerror="this.style.visibility='hidden'">` : '';
+                return `
+                    <button type="button" data-rune-idx="${i}" class="rune-tab flex-1 min-w-[260px] flex items-center justify-between gap-3 px-4 py-3 rounded-lg border cursor-pointer transition-colors ${i === 0 ? 'bg-slate-700/70 border-amber-400/60' : 'bg-slate-900/60 border-slate-700 hover:bg-slate-800'}">
+                        <div class="flex items-center gap-2">
+                            ${img(prim, 'w-6 h-6 opacity-80')}${img(key, 'w-10 h-10 rounded-full bg-slate-950')}${img(sub, 'w-6 h-6 opacity-80')}
+                        </div>
+                        <div class="text-center leading-tight">
+                            <div class="text-sm font-black text-white">${pg.pick}</div>
+                            <div class="text-[11px] text-slate-400">${Number(pg.games || 0).toLocaleString()} 게임</div>
+                            <div class="text-[11px] text-slate-400">픽률</div>
+                        </div>
+                        <div class="text-center leading-tight">
+                            <div class="text-sm font-black text-sky-400">${pg.winRate}</div>
+                            <div class="text-[11px] text-slate-400">승률</div>
+                        </div>
+                    </button>`;
+            }).join('');
         }
 
         function renderChampPage(name, role) {
@@ -2276,10 +2307,9 @@
                     ? section('핵심 아이템 빌드 순서', renderCoreBuild(r.cores), '구매 순서 기준 · 코어별 가장 많이 산 아이템')
                     : section('핵심 아이템', items ? `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${items}</div>` : noDataText('표본 부족'), '많이 가는 순서 · 막대는 픽률')}
                 ${(r.runePages || []).length && data.runeTree
-                    ? section('추천 룬', `${r.runePages.length > 1 ? `<div id="rune-tabs" class="flex gap-1.5 mb-3">${r.runePages.map((pg, i) => `
-                        <button type="button" data-rune-idx="${i}" class="px-3 py-1 rounded-lg text-xs font-bold cursor-pointer ${i === 0 ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-white hover:bg-slate-700'}">${i + 1}순위 · 픽 ${pg.pick} · 승률 ${pg.winRate}</button>`).join('')}</div>` : ''}
-                        <div id="rune-page-box">${renderRunePage(r.runePages[0], data.runeTree)}</div>`,
-                        `가장 많이 쓰는 룬 · 픽 ${r.runePages[0].pick} · 승률 ${r.runePages[0].winRate}`)
+                    ? section('추천 룬', `<div id="rune-tabs" class="flex flex-wrap gap-2 mb-3">${runeTabsHtml(r.runePages, data.runeTree)}</div>
+                        <div id="rune-page-box">${renderRunePage(r.runePages[0], data.runeTree, r.runeStats)}</div>`,
+                        '룬마다 승률 · 픽률 · 판수')
                     : section('룬', (keystones || secondaries) ? `<div class="space-y-2">${keystones}${secondaries}</div>` : noDataText('표본 부족'))}
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
                     ${section('신발', boots ? `<div class="space-y-2">${boots}</div>` : noDataText('표본 부족'))}
@@ -2295,11 +2325,11 @@
                 const btn = e.target.closest('[data-rune-idx]');
                 if (!btn) return;
                 const idx = Number(btn.dataset.runeIdx);
-                document.getElementById('rune-page-box').innerHTML = renderRunePage(r.runePages[idx], data.runeTree);
+                document.getElementById('rune-page-box').innerHTML = renderRunePage(r.runePages[idx], data.runeTree, r.runeStats);
                 runeTabs.querySelectorAll('[data-rune-idx]').forEach(b => {
                     const on = b === btn;
-                    b.classList.toggle('bg-amber-500', on); b.classList.toggle('text-slate-950', on);
-                    b.classList.toggle('bg-slate-800', !on); b.classList.toggle('text-white', !on);
+                    b.classList.toggle('bg-slate-700/70', on); b.classList.toggle('border-amber-400/60', on);
+                    b.classList.toggle('bg-slate-900/60', !on); b.classList.toggle('border-slate-700', !on);
                 });
             });
         }
