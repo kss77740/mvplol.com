@@ -240,10 +240,12 @@
         /* MVP LOL 로고 글자 */
         .logo-font, .logo-font * { font-family: 'Cinzel', 'Pretendard', serif !important; font-weight: 700 !important; letter-spacing: 0.02em; }
         /* MVP / LOL 글자를 엠블럼 기준 위아래 정확히 가운데로 (실제 글자 높이를 재서 JS로 보정) */
+        /* 엠블럼 그림 자체가 아래쪽에 무게가 있어서 글자를 살짝 내려 눈으로 보기에 가운데로 (더 내리려면 숫자 키우기) */
+        .logo-font { --logo-nudge: 0.07em; }
         .logo-font > span {
             display: block;
             line-height: 1;
-            transform: translateY(var(--cap-shift, 0px));
+            transform: translateY(calc(var(--cap-shift, 0px) + var(--logo-nudge)));
         }
     </style>
 </head>
