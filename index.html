@@ -291,9 +291,38 @@
             line-height: 1;
             transform: translateY(calc(var(--cap-shift, 0px) + var(--logo-nudge)));
         }
+        /* ───── 롤 클라이언트 톤 (theme-lol): 쨍한 주황 → 차분한 금색, 골라진 탭은 어두운 바탕 + 금테 ───── */
+        body.theme-lol { --lol-gold: #C8AA6E; --lol-gold-hi: #E5CC8E; --lol-gold-d: #785A28; --lol-cream: #F0E6D2; --lol-teal: #0AC8B9; }
+        /* 골라진 탭·주황 버튼 */
+        body.theme-lol .side-tab.active,
+        body.theme-lol button.bg-amber-500, body.theme-lol button.bg-amber-400,
+        body.theme-lol a.bg-amber-500 {
+            background: linear-gradient(180deg, #1e2a33 0%, #0a1621 100%) !important;
+            color: var(--lol-cream) !important;
+            box-shadow: inset 0 0 0 1px var(--lol-gold), inset 0 0 12px rgba(200, 170, 110, 0.22), 0 0 10px rgba(200, 170, 110, 0.22) !important;
+            text-shadow: 0 0 6px rgba(240, 230, 210, 0.25);
+        }
+        body.theme-lol .side-tab.active:hover,
+        body.theme-lol button.bg-amber-500:hover, body.theme-lol button.bg-amber-400:hover,
+        body.theme-lol a.bg-amber-500:hover {
+            box-shadow: inset 0 0 0 1px var(--lol-cream), inset 0 0 14px rgba(240, 230, 210, 0.25), 0 0 14px rgba(200, 170, 110, 0.4) !important;
+        }
+        body.theme-lol .side-tab.active .lane-icon, body.theme-lol .bg-amber-500 > .lane-icon { filter: none; opacity: 1; }
+        /* 안 골라진 탭: 살짝 금빛 테두리만 */
+        body.theme-lol .side-tab:not(.active), body.theme-lol button.bg-slate-800:is([data-line], [data-cs-line], [data-hot-line], [data-lane-icon]) { box-shadow: inset 0 0 0 1px rgba(120, 90, 40, 0.45); }
+        body.theme-lol .side-tab:not(.active):hover, body.theme-lol button.bg-slate-800:is([data-line], [data-cs-line], [data-hot-line], [data-lane-icon]):hover { box-shadow: inset 0 0 0 1px rgba(200, 170, 110, 0.7); }
+        /* 글자색: 노랑·주황 → 금색 (로고는 그대로) */
+        body.theme-lol .text-yellow-400:not(.logo-font *), body.theme-lol .text-amber-400, body.theme-lol .text-amber-500 { color: var(--lol-gold) !important; }
+        body.theme-lol .text-yellow-300, body.theme-lol .text-amber-300 { color: var(--lol-gold-hi) !important; }
+        body.theme-lol .text-amber-200, body.theme-lol .text-amber-100 { color: var(--lol-cream) !important; }
+        /* 테두리: 주황빛 → 금색 */
+        body.theme-lol :is([class^="border-amber-"], [class*=" border-amber-"]) { border-color: rgba(200, 170, 110, 0.38) !important; }
+        body.theme-lol :is([class^="border-amber-400"], [class*=" border-amber-400"]) { border-color: rgba(200, 170, 110, 0.7) !important; }
+        body.theme-lol .focus\:ring-yellow-400:focus, body.theme-lol .ring-amber-400 { --tw-ring-color: rgba(200, 170, 110, 0.55) !important; }
+        body.theme-lol :is([class^="bg-amber-500/"], [class*=" bg-amber-500/"]) { background-color: rgba(200, 170, 110, 0.12) !important; }
     </style>
 </head>
-<body class="flex flex-col justify-between min-h-screen px-4 py-6 md:px-8">
+<body class="theme-lol flex flex-col justify-between min-h-screen px-4 py-6 md:px-8">
     <!-- 페이지 배경: 오늘의 OP 챔피언 일러스트 (어둡게 깔림) -->
     <div id="hero-splash" class="page-splash" aria-hidden="true"></div>
     <div id="page-splash-shade" class="page-splash-shade" aria-hidden="true"></div>
