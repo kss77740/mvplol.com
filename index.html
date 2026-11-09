@@ -145,18 +145,28 @@
             .meta-ticker-track { animation: none; }
         }
 
-        /* 로고 카드 뒤 챔피언 일러스트 */
-        .hero-splash {
-            position: absolute;
+        /* 페이지 전체 배경: 오늘의 OP 챔피언 일러스트 */
+        .page-splash {
+            position: fixed;
             inset: 0;
+            z-index: -1;
             background-size: cover;
-            background-position: center 22%;
+            background-position: center 20%;
             opacity: 0;
-            transform: scale(1.06);
-            transition: opacity 1.2s ease, transform 8s ease-out;
+            transform: scale(1.05);
+            transition: opacity 1.5s ease, transform 10s ease-out;
             pointer-events: none;
         }
-        .hero-splash.loaded { opacity: 0.55; transform: scale(1); }
+        .page-splash.loaded { opacity: 0.32; transform: scale(1); }
+        .page-splash-shade {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse at center, rgba(13, 17, 26, 0.35) 0%, rgba(13, 17, 26, 0.85) 75%, rgba(13, 17, 26, 0.97) 100%),
+                linear-gradient(180deg, rgba(13, 17, 26, 0.55) 0%, rgba(13, 17, 26, 0.2) 40%, rgba(13, 17, 26, 0.9) 100%);
+        }
 
         /* 라인 아이콘 (탑/정글/미드/원딜/서폿) */
         .lane-icon { width: 14px; height: 14px; object-fit: contain; flex-shrink: 0; opacity: 0.9; }
@@ -164,11 +174,14 @@
         .side-tab.active .lane-icon, .bg-amber-500 > .lane-icon { filter: brightness(0); opacity: 0.75; }
 
         body.reduce-motion .meta-ticker-track { animation: none; }
-        body.reduce-motion .hero-splash { transition: none; }
+        body.reduce-motion .page-splash { transition: none; }
         body.reduce-motion .hextech-card, body.reduce-motion .side-chip { transition: none; }
     </style>
 </head>
 <body class="flex flex-col justify-between min-h-screen px-4 py-6 md:px-8">
+    <!-- 페이지 배경: 오늘의 OP 챔피언 일러스트 (어둡게 깔림) -->
+    <div id="hero-splash" class="page-splash" aria-hidden="true"></div>
+    <div id="page-splash-shade" class="page-splash-shade" aria-hidden="true"></div>
 
     <!-- Header Section -->
     <header class="w-full max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 pb-4 border-b border-amber-500/30">
@@ -227,9 +240,7 @@
         <div class="lg:col-span-6 flex flex-col justify-center space-y-6 py-1 -mt-2">
             
             <div class="hextech-hero-card p-6 text-center">
-                <div id="hero-splash" class="hero-splash" aria-hidden="true"></div>
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-950/80 via-slate-950/45 to-blue-950/80 pointer-events-none"></div>
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/30 pointer-events-none"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-950/70 via-amber-950/40 to-blue-950/70 pointer-events-none"></div>
                 <button type="button" id="hero-splash-caption" class="hidden absolute bottom-2 right-3 z-20 text-[10px] sm:text-[11px] text-amber-200/80 hover:text-amber-200 bg-slate-950/50 border border-amber-500/20 rounded-md px-2 py-0.5 cursor-pointer"></button>
 
                 <div class="relative z-10 flex flex-col items-center gap-2 px-14">
@@ -1326,6 +1337,8 @@
             const splash = document.getElementById('hero-splash');
             const cap = document.getElementById('hero-splash-caption');
             if (splash) splash.style.display = userSettings.splash ? '' : 'none';
+            const shade = document.getElementById('page-splash-shade');
+            if (shade) shade.style.display = userSettings.splash ? '' : 'none';
             if (cap) cap.style.display = userSettings.splash ? '' : 'none';
         }
 
@@ -1353,7 +1366,7 @@
                             </select>
                         </div>
                         ${toggle('ticker', '메타 소식 띠 보기', '메뉴 아래 흐르는 패치·OP 챔피언 소식')}
-                        ${toggle('splash', '로고 뒤 챔피언 일러스트 보기', '오늘의 OP 챔피언 일러스트 배경')}
+                        ${toggle('splash', '배경 챔피언 일러스트 보기', '페이지 뒤에 깔리는 오늘의 OP 챔피언 일러스트')}
                         ${toggle('reduceMotion', '움직임 줄이기', '흐르는 띠와 화면 효과를 멈춰요')}
                     </div>
                     <button type="button" id="settings-reset" class="mt-6 w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-2xl text-sm cursor-pointer border border-slate-700">기본값으로 되돌리기</button>
@@ -1465,7 +1478,7 @@
             img.onload = () => {
                 el.style.backgroundImage = `url('${url}')`;
                 requestAnimationFrame(() => el.classList.add('loaded'));
-                cap.textContent = `오늘의 OP · ${c.name} (${LINE_NAMES[line]})`;
+                cap.textContent = `배경 · 오늘의 OP ${c.name} (${LINE_NAMES[line]})`;
                 cap.onclick = () => openChampPage(c.name, line);
                 cap.classList.remove('hidden');
             };
