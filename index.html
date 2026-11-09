@@ -1136,6 +1136,88 @@
             return topFileLoads[name];
         }
 
+        // 상세페이지 검색창: 메인 검색창 기능 전부 (가렌 아트 / 가렌 vs 아트 / 바텀 4명 / 미리보기에서 MY·ENEMY 바로 교체)
+        function champMatches(query) {
+            const matches = [];
+            const seen = new Set();
+            Object.entries(champAliases).forEach(([alias, official]) => {
+                if (alias.toLowerCase().includes(query) || official.toLowerCase().includes(query)) {
+                    if (!seen.has(official)) { seen.add(official); matches.push({ display: `${alias} (${official})`, name: official }); }
+                }
+            });
+            Object.values(normalizedChampMap).forEach(official => {
+                if (official.toLowerCase().includes(query) && !seen.has(official)) {
+                    seen.add(official); matches.push({ display: official, name: official });
+                }
+            });
+            return matches.slice(0, 6);
+        }
+
+        function setupDetailSearch(ctx) {
+            const dInput = document.getElementById('detail-search-input');
+            const dSugg = document.getElementById('detail-search-suggestions');
+            const dForm = document.getElementById('detail-search-form');
+            if (!dInput || !dSugg || !dForm) return;
+            const hide = () => { dSugg.classList.add('hidden'); dSugg.innerHTML = ''; };
+            const acts = ctx.bottom
+                ? [['아군원딜', 'bg-indigo-600 hover:bg-indigo-700', 'mAdc'], ['아군서폿', 'bg-blue-600 hover:bg-blue-700', 'mSup'], ['상대원딜', 'bg-rose-600 hover:bg-rose-700', 'oAdc'], ['상대서폿', 'bg-orange-600 hover:bg-orange-700', 'oSup']]
+                : [['MY', 'bg-indigo-600 hover:bg-indigo-700', 'mine'], ['ENEMY', 'bg-rose-600 hover:bg-rose-700', 'opp']];
+
+            dInput.addEventListener('input', () => {
+                const q = dInput.value.trim().toLowerCase();
+                if (!q) return hide();
+                const matches = champMatches(q);
+                if (!matches.length) return hide();
+                dSugg.innerHTML = matches.map(item => `
+                    <div class="flex items-center justify-between p-2.5 hover:bg-slate-900 rounded-xl transition-all border border-transparent hover:border-amber-500/40">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <img src="${getChampImgUrl(item.name)}" alt="${escHtml(item.name)}" class="w-10 h-10 rounded-xl object-cover border border-slate-700 bg-slate-800 flex-shrink-0">
+                            <span class="font-bold text-sm text-white truncate">${escHtml(item.display)}</span>
+                        </div>
+                        <div class="flex flex-wrap justify-end gap-1">
+                            ${acts.map(([label, cls, key]) => `<button type="button" data-act="${key}" data-name="${escHtml(item.name)}" class="px-2.5 py-1 ${cls} text-white font-bold text-xs rounded-lg transition-all cursor-pointer shadow">${label}</button>`).join('')}
+                        </div>
+                    </div>`).join('');
+                dSugg.classList.remove('hidden');
+            });
+
+            dSugg.addEventListener('click', (ev) => {
+                const b = ev.target.closest('[data-act]');
+                if (!b) return;
+                const name = b.dataset.name, key = b.dataset.act;
+                hide(); dInput.value = '';
+                if (ctx.bottom) {
+                    const t = { ...ctx, [key]: name };
+                    runBottom2v2Search(t.mAdc, t.mSup, t.oAdc, t.oSup, `${t.mAdc} ${t.mSup} ${t.oAdc} ${t.oSup}`, true);
+                } else {
+                    runSearch(key === 'mine' ? `${name} vs ${ctx.opp}` : `${ctx.mine} vs ${name}`, true);
+                }
+            });
+
+            dForm.addEventListener('submit', (ev) => {
+                ev.preventDefault();
+                hide();
+                const val = dInput.value.trim();
+                if (!val) return;
+                const four = parseBottom4Matchup(val);
+                if (four) return runBottom2v2Search(four.myAdc, four.mySup, four.oppAdc, four.oppSup, val, true);
+                if (parseMatchup(val)) return runSearch(val, true);
+                // 챔피언 하나만 치면: 1대1 화면에서는 지금 내 챔피언 vs 그 챔피언
+                const single = getValidChampName(val);
+                if (single && !ctx.bottom) return runSearch(`${ctx.mine} vs ${single}`, true);
+                runSearch(val, true);
+            });
+
+            if (!window._detailSuggCloser) {
+                window._detailSuggCloser = true;
+                document.addEventListener('click', (ev) => {
+                    const f = document.getElementById('detail-search-form');
+                    const sg = document.getElementById('detail-search-suggestions');
+                    if (f && sg && !f.contains(ev.target) && !sg.contains(ev.target)) sg.classList.add('hidden');
+                });
+            }
+        }
+
         // 마법공학 테두리 ver.1 (로고 카드와 같은 모양)을 다른 카드 양옆에 복사
         let _hexCardN = 0;
         function hexCardOrn() {
@@ -1228,7 +1310,7 @@
                                 id="detail-search-input"
                                 type="text"
                                 autocomplete="off"
-                                placeholder="다른 매치업 검색 (예: 가렌, 트타 / 리신 제드)"
+                                placeholder="다른 매치업 검색 (예: 가렌 아트, 가렌 vs 아트 / 챔피언 하나만 치면 상대 교체)"
                                 class="glass-input w-full py-3 px-16 text-center font-bold text-sm rounded-xl outline-none focus:ring-4 focus:ring-yellow-400 shadow"
                             />
                             <button type="submit" aria-label="검색" class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-lg text-amber-500 hover:bg-amber-500/15 hover:text-amber-300 cursor-pointer">
@@ -1324,16 +1406,7 @@
             const dInput = document.getElementById('detail-search-input');
             const dSugg = document.getElementById('detail-search-suggestions');
             const dForm = document.getElementById('detail-search-form');
-            if (dInput && dSugg) {
-                setupUniversalAutocomplete(dInput, dSugg, (selectedName) => {
-                    runSearch(`${mine} vs ${selectedName}`, true);
-                });
-                dForm.addEventListener('submit', (ev) => {
-                    ev.preventDefault();
-                    dSugg.classList.add('hidden');
-                    runSearch(`${mine} vs ${dInput.value}`, true);
-                });
-            }
+            setupDetailSearch({ mine, opp });
         }
 
         function runBottom2v2Search(mAdc, mSup, oAdc, oSup, query, pushHistory = true) {
@@ -1346,7 +1419,7 @@
                                 id="detail-search-input"
                                 type="text"
                                 autocomplete="off"
-                                placeholder="다른 매치업 검색 (예: 가렌, 트타 / 리신 제드)"
+                                placeholder="다른 매치업 검색 (예: 가렌 아트, 가렌 vs 아트 / 챔피언 하나만 치면 상대 교체)"
                                 class="glass-input w-full py-3 px-16 text-center font-bold text-sm rounded-xl outline-none focus:ring-4 focus:ring-yellow-400 shadow"
                             />
                             <button type="submit" aria-label="검색" class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-lg text-amber-500 hover:bg-amber-500/15 hover:text-amber-300 cursor-pointer">
@@ -1425,16 +1498,7 @@
             const dInput = document.getElementById('detail-search-input');
             const dSugg = document.getElementById('detail-search-suggestions');
             const dForm = document.getElementById('detail-search-form');
-            if (dInput && dSugg) {
-                setupUniversalAutocomplete(dInput, dSugg, (selectedName) => {
-                    runSearch(selectedName, true);
-                });
-                dForm.addEventListener('submit', (ev) => {
-                    ev.preventDefault();
-                    dSugg.classList.add('hidden');
-                    runSearch(dInput.value, true);
-                });
-            }
+            setupDetailSearch({ bottom: true, mAdc, mSup, oAdc, oSup });
         }
 
         // ───────────── 양옆 패널 (라이엇 API 집계 데이터: champ_data.js / ranking_data.js) ─────────────
