@@ -242,6 +242,8 @@
         .hex-box .rune-key { width: 2.5rem !important; height: 2.5rem !important; }
         .hex-box .rune-row { gap: 0.375rem !important; }
         .hex-box > *:not(.box-ornament) { position: relative; z-index: 1; }
+        /* 매치업 상세에서는 '메인으로 돌아가기' 대신 검색창이 맨 위에 */
+        #detail-view:has(#detail-search-form) #back-bar { display: none; }
         .vs-card > *:not(.hex-ornament) { position: relative; z-index: 1; }
         .box-ornament { position: absolute; top: 8px; bottom: 8px; width: 53px; display: flex; flex-direction: column; pointer-events: none; z-index: 0; opacity: 0.9; }
         .box-ornament.left { left: 0; transform: translateX(-30%); }
@@ -656,7 +658,7 @@
         <!-- 상세페이지 상단: 메인 화면 양옆 카드 4개를 그대로 옮겨와서 보여줌 -->
         <section id="extension-zone" class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start mb-6"></section>
 
-        <div class="w-full max-w-5xl flex items-center justify-start mb-6 bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl">
+        <div id="back-bar" class="w-full max-w-5xl flex items-center justify-start mb-6 bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl">
             <button id="back-to-home" type="button" class="flex items-center gap-2 text-yellow-300 hover:text-yellow-400 font-bold text-sm transition-colors cursor-pointer">
                 <span>←</span>메인으로 돌아가기
             </button>
@@ -1218,7 +1220,7 @@
 
             const laneStat = laneMatchupStat(mine, opp);
             detailDynamicContent.innerHTML = `
-                <div class="w-full bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl mb-6 relative">
+                <div class="w-full bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl mb-8 relative z-30">
                     <form id="detail-search-form" class="w-full relative" role="search">
                         <div class="relative">
                             <label for="detail-search-input" class="sr-only">다른 매치업 검색</label>
@@ -1336,7 +1338,7 @@
 
         function runBottom2v2Search(mAdc, mSup, oAdc, oSup, query, pushHistory = true) {
             detailDynamicContent.innerHTML = `
-                <div class="w-full bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl mb-6 relative">
+                <div class="w-full bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl mb-8 relative z-30">
                     <form id="detail-search-form" class="w-full relative" role="search">
                         <div class="relative">
                             <label for="detail-search-input" class="sr-only">다른 매치업 검색</label>
