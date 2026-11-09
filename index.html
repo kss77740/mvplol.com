@@ -2441,7 +2441,6 @@
                         </div>
                     </div>
                     ${x.list && x.list.length ? `<div class="bg-slate-900/70 rounded-xl px-3 py-1 mt-3 ${wide ? 'md:grid md:grid-cols-2 md:gap-x-6 md:[&>*:nth-child(2)]:border-t-0' : ''}">${changeRows(x.list, x.change)}</div>` : ''}
-                    ${x.why ? `<p class="text-xs text-slate-400 mt-2.5 leading-relaxed"><b class="text-slate-300">바뀐 이유</b> · ${escHtml(x.why)}</p>` : ''}
                 </div>`;
             };
             const section = (change) => {
