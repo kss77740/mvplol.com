@@ -1440,10 +1440,13 @@
             return `
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-3 space-y-2">${header(prim)}${rows(prim.slots, true)}</div>
-                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-3 space-y-2">${header(sub)}${rows(sub.slots.slice(1), false)}</div>
-                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-3">
+                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-3 flex flex-col">
+                        ${header(sub)}
+                        <div class="flex-1 flex flex-col justify-center gap-2">${rows(sub.slots.slice(1), false)}</div>
+                    </div>
+                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-3 flex flex-col">
                         <div class="text-sm font-black text-white mb-3">능력치 파편</div>
-                        <div class="space-y-2">${shardRows}</div>
+                        <div class="flex-1 flex flex-col justify-center gap-2">${shardRows}</div>
                     </div>
                 </div>
                 <p class="text-[11px] text-slate-400 mt-2 leading-relaxed">
@@ -1500,7 +1503,14 @@
                         <span class="block text-[10px] text-slate-500">${Number(o.games).toLocaleString()}판</span>
                     </span>
                 </button>`;
-            const vsList = (r.vs || []).slice().sort((a, b) => parseFloat(a.winRate) - parseFloat(b.winRate));
+            // 승률 50% 미만은 어려운 상대, 50% 초과는 쉬운 상대 (각각 최대 3명)
+            const vsAll = r.vs || [];
+            const hardList = vsAll.length
+                ? vsAll.filter(o => parseFloat(o.winRate) < 50).sort((a, b) => parseFloat(a.winRate) - parseFloat(b.winRate) || b.games - a.games).slice(0, 3)
+                : (r.hard || []).filter(o => parseFloat(o.winRate) < 50);
+            const easyList = vsAll.length
+                ? vsAll.filter(o => parseFloat(o.winRate) > 50).sort((a, b) => parseFloat(b.winRate) - parseFloat(a.winRate) || b.games - a.games).slice(0, 3)
+                : (r.easy || []).filter(o => parseFloat(o.winRate) > 50);
 
             detailDynamicContent.innerHTML = box(`
                 <div class="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
@@ -1534,10 +1544,9 @@
                     ${section('소환사 주문', spells ? `<div class="space-y-2">${spells}</div>` : noDataText('표본 부족'))}
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
-                    ${section('어려운 상대 TOP 3', (r.hard || []).length ? `<div class="space-y-2">${r.hard.map(oppBtn).join('')}</div>` : noDataText('표본 부족'), '누르면 상성 보기')}
-                    ${section('쉬운 상대 TOP 3', (r.easy || []).length ? `<div class="space-y-2">${r.easy.map(oppBtn).join('')}</div>` : noDataText('표본 부족'), '누르면 상성 보기')}
+                    ${section('어려운 상대 TOP 3', hardList.length ? `<div class="space-y-2">${hardList.map(oppBtn).join('')}</div>` : noDataText('아직 표본이 부족해요. 데이터가 쌓이면 채워져요.'), '누르면 상성 보기')}
+                    ${section('쉬운 상대 TOP 3', easyList.length ? `<div class="space-y-2">${easyList.map(oppBtn).join('')}</div>` : noDataText('아직 표본이 부족해요. 데이터가 쌓이면 채워져요.'), '누르면 상성 보기')}
                 </div>
-                ${vsList.length ? section('상대별 승률 전체', `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${vsList.map(oppBtn).join('')}</div>`, '승률 낮은 순 · 자주 만난 상대 최대 20명') : ''}
             `);
             const runeTabs = document.getElementById('rune-tabs');
             if (runeTabs) runeTabs.addEventListener('click', (e) => {
