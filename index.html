@@ -239,11 +239,11 @@
 
         /* MVP LOL 로고 글자 */
         .logo-font, .logo-font * { font-family: 'Cinzel', 'Pretendard', serif !important; font-weight: 700 !important; letter-spacing: 0.02em; }
-        /* 대문자 높이 기준으로 위아래 여백을 잘라서, 글자가 가운데 엠블럼과 정확히 가운데 정렬되게 */
+        /* MVP / LOL 글자를 엠블럼 기준 위아래 정확히 가운데로 (실제 글자 높이를 재서 JS로 보정) */
         .logo-font > span {
             display: block;
             line-height: 1;
-            text-box: trim-both cap alphabetic;
+            transform: translateY(var(--cap-shift, 0px));
         }
     </style>
 </head>
@@ -2501,6 +2501,31 @@
                 console.error('전송 실패:', err);
             }
         });
+    </script>
+
+    <script>
+    // 로고 MVP / LOL: 두 글자 똑같은 기준으로, 폰트마다 글자 윗/아랫 여백이 달라서 대문자 실제 높이를 재서 정중앙으로 맞춤
+    (function () {
+        function centerLogoText() {
+            var ctx = document.createElement('canvas').getContext('2d');
+            document.querySelectorAll('.logo-font > span').forEach(function (el) {
+                var cs = getComputedStyle(el);
+                var size = parseFloat(cs.fontSize);
+                ctx.font = cs.fontWeight + ' ' + size + 'px ' + cs.fontFamily;
+                var m = ctx.measureText('MVPLOL');
+                if (!m.fontBoundingBoxAscent) return;
+                var fA = m.fontBoundingBoxAscent, fD = m.fontBoundingBoxDescent;
+                var lh = parseFloat(cs.lineHeight) || size;
+                var baseline = (lh - fA - fD) / 2 + fA;            // 줄 위에서 글자 기준선까지
+                var capMid = baseline - (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2;
+                el.style.setProperty('--cap-shift', (lh / 2 - capMid).toFixed(2) + 'px');
+            });
+        }
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(centerLogoText);
+        window.addEventListener('load', centerLogoText);
+        window.addEventListener('resize', centerLogoText);
+        centerLogoText();
+    })();
     </script>
 </body>
 </html>
