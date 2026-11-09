@@ -162,6 +162,10 @@
         .lane-icon { width: 14px; height: 14px; object-fit: contain; flex-shrink: 0; opacity: 0.9; }
         .lane-decorated { display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
         .side-tab.active .lane-icon, .bg-amber-500 > .lane-icon { filter: brightness(0); opacity: 0.75; }
+
+        body.reduce-motion .meta-ticker-track { animation: none; }
+        body.reduce-motion .hero-splash { transition: none; }
+        body.reduce-motion .hextech-card, body.reduce-motion .side-chip { transition: none; }
     </style>
 </head>
 <body class="flex flex-col justify-between min-h-screen px-4 py-6 md:px-8">
@@ -174,9 +178,12 @@
             <span class="text-yellow-400 leading-none">LOL</span>
         </a>
 
-        <nav class="flex flex-wrap justify-center gap-2 sm:gap-3 text-base sm:text-lg font-bold" aria-label="주요 메뉴">
+        <nav class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-base sm:text-lg font-bold" aria-label="주요 메뉴">
             <button type="button" data-page="bug" class="px-4 py-2.5 rounded-xl text-white/95 hover:text-white hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-2 cursor-pointer shadow">
                 버그 문의
+            </button>
+            <button type="button" data-page="settings" aria-label="설정" title="설정" class="w-11 h-11 rounded-xl text-white/90 hover:text-amber-300 hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center justify-center cursor-pointer shadow">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             </button>
         </nav>
     </header>
@@ -1149,7 +1156,7 @@
             const el = document.getElementById('side-popular');
             if (!el) return;
             const list = (window.CHAMP_DATA && window.CHAMP_DATA.popular) || [];
-            if (!list.length) { el.innerHTML = noDataText('데이터를 모으는 중이에요. 매일 새벽에 갱신돼요.'); return; }
+            if (!list.length) { el.innerHTML = noDataText('데이터를 모으는 중이에요. 하루 3번 갱신돼요.'); return; }
             el.innerHTML = list.slice(0, 4).map(m => `
                 <button type="button" onclick="openMatchupFromSide('${escJs(m.a)}', '${escJs(m.b)}')" class="side-chip flex items-center justify-between gap-2 w-full px-2 py-1.5 rounded-lg border border-amber-500/25 bg-slate-900/60 text-left">
                     <span class="flex items-center gap-1.5 min-w-0">
@@ -1159,7 +1166,7 @@
                         ${iconImg(champImg(m.b, m.bId), m.b, 'w-6 h-6')}
                         <span class="text-[11px] font-bold text-white truncate">${escHtml(m.b)}</span>
                     </span>
-                    <span class="text-[10px] text-slate-400 flex-shrink-0">${LINE_NAMES[m.role] || ''}</span>
+                    ${laneIconUrl(m.role) ? `<img src="${laneIconUrl(m.role)}" alt="${LINE_NAMES[m.role] || ''}" title="${LINE_NAMES[m.role] || ''}" class="lane-icon w-4 h-4 opacity-80" onerror="this.outerHTML='<span class=&quot;text-[10px] text-slate-400 flex-shrink-0&quot;>${LINE_NAMES[m.role] || ''}</span>'">` : ''}
                 </button>`).join('');
         }
 
@@ -1168,7 +1175,7 @@
             if (!el) return;
             const db = window.RANKING_DATABASE;
             const list = (db && db[sideOpLine]) || [];
-            if (!window.RANKING_META || !list.length) { el.innerHTML = noDataText('데이터를 모으는 중이에요. 매일 새벽에 갱신돼요.'); return; }
+            if (!window.RANKING_META || !list.length) { el.innerHTML = noDataText('데이터를 모으는 중이에요. 하루 3번 갱신돼요.'); return; }
             el.innerHTML = list.slice(0, 3).map(c => `
                 <button type="button" onclick="openChampPage('${escJs(c.name)}', '${sideOpLine}')" class="side-chip flex items-center justify-between gap-2 w-full px-2 py-1.5 rounded-lg border border-slate-700 bg-slate-900/60 text-left">
                     <span class="flex items-center gap-2 min-w-0">
@@ -1301,6 +1308,79 @@
         }
         window.addEventListener('resize', syncBuildCardHeight);
 
+        // ───────────── 설정 (이 브라우저에만 저장) ─────────────
+        const SETTINGS_KEY = 'mvplol_settings';
+        const DEFAULT_SETTINGS = { ticker: true, splash: true, reduceMotion: false, defaultLine: 'top' };
+        function loadSettings() {
+            try { return { ...DEFAULT_SETTINGS, ...(JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {}) }; }
+            catch (e) { return { ...DEFAULT_SETTINGS }; }
+        }
+        let userSettings = loadSettings();
+        function saveSettings() {
+            try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(userSettings)); } catch (e) { /* 저장 불가 환경은 이번 방문에만 적용 */ }
+        }
+        function applySettings() {
+            document.body.classList.toggle('reduce-motion', !!userSettings.reduceMotion);
+            const ticker = document.getElementById('meta-ticker');
+            if (ticker) ticker.style.display = userSettings.ticker ? '' : 'none';
+            const splash = document.getElementById('hero-splash');
+            const cap = document.getElementById('hero-splash-caption');
+            if (splash) splash.style.display = userSettings.splash ? '' : 'none';
+            if (cap) cap.style.display = userSettings.splash ? '' : 'none';
+        }
+
+        function renderSettingsPage() {
+            const toggle = (key, title, desc) => `
+                <label class="flex items-center justify-between gap-4 p-4 rounded-2xl bg-slate-800/80 border border-slate-700 cursor-pointer">
+                    <span class="min-w-0">
+                        <span class="block text-sm font-bold text-white">${title}</span>
+                        <span class="block text-xs text-slate-400 mt-0.5">${desc}</span>
+                    </span>
+                    <input type="checkbox" data-setting="${key}" ${userSettings[key] ? 'checked' : ''} class="w-5 h-5 accent-amber-500 cursor-pointer flex-shrink-0">
+                </label>`;
+            detailDynamicContent.innerHTML = `
+                <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-xl max-w-2xl mx-auto">
+                    <h2 class="text-2xl font-black text-yellow-300 mb-1 text-center">설정</h2>
+                    <p class="text-xs text-slate-400 text-center mb-6">바꾸면 바로 적용되고, 이 브라우저에 저장돼요.</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between gap-4 p-4 rounded-2xl bg-slate-800/80 border border-slate-700">
+                            <span class="min-w-0">
+                                <span class="block text-sm font-bold text-white">자주 보는 라인</span>
+                                <span class="block text-xs text-slate-400 mt-0.5">OP 챔피언 카드와 인기 구도 페이지가 이 라인으로 먼저 열려요.</span>
+                            </span>
+                            <select data-setting="defaultLine" class="bg-slate-900 text-white text-sm font-bold rounded-xl border border-slate-600 px-3 py-2 cursor-pointer">
+                                ${Object.entries(LINE_NAMES).map(([k, v]) => `<option value="${k}" ${userSettings.defaultLine === k ? 'selected' : ''}>${v}</option>`).join('')}
+                            </select>
+                        </div>
+                        ${toggle('ticker', '메타 소식 띠 보기', '메뉴 아래 흐르는 패치·OP 챔피언 소식')}
+                        ${toggle('splash', '로고 뒤 챔피언 일러스트 보기', '오늘의 OP 챔피언 일러스트 배경')}
+                        ${toggle('reduceMotion', '움직임 줄이기', '흐르는 띠와 화면 효과를 멈춰요')}
+                    </div>
+                    <button type="button" id="settings-reset" class="mt-6 w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-2xl text-sm cursor-pointer border border-slate-700">기본값으로 되돌리기</button>
+                </div>`;
+            detailDynamicContent.querySelectorAll('[data-setting]').forEach(el => {
+                el.addEventListener('change', () => {
+                    const key = el.dataset.setting;
+                    userSettings[key] = el.type === 'checkbox' ? el.checked : el.value;
+                    if (key === 'defaultLine') applyDefaultLine();
+                    saveSettings(); applySettings();
+                });
+            });
+            document.getElementById('settings-reset').addEventListener('click', () => {
+                userSettings = { ...DEFAULT_SETTINGS };
+                saveSettings(); applySettings(); applyDefaultLine();
+                renderSettingsPage();
+            });
+        }
+
+        function applyDefaultLine() {
+            const line = userSettings.defaultLine || 'top';
+            sideOpLine = line;
+            hotLine = line;
+            document.querySelectorAll('#side-op-tabs .side-tab').forEach(b => b.classList.toggle('active', b.dataset.line === line));
+            renderSideOp();
+        }
+
         // ───────────── 라인 아이콘 (Community Dragon: 라이엇 게임 클라이언트 이미지) ─────────────
         const LANE_ICON_FILE = { top: 'top', jungle: 'jungle', mid: 'middle', adc: 'bottom', support: 'utility' };
         function laneIconUrl(lane) {
@@ -1393,12 +1473,16 @@
         }
 
         function renderSidePanels() {
+            sideOpLine = userSettings.defaultLine || 'top';
+            hotLine = sideOpLine;
+            document.querySelectorAll('#side-op-tabs .side-tab').forEach(b => b.classList.toggle('active', b.dataset.line === sideOpLine));
             renderSidePopular();
             renderSideOp();
             renderSidePatch();
             renderSideBuild();
             renderMetaTicker();
             renderHeroSplash();
+            applySettings();
             requestAnimationFrame(syncBuildCardHeight);
         }
 
@@ -1871,6 +1955,8 @@
                 detailDynamicContent.innerHTML = `<div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center"><h2 class="text-2xl font-black text-yellow-300 mb-2">30초 로딩 창 활용 가이드</h2></div>`;
             } else if (type === 'patch') {
                 renderPatchPage();
+            } else if (type === 'settings') {
+                renderSettingsPage();
             } else if (type === 'bug') {
                 renderBugPage();
             } else if (type === 'feedback') {
