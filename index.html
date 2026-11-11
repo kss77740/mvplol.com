@@ -1606,7 +1606,7 @@
             const aliasHits = new Set(Object.entries(champAliases)
                 .filter(([alias]) => q && alias.toLowerCase().includes(q)).map(([, official]) => official));
             return Object.keys(champDataList).sort((a, b) => a.localeCompare(b, 'ko')).filter(name => {
-                if (line !== 'all' && champMainRole(name) !== line) return false;
+                if (line !== 'all' && !champLanes(name).includes(line)) return false;
                 if (!q) return true;
                 const plain = name.replace(/\s+/g, '').toLowerCase();
                 return plain.includes(q) || toChosung(plain).includes(q) || aliasHits.has(name)
@@ -1661,7 +1661,7 @@
                 const btn = e.target.closest('[data-build-name]');
                 if (!btn) return;
                 input.value = ''; hide();
-                openChampPage(btn.dataset.buildName);
+                openChampPage(btn.dataset.buildName, buildLine !== 'all' ? buildLine : undefined);
             };
             box.addEventListener('click', pick);
             grid.addEventListener('click', pick);
@@ -1930,6 +1930,16 @@
             if (!c) return null;
             return Object.keys(c.roles).sort((x, y) => c.roles[y].games - c.roles[x].games)[0];
         }
+        // 챔피언이 실제로 가는 라인 전부: 주 라인 + 그 챔피언 판수의 8% 이상(최소 40판)인 라인
+        // (예: 요네 = 미드 + 탑, 판테온 = 서폿 + 미드 + 정글)
+        function champLanes(name) {
+            const c = window.CHAMP_DATA && window.CHAMP_DATA.champs && window.CHAMP_DATA.champs[name];
+            if (!c || !c.roles) return [];
+            const total = Object.values(c.roles).reduce((a, r) => a + (Number(r.games) || 0), 0);
+            const main = champMainRole(name);
+            return Object.keys(c.roles).filter(k => k === main
+                || ((Number(c.roles[k].games) || 0) >= 40 && (Number(c.roles[k].games) || 0) / (total || 1) >= 0.08));
+        }
 
         let champSelectLine = 'all';
         let champSelectQuery = '';
@@ -1994,7 +2004,7 @@
             document.getElementById('cs-search-btn').addEventListener('click', openFirst);
             document.getElementById('cs-grid').addEventListener('click', (e) => {
                 const btn = e.target.closest('[data-cs-name]');
-                if (btn) openChampPage(btn.dataset.csName);
+                if (btn) openChampPage(btn.dataset.csName, champSelectLine !== 'all' ? champSelectLine : undefined);
             });
         }
 
