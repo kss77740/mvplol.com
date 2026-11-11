@@ -266,22 +266,6 @@
         .box-orn-b .hex-ring { transform-origin: 308.6px -57px; }
         .box-ornament.right .hex-ring { animation-direction: reverse; }
         body.reduce-motion .box-orn-piece .hex-ring, body.reduce-motion .box-orn-piece .hex-frame { animation: none; }
-        /* 페이지 양옆 마법공학 테두리 ver.2: 화면 위아래 끝까지 늘려서 메인 화면을 감싸게 (가운데 마름모는 안 찌그러짐) */
-        .box-ornament.page-orn {
-            position: fixed;
-            top: 1.2vh;
-            bottom: 1.2vh;
-            --pw: min(30vh, calc((100vw - 80rem) / 2 - 12px));
-            width: var(--pw);
-            z-index: -1;
-            opacity: 0.85;
-        }
-        .box-ornament.page-orn.left { left: 10px; transform: none; }
-        .box-ornament.page-orn.right { right: 10px; transform: scaleX(-1); }
-        .page-orn .box-orn-m { height: calc(var(--pw) * 114 / 140); }
-        .page-orn .box-orn-piece path, .page-orn .box-orn-piece circle { stroke-width: 1.8px; }
-        .page-orn .box-orn-piece .hex-ring path { stroke-width: 1.2px; }
-        @media (max-width: 1380px) { .box-ornament.page-orn { display: none; } }
 
         /* MVP LOL 로고 글자 */
         .logo-font, .logo-font * { font-family: 'Cinzel', 'Pretendard', serif !important; font-weight: 700 !important; letter-spacing: 0.02em; }
@@ -330,7 +314,6 @@
     <div id="page-splash-shade" class="page-splash-shade" aria-hidden="true"></div>
 
     <!-- 페이지 양옆 마법공학 테두리 ver.2 (위아래로 늘려 메인 화면을 감쌈, JS로 채움) -->
-    <div id="page-orn-wrap" aria-hidden="true"></div>
 
     <!-- Header Section -->
     <header class="w-full max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 pb-4 border-b border-amber-500/30">
@@ -2066,11 +2049,6 @@
             const col = piece('t', '0 0 140 142', 'none') + piece('m', '0 142 140 114', 'xMidYMid meet') + piece('b', '0 256 140 142', 'none');
             return ['left', 'right'].map(side => `<div class="box-ornament ${side}" aria-hidden="true">${col}</div>`).join('');
         }
-        // 페이지 양옆 테두리: 카드용 ver.2 테두리를 화면 높이에 맞게 그대로 씀
-        (function buildPageOrn() {
-            const wrap = document.getElementById('page-orn-wrap');
-            if (wrap) wrap.innerHTML = hexBoxOrn().replace(/class="box-ornament /g, 'class="box-ornament page-orn ');
-        })();
 
         function renderCoreBuild(cores) {
             const arrow = `<div class="hidden sm:flex items-center justify-center text-amber-400 font-black text-xl">›</div>`;
