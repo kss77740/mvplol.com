@@ -31,14 +31,17 @@ QUEUE_ID = 420             # 솔로랭크
 # 수집할 티어: 챌린저, 그랜드마스터, 마스터 (+ 다이아 I 일부)
 # 수집할 티어: 에메랄드 이상 (OP.GG 기본값과 같은 구간)
 # 티어별로 몇 페이지(1페이지 = 약 205명)씩 표본 유저를 뽑을지
-EMERALD_PAGES = int(os.environ.get("EMERALD_PAGES", "4"))   # 에메랄드 I~IV 각각
-DIAMOND_PAGES = int(os.environ.get("DIAMOND_PAGES", "2"))   # 다이아 I~IV 각각
+EMERALD_PAGES = int(os.environ.get("EMERALD_PAGES", "8"))   # 에메랄드 I~IV 각각 (페이지당 약 200명)
+DIAMOND_PAGES = int(os.environ.get("DIAMOND_PAGES", "5"))   # 다이아 I~IV 각각
 TIER_LABEL = "에메랄드+"
 
 MAX_RUNTIME_MIN = float(os.environ.get("MAX_RUNTIME_MIN", "110"))  # 한 번 실행 시 최대 수집 시간
 FETCH_TIMELINE = os.environ.get("FETCH_TIMELINE", "1") == "1"      # 아이템 구매 순서(1·2·3코어)용 타임라인 수집
 MATCHES_PER_PLAYER = 20                                           # 한 명당 최근 경기 몇 개를 볼지
 LOOKBACK_DAYS = 14
+# 유저 확인 주기: 새 판이 있던 유저는 3시간 뒤 다시, 없던 유저는 쉬는 시간을 2배씩 늘림 (최대 48시간)
+PLAYER_MIN_GAP_H = 3
+PLAYER_MAX_GAP_H = 48
 
 # 개인(Personal) 키 기본 제한: 1초 20회, 2분 100회
 RATE_LIMITS = [
@@ -376,19 +379,37 @@ def collect(state, game):
 
     seen = dict.fromkeys(state["seen"])  # 이미 본 경기 ID (순서 유지)
     start_ts = int(max(time.time() - LOOKBACK_DAYS * 86400, state.get("oldCutoff", 0)))
-    cursor = state.get("cursor", 0) % len(puuids)
     added = 0
     checked_players = 0
 
-    while time_left() > 60 and checked_players < len(puuids):
-        puuid = puuids[cursor]
-        cursor = (cursor + 1) % len(puuids)
+    # 유저별 확인 일정 {puuid: [다음 확인 시각, 쉬는 시간(시간), 마지막 확인 시각]}
+    # → 새 판이 자주 나오는 유저는 자주, 안 하는 유저는 점점 드물게 봐서 요청을 아낌
+    now = time.time()
+    pool = set(puuids)
+    sched = {p: v for p, v in (state.get("players") or {}).items() if p in pool}
+    never = [p for p in puuids if p not in sched]                       # 한 번도 안 본 유저 먼저
+    checked = sorted((p for p in puuids if p in sched), key=lambda p: sched[p][0])  # 그다음 차례가 된 순서
+    order = never + checked
+    due = len(never) + sum(1 for p in checked if sched[p][0] <= now)
+    log(f"이번에 볼 차례인 유저 {due}명 (처음 보는 유저 {len(never)}명)")
+
+    for puuid in order:
+        if time_left() <= 60:
+            break
         checked_players += 1
+        prev_sched = sched.get(puuid)
+        since = start_ts
+        if prev_sched:
+            since = max(start_ts, int(prev_sched[2]) - 600)   # 지난번 확인 이후 경기만
 
-        q = urllib.parse.urlencode({"queue": QUEUE_ID, "startTime": start_ts, "count": MATCHES_PER_PLAYER})
+        q = urllib.parse.urlencode({"queue": QUEUE_ID, "startTime": since, "count": MATCHES_PER_PLAYER})
         ids = riot_region(f"/lol/match/v5/matches/by-puuid/{puuid}/ids?{q}") or []
+        new_ids = [m for m in ids if m not in seen]
+        gap = PLAYER_MIN_GAP_H if new_ids else min(PLAYER_MAX_GAP_H, (prev_sched[1] * 2) if prev_sched else 6)
+        t = time.time()
+        sched[puuid] = [t + gap * 3600, gap, t]
 
-        for mid in ids:
+        for mid in new_ids:
             if time_left() <= 60:
                 break
             if mid in seen:
@@ -428,10 +449,17 @@ def collect(state, game):
                 state["oldCutoff"] = max(state.get("oldCutoff", 0), end_ts)
                 start_ts = max(start_ts, state["oldCutoff"])
 
+        if time_left() <= 60 and new_ids and new_ids[-1] not in seen:
+            # 시간이 다 돼서 이 유저 경기를 다 못 봤으면 다음 실행에서 다시 보게 일정 되돌림
+            if prev_sched:
+                sched[puuid] = prev_sched
+            else:
+                sched.pop(puuid, None)
+
         if checked_players % 25 == 0:
             log(f"유저 {checked_players}명 확인, 새 경기 {added}판 (이번 패치 누적 {state['current']['games'] if state['current'] else 0}판)")
 
-    state["cursor"] = cursor
+    state["players"] = sched
     state["seen"] = list(seen)[-80000:]  # 파일이 너무 커지지 않게 최근 8만 개만 기억
     return added
 
