@@ -2271,15 +2271,15 @@
                 ${(r.cores || []).length
                     ? section('핵심 아이템 빌드 순서', renderCoreBuild(r.cores), '구매 순서 기준 · 코어별 가장 많이 산 아이템')
                     : section('핵심 아이템', items ? `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${items}</div>` : noDataText('표본 부족'), '많이 가는 순서 · 막대는 픽률')}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+                    ${section('신발', boots ? `<div class="space-y-2">${boots}</div>` : noDataText('표본 부족'))}
+                    ${section('소환사 주문', spells ? `<div class="space-y-2">${spells}</div>` : noDataText('표본 부족'))}
+                </div>
                 ${(r.runePages || []).length && data.runeTree
                     ? section('추천 룬', `<div id="rune-tabs" class="flex flex-wrap gap-2 mb-3">${runeTabsHtml(r.runePages, data.runeTree)}</div>
                         <div id="rune-page-box">${renderRunePage(r.runePages[0], data.runeTree, r.runeStats)}</div>`,
                         '룬마다 승률 · 픽률 · 판수')
                     : section('룬', (keystones || secondaries) ? `<div class="space-y-2">${keystones}${secondaries}</div>` : noDataText('표본 부족'))}
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
-                    ${section('신발', boots ? `<div class="space-y-2">${boots}</div>` : noDataText('표본 부족'))}
-                    ${section('소환사 주문', spells ? `<div class="space-y-2">${spells}</div>` : noDataText('표본 부족'))}
-                </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
                     ${section('어려운 상대 TOP 3', hardList.length ? `<div class="space-y-2">${hardList.map(oppBtn).join('')}</div>` : noDataText('아직 표본이 부족해요. 데이터가 쌓이면 채워져요.'), '누르면 상성 보기')}
                     ${section('쉬운 상대 TOP 3', easyList.length ? `<div class="space-y-2">${easyList.map(oppBtn).join('')}</div>` : noDataText('아직 표본이 부족해요. 데이터가 쌓이면 채워져요.'), '누르면 상성 보기')}
