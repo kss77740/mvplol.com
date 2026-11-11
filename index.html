@@ -7,12 +7,13 @@
     <title>MVP LOL - 로딩 창 30초 맞춤형 라인전 솔루션</title>
 
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
     <!-- 로고 글자 폰트 (Cinzel) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&display=swap">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 디자인(Tailwind)은 배포할 때 미리 만든 tw.css 파일로 (외부 실행 파일을 불러오지 않음) -->
+    <link rel="stylesheet" href="tw.css">
     <style>
         * {
             font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
@@ -1900,7 +1901,8 @@
                 <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-xl max-w-2xl mx-auto">
                     <h2 class="text-2xl font-black text-yellow-300 mb-1 text-center">버그 문의</h2>
                     <p class="text-xs text-slate-400 text-center mb-6">사이트를 쓰다가 이상한 점이 있으면 알려 주세요. 확인 후 빠르게 고칠게요.</p>
-                    <form id="bug-form" class="space-y-4 text-sm" novalidate>
+                    <form id="bug-form" class="space-y-4 text-sm relative" novalidate>
+                        <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
                         <div>
                             <label class="block text-xs font-bold text-slate-300 mb-1.5" for="bug-type">문의 유형</label>
                             <select id="bug-type" name="bugType" class="${field} cursor-pointer">
@@ -1909,15 +1911,15 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-300 mb-1.5" for="bug-where">어디서 생겼나요? <span class="text-slate-500 font-normal">(선택)</span></label>
-                            <input id="bug-where" name="where" type="text" placeholder="예: 가렌 빌드 페이지, 1vs1 검색창" class="${field}">
+                            <input id="bug-where" name="where" type="text" maxlength="200" placeholder="예: 가렌 빌드 페이지, 1vs1 검색창" class="${field}">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-300 mb-1.5" for="bug-content">내용 <span class="text-rose-400">*</span></label>
-                            <textarea id="bug-content" name="content" rows="6" placeholder="어떤 문제가 있었는지 자세히 적어 주세요. (무엇을 눌렀는지, 어떻게 보였는지 등)" class="${field}"></textarea>
+                            <textarea id="bug-content" name="content" rows="6" maxlength="2000" placeholder="어떤 문제가 있었는지 자세히 적어 주세요. (무엇을 눌렀는지, 어떻게 보였는지 등)" class="${field}"></textarea>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-300 mb-1.5" for="bug-contact">답변 받을 연락처 <span class="text-slate-500 font-normal">(선택 · 이메일이나 디스코드)</span></label>
-                            <input id="bug-contact" name="contact" type="text" placeholder="답변이 필요 없으면 비워 두세요" class="${field}">
+                            <input id="bug-contact" name="contact" type="text" maxlength="100" placeholder="답변이 필요 없으면 비워 두세요" class="${field}">
                         </div>
                         <p id="bug-error" class="text-xs text-rose-400 hidden">내용을 입력해 주세요.</p>
                         <button type="submit" class="w-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-black py-4 rounded-2xl cursor-pointer shadow-lg transition-all">문의 보내기</button>
@@ -2460,8 +2462,9 @@
                     <div class="bg-slate-900/90 rounded-3xl p-8 border border-amber-500/40 shadow-xl max-w-2xl mx-auto">
                         <h2 class="text-2xl font-black text-yellow-300 mb-4 text-center">공략 제보 및 꿀팁 등록</h2>
                         <form id="feedback-form" class="space-y-4 text-base" novalidate>
-                            <input name="matchup" type="text" placeholder="구도 (예: 트런들 vs 베인)" class="w-full bg-slate-800 text-white p-4 rounded-2xl border border-slate-700 outline-none">
-                            <textarea name="tip" rows="4" placeholder="꿀팁 내용을 입력하세요." class="w-full bg-slate-800 text-white p-4 rounded-2xl border border-slate-700 outline-none"></textarea>
+                            <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+                            <input name="matchup" type="text" maxlength="100" placeholder="구도 (예: 트런들 vs 베인)" class="w-full bg-slate-800 text-white p-4 rounded-2xl border border-slate-700 outline-none">
+                            <textarea name="tip" rows="4" maxlength="2000" placeholder="꿀팁 내용을 입력하세요." class="w-full bg-slate-800 text-white p-4 rounded-2xl border border-slate-700 outline-none"></textarea>
                             <button type="submit" class="w-full bg-amber-400 text-slate-950 font-black py-4 rounded-2xl cursor-pointer shadow-lg">제보 등록하기</button>
                         </form>
                     </div>
@@ -2777,6 +2780,21 @@
             if (e.key === 'Escape' && !modalContainer.classList.contains('hidden')) closeAlertModal();
         });
 
+        // 문의·제보 스팸 막기: 봇만 채우는 숨은 칸 + 1분에 한 번 + 글자 수 제한
+        const SEND_COOLDOWN_MS = 60 * 1000;
+        function isBotSubmit(form) {
+            const hp = form.querySelector('[name="website"]');
+            return !!(hp && hp.value);
+        }
+        function cooldownLeft() {
+            let last = 0;
+            try { last = Number(localStorage.getItem('mvplol_last_send')) || 0; } catch (e) { /* 저장 불가 */ }
+            return Math.max(0, SEND_COOLDOWN_MS - (Date.now() - last));
+        }
+        function markSent() {
+            try { localStorage.setItem('mvplol_last_send', String(Date.now())); } catch (e) { /* 저장 불가 */ }
+        }
+
         document.addEventListener('submit', async e => {
             if (e.target.id !== 'bug-form') return;
             e.preventDefault();
@@ -2784,6 +2802,12 @@
             const content = form.content.value.trim();
             const err = document.getElementById('bug-error');
             if (!content) { err.classList.remove('hidden'); form.content.focus(); return; }
+            const wait = cooldownLeft();
+            if (wait > 0 && !isBotSubmit(form)) {
+                err.textContent = `방금 보내셨어요. ${Math.ceil(wait / 1000)}초 뒤에 다시 보내 주세요.`;
+                err.classList.remove('hidden');
+                return;
+            }
             err.classList.add('hidden');
             const btn = form.querySelector('button[type="submit"]');
             btn.disabled = true; btn.textContent = '보내는 중...';
@@ -2796,8 +2820,11 @@
                 `[화면] ${window.innerWidth}x${window.innerHeight}`,
             ].filter(Boolean).join('\n');
             try {
-                const body = new URLSearchParams({ matchup: `[버그 문의] ${form.bugType.value}`, tip, page: location.href });
-                await fetch(SHEET_URL, { method: 'POST', body, mode: 'no-cors' });
+                const body = new URLSearchParams({ matchup: `[버그 문의] ${form.bugType.value}`, tip: tip.slice(0, 2600), page: location.href });
+                if (!isBotSubmit(form)) {   // 봇이면 보내지 않고 접수된 척만
+                    await fetch(SHEET_URL, { method: 'POST', body, mode: 'no-cors' });
+                    markSent();
+                }
                 detailDynamicContent.innerHTML = `
                     <div class="bg-slate-900/95 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center max-w-xl mx-auto py-16">
                         <h2 class="text-2xl font-black text-yellow-300 mb-2">문의가 접수되었어요</h2>
@@ -2819,10 +2846,17 @@
             const matchup = form.matchup.value.trim();
             const tip = form.tip.value.trim();
             if (!matchup || !tip) return;
+            if (cooldownLeft() > 0 && !isBotSubmit(form)) {
+                showAlertModal('<p class="text-center text-slate-200 py-4">방금 보내셨어요. 1분 뒤에 다시 보내 주세요.</p>');
+                return;
+            }
 
             try {
-                const body = new URLSearchParams({ matchup, tip, page: location.href });
-                await fetch(SHEET_URL, { method: 'POST', body, mode: 'no-cors' });
+                const body = new URLSearchParams({ matchup: matchup.slice(0, 100), tip: tip.slice(0, 2000), page: location.href });
+                if (!isBotSubmit(form)) {
+                    await fetch(SHEET_URL, { method: 'POST', body, mode: 'no-cors' });
+                    markSent();
+                }
                 detailDynamicContent.innerHTML = `
                     <div class="bg-slate-900/95 rounded-3xl p-8 border border-amber-500/40 shadow-xl text-center max-w-xl mx-auto py-16">
                         <h2 class="text-2xl font-black text-yellow-300 mb-2">공략 제보가 완료되었습니다!</h2>

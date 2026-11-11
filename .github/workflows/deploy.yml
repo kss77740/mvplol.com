@@ -44,6 +44,24 @@ jobs:
           fi
           rm -rf .git .github scripts data
 
+      # 디자인(Tailwind) CSS를 미리 만들어서 사이트 안에 넣음 (외부 실행 파일 대신)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 디자인 파일(tw.css) 만들기
+        run: |
+          set -e
+          cat > tw.config.js <<'CFG'
+          module.exports = { content: ['./site/**/*.html', './site/**/*.js'], theme: { extend: {} }, plugins: [] };
+          CFG
+          npx -y tailwindcss@3.4.17 -c tw.config.js -o site/tw.css --minify
+          SIZE=$(wc -c < site/tw.css)
+          echo "tw.css: ${SIZE} bytes"
+          # 너무 작으면(빌드 실패) 배포 중단 → 기존 사이트가 그대로 유지됨
+          [ "$SIZE" -gt 15000 ]
+          grep -q "bg-slate-900" site/tw.css
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
