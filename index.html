@@ -271,13 +271,14 @@
             position: fixed;
             top: 1.2vh;
             bottom: 1.2vh;
-            width: min(30vh, calc((100vw - 80rem) / 2 - 12px));
+            --pw: min(30vh, calc((100vw - 80rem) / 2 - 12px));
+            width: var(--pw);
             z-index: -1;
             opacity: 0.85;
         }
         .box-ornament.page-orn.left { left: 10px; transform: none; }
         .box-ornament.page-orn.right { right: 10px; transform: scaleX(-1); }
-        .page-orn .box-orn-m { height: auto; aspect-ratio: 140 / 114; }
+        .page-orn .box-orn-m { height: calc(var(--pw) * 114 / 140); }
         .page-orn .box-orn-piece path, .page-orn .box-orn-piece circle { stroke-width: 1.8px; }
         .page-orn .box-orn-piece .hex-ring path { stroke-width: 1.2px; }
         @media (max-width: 1380px) { .box-ornament.page-orn { display: none; } }
