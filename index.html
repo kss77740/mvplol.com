@@ -161,15 +161,15 @@
             transition: opacity 1.5s ease, transform 10s ease-out;
             pointer-events: none;
         }
-        .page-splash.loaded { opacity: 0.32; transform: scale(1); }
+        .page-splash.loaded { opacity: 0.5; transform: scale(1); }
         .page-splash-shade {
             position: fixed;
             inset: 0;
             z-index: -1;
             pointer-events: none;
             background:
-                radial-gradient(ellipse at center, rgba(13, 17, 26, 0.35) 0%, rgba(13, 17, 26, 0.85) 75%, rgba(13, 17, 26, 0.97) 100%),
-                linear-gradient(180deg, rgba(13, 17, 26, 0.55) 0%, rgba(13, 17, 26, 0.2) 40%, rgba(13, 17, 26, 0.9) 100%);
+                radial-gradient(ellipse at center, rgba(13, 17, 26, 0.15) 0%, rgba(13, 17, 26, 0.6) 75%, rgba(13, 17, 26, 0.85) 100%),
+                linear-gradient(180deg, rgba(13, 17, 26, 0.4) 0%, rgba(13, 17, 26, 0.05) 40%, rgba(13, 17, 26, 0.75) 100%);
         }
 
         /* 라인 아이콘 (탑/정글/미드/원딜/서폿) */
@@ -266,20 +266,21 @@
         .box-orn-b .hex-ring { transform-origin: 308.6px -57px; }
         .box-ornament.right .hex-ring { animation-direction: reverse; }
         body.reduce-motion .box-orn-piece .hex-ring, body.reduce-motion .box-orn-piece .hex-frame { animation: none; }
-        /* 페이지 양옆 마법공학 테두리: 화면에 고정, 콘텐츠 바깥 여백에만 */
-        .hex-ornament.page-ornament {
+        /* 페이지 양옆 마법공학 테두리 ver.2: 화면 위아래 끝까지 늘려서 메인 화면을 감싸게 (가운데 마름모는 안 찌그러짐) */
+        .box-ornament.page-orn {
             position: fixed;
-            top: 4vh;
-            height: 92vh;
-            max-width: calc((100vw - 80rem) / 2 - 16px);
+            top: 1.2vh;
+            bottom: 1.2vh;
+            width: min(30vh, calc((100vw - 80rem) / 2 - 12px));
             z-index: -1;
-            opacity: 0.8;
+            opacity: 0.85;
         }
-        .hex-ornament.page-ornament.left { left: 10px; }
-        .hex-ornament.page-ornament.right { right: 10px; }
-        .hex-ornament.page-ornament path { vector-effect: non-scaling-stroke; }
-        .hex-ornament.page-ornament .hex-ring path { stroke-width: 1.2; }
-        @media (max-width: 1500px) { .hex-ornament.page-ornament { display: none; } }
+        .box-ornament.page-orn.left { left: 10px; transform: none; }
+        .box-ornament.page-orn.right { right: 10px; transform: scaleX(-1); }
+        .page-orn .box-orn-m { height: auto; aspect-ratio: 140 / 114; }
+        .page-orn .box-orn-piece path, .page-orn .box-orn-piece circle { stroke-width: 1.8px; }
+        .page-orn .box-orn-piece .hex-ring path { stroke-width: 1.2px; }
+        @media (max-width: 1380px) { .box-ornament.page-orn { display: none; } }
 
         /* MVP LOL 로고 글자 */
         .logo-font, .logo-font * { font-family: 'Cinzel', 'Pretendard', serif !important; font-weight: 700 !important; letter-spacing: 0.02em; }
@@ -327,79 +328,8 @@
     <div id="hero-splash" class="page-splash" aria-hidden="true"></div>
     <div id="page-splash-shade" class="page-splash-shade" aria-hidden="true"></div>
 
-    <!-- 페이지 양옆 마법공학 테두리 (배경 장식) -->
-    <svg class="hex-ornament page-ornament left" viewBox="0 0 140 398" preserveAspectRatio="xMinYMid meet" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" stroke-linecap="round" stroke-linejoin="miter">
-                  <defs>
-                    <linearGradient id="fTopLinePL" x1="0" y1="13" x2="108" y2="13" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8a6d3b" stop-opacity="0.35"/><stop offset="1" stop-color="#b8975a"/></linearGradient>
-                    <linearGradient id="fOuterPL" x1="0" y1="13" x2="0" y2="142" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#9c7a3c"/><stop offset="0.6" stop-color="#b9a070"/><stop offset="1" stop-color="#d6c7a3"/></linearGradient>
-                    <linearGradient id="fInnerPL" x1="0" y1="35" x2="0" y2="125" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#a9853f" stop-opacity="0.15"/><stop offset="0.5" stop-color="#a9853f" stop-opacity="0.8"/><stop offset="1" stop-color="#b8923f"/></linearGradient>
-                    <linearGradient id="fTickFadePL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="0.5" stop-color="#fff" stop-opacity="1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
-                    <linearGradient id="fTickColorPL" x1="0" y1="0" x2="0" y2="398" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#5d6a74"/><stop offset="0.5" stop-color="#7fa9bf"/><stop offset="1" stop-color="#5d6a74"/></linearGradient>
-                    <mask id="fTickMaskPL" maskUnits="userSpaceOnUse" x="0" y="0" width="140" height="398"><rect width="140" height="398" fill="url(#fTickFadePL)"/></mask>
-                    <radialGradient id="fGlowPL"><stop offset="0" stop-color="#f0d9a0" stop-opacity="0.22"/><stop offset="1" stop-color="#f0d9a0" stop-opacity="0"/></radialGradient>
-                  </defs>
-                  <g mask="url(#fTickMaskPL)"><g class="hex-ring"><path d="M76.0 199.0L87.0 199.0M76.1 205.1L87.1 204.8M76.3 211.2L87.3 210.6M76.7 217.2L87.7 216.4M77.3 223.3L88.2 222.2M78.0 229.4L88.9 227.9M78.9 235.4L89.7 233.7M79.9 241.4L90.7 239.4M81.1 247.4L91.8 245.1M82.4 253.3L93.1 250.7M83.9 259.2L94.6 256.4M85.6 265.1L96.1 261.9M87.4 270.9L97.8 267.5M89.3 276.6L99.7 273.0M91.4 282.4L101.7 278.4M93.7 288.0L103.9 283.8M96.1 293.6L106.2 289.1M98.7 299.1L108.6 294.4M101.4 304.6L111.2 299.6M104.2 310.0L113.9 304.7M107.2 315.3L116.7 309.8M110.3 320.5L119.7 314.8M113.5 325.7L122.8 319.7M116.9 330.7L126.0 324.5M120.4 335.7L129.3 329.3M124.1 340.6L132.8 333.9M127.8 345.4L136.4 338.5M131.7 350.1L140.1 342.9M135.7 354.6L143.9 347.3M139.9 359.1L147.9 351.5M144.1 363.5L151.9 355.7M148.5 367.7L156.1 359.7M153.0 371.9L160.3 363.7M157.5 375.9L164.7 367.5M162.2 379.8L169.1 371.2M167.0 383.5L173.7 374.8M171.9 387.2L178.3 378.3M176.9 390.7L183.1 381.6M181.9 394.1L187.9 384.8M187.1 397.3L192.8 387.9M192.3 400.4L197.8 390.9M197.6 403.4L202.9 393.7M203.0 406.2L208.0 396.4M208.5 408.9L213.2 399.0M214.0 411.5L218.5 401.4M219.6 413.9L223.8 403.7M225.2 416.2L229.2 405.9M231.0 418.3L234.6 407.9M236.7 420.2L240.1 409.8M242.5 422.0L245.7 411.5M248.4 423.7L251.2 413.0M254.3 425.2L256.9 414.5M260.2 426.5L262.5 415.8M266.2 427.7L268.2 416.9M272.2 428.7L273.9 417.9M278.2 429.6L279.7 418.7M284.3 430.3L285.4 419.4M290.4 430.9L291.2 419.9M296.4 431.3L297.0 420.3M302.5 431.5L302.8 420.5M308.6 431.6L308.6 420.6M314.7 431.5L314.4 420.5M320.8 431.3L320.2 420.3M326.8 430.9L326.0 419.9M332.9 430.3L331.8 419.4M339.0 429.6L337.5 418.7M345.0 428.7L343.3 417.9M351.0 427.7L349.0 416.9M357.0 426.5L354.7 415.8M362.9 425.2L360.3 414.5M368.8 423.7L366.0 413.0M374.7 422.0L371.5 411.5M380.5 420.2L377.1 409.8M386.2 418.3L382.6 407.9M392.0 416.2L388.0 405.9M397.6 413.9L393.4 403.7M403.2 411.5L398.7 401.4M408.7 408.9L404.0 399.0M414.2 406.2L409.2 396.4M419.6 403.4L414.3 393.7M424.9 400.4L419.4 390.9M430.1 397.3L424.4 387.9M435.3 394.1L429.3 384.8M440.3 390.7L434.1 381.6M445.3 387.2L438.9 378.3M450.2 383.5L443.5 374.8M455.0 379.8L448.1 371.2M459.7 375.9L452.5 367.5M464.2 371.9L456.9 363.7M468.7 367.7L461.1 359.7M473.1 363.5L465.3 355.7M477.3 359.1L469.3 351.5M481.5 354.6L473.3 347.3M485.5 350.1L477.1 342.9M489.4 345.4L480.8 338.5M493.1 340.6L484.4 333.9M496.8 335.7L487.9 329.3M500.3 330.7L491.2 324.5M503.7 325.7L494.4 319.7M506.9 320.5L497.5 314.8M510.0 315.3L500.5 309.8M513.0 310.0L503.3 304.7M515.8 304.6L506.0 299.6M518.5 299.1L508.6 294.4M521.1 293.6L511.0 289.1M523.5 288.0L513.3 283.8M525.8 282.4L515.5 278.4M527.9 276.6L517.5 273.0M529.8 270.9L519.4 267.5M531.6 265.1L521.1 261.9M533.3 259.2L522.6 256.4M534.8 253.3L524.1 250.7M536.1 247.4L525.4 245.1M537.3 241.4L526.5 239.4M538.3 235.4L527.5 233.7M539.2 229.4L528.3 227.9M539.9 223.3L529.0 222.2M540.5 217.2L529.5 216.4M540.9 211.2L529.9 210.6M541.1 205.1L530.1 204.8M541.2 199.0L530.2 199.0M541.1 192.9L530.1 193.2M540.9 186.8L529.9 187.4M540.5 180.8L529.5 181.6M539.9 174.7L529.0 175.8M539.2 168.6L528.3 170.1M538.3 162.6L527.5 164.3M537.3 156.6L526.5 158.6M536.1 150.6L525.4 152.9M534.8 144.7L524.1 147.3M533.3 138.8L522.6 141.6M531.6 132.9L521.1 136.1M529.8 127.1L519.4 130.5M527.9 121.4L517.5 125.0M525.8 115.6L515.5 119.6M523.5 110.0L513.3 114.2M521.1 104.4L511.0 108.9M518.5 98.9L508.6 103.6M515.8 93.4L506.0 98.4M513.0 88.0L503.3 93.3M510.0 82.7L500.5 88.2M506.9 77.5L497.5 83.2M503.7 72.3L494.4 78.3M500.3 67.3L491.2 73.5M496.8 62.3L487.9 68.7M493.1 57.4L484.4 64.1M489.4 52.6L480.8 59.5M485.5 47.9L477.1 55.1M481.5 43.4L473.3 50.7M477.3 38.9L469.3 46.5M473.1 34.5L465.3 42.3M468.7 30.3L461.1 38.3M464.2 26.1L456.9 34.3M459.7 22.1L452.5 30.5M455.0 18.2L448.1 26.8M450.2 14.5L443.5 23.2M445.3 10.8L438.9 19.7M440.3 7.3L434.1 16.4M435.3 3.9L429.3 13.2M430.1 0.7L424.4 10.1M424.9 -2.4L419.4 7.1M419.6 -5.4L414.3 4.3M414.2 -8.2L409.2 1.6M408.7 -10.9L404.0 -1.0M403.2 -13.5L398.7 -3.4M397.6 -15.9L393.4 -5.7M392.0 -18.2L388.0 -7.9M386.2 -20.3L382.6 -9.9M380.5 -22.2L377.1 -11.8M374.7 -24.0L371.5 -13.5M368.8 -25.7L366.0 -15.0M362.9 -27.2L360.3 -16.5M357.0 -28.5L354.7 -17.8M351.0 -29.7L349.0 -18.9M345.0 -30.7L343.3 -19.9M339.0 -31.6L337.5 -20.7M332.9 -32.3L331.8 -21.4M326.8 -32.9L326.0 -21.9M320.8 -33.3L320.2 -22.3M314.7 -33.5L314.4 -22.5M308.6 -33.6L308.6 -22.6M302.5 -33.5L302.8 -22.5M296.4 -33.3L297.0 -22.3M290.4 -32.9L291.2 -21.9M284.3 -32.3L285.4 -21.4M278.2 -31.6L279.7 -20.7M272.2 -30.7L273.9 -19.9M266.2 -29.7L268.2 -18.9M260.2 -28.5L262.5 -17.8M254.3 -27.2L256.9 -16.5M248.4 -25.7L251.2 -15.0M242.5 -24.0L245.7 -13.5M236.7 -22.2L240.1 -11.8M231.0 -20.3L234.6 -9.9M225.2 -18.2L229.2 -7.9M219.6 -15.9L223.8 -5.7M214.0 -13.5L218.5 -3.4M208.5 -10.9L213.2 -1.0M203.0 -8.2L208.0 1.6M197.6 -5.4L202.9 4.3M192.3 -2.4L197.8 7.1M187.1 0.7L192.8 10.1M181.9 3.9L187.9 13.2M176.9 7.3L183.1 16.4M171.9 10.8L178.3 19.7M167.0 14.5L173.7 23.2M162.2 18.2L169.1 26.8M157.5 22.1L164.7 30.5M153.0 26.1L160.3 34.3M148.5 30.3L156.1 38.3M144.1 34.5L151.9 42.3M139.9 38.9L147.9 46.5M135.7 43.4L143.9 50.7M131.7 47.9L140.1 55.1M127.8 52.6L136.4 59.5M124.1 57.4L132.8 64.1M120.4 62.3L129.3 68.7M116.9 67.3L126.0 73.5M113.5 72.3L122.8 78.3M110.3 77.5L119.7 83.2M107.2 82.7L116.7 88.2M104.2 88.0L113.9 93.3M101.4 93.4L111.2 98.4M98.7 98.9L108.6 103.6M96.1 104.4L106.2 108.9M93.7 110.0L103.9 114.2M91.4 115.6L101.7 119.6M89.3 121.4L99.7 125.0M87.4 127.1L97.8 130.5M85.6 132.9L96.1 136.1M83.9 138.8L94.6 141.6M82.4 144.7L93.1 147.3M81.1 150.6L91.8 152.9M79.9 156.6L90.7 158.6M78.9 162.6L89.7 164.3M78.0 168.6L88.9 170.1M77.3 174.7L88.2 175.8M76.7 180.8L87.7 181.6M76.3 186.8L87.3 187.4M76.1 192.9L87.1 193.2" stroke="url(#fTickColorPL)" stroke-width="1.3" stroke-opacity="0.7"/></g></g>
-                  <circle cx="65" cy="199" r="34" fill="url(#fGlowPL)" stroke="none"/>
-                  <g class="hex-frame">
-                    
-                      <path d="M0 13 H108" stroke="url(#fTopLinePL)" stroke-width="2.4"/>
-                      <path d="M108 13 C80 42 45 95 30 142" stroke="url(#fOuterPL)" stroke-width="2.2"/>
-                      <path d="M30 142 L65 180" stroke="#d8c8a2" stroke-width="2.4"/>
-                      <path d="M41 153 L46 149.5 L80.5 181 L76.5 184.5 Z" stroke="#d9c38f" stroke-width="1.1"/>
-                      <path d="M116 38 C95 60 72 90 63 118" stroke="url(#fInnerPL)" stroke-width="2"/>
-                      <path d="M128 37 C107 62 82 95 70 124" stroke="url(#fInnerPL)" stroke-width="2"/>
-                      <path d="M63 118 L70 124" stroke="#a9853f" stroke-width="2"/>
-                      <path d="M65 121 C60 132 56 142 53 152 L60 151 L57 160 L58 182" stroke="#a9853f" stroke-width="2"/>
-                
-                    <g transform="translate(0 398) scale(1 -1)">
-                      <path d="M0 13 H108" stroke="url(#fTopLinePL)" stroke-width="2.4"/>
-                      <path d="M108 13 C80 42 45 95 30 142" stroke="url(#fOuterPL)" stroke-width="2.2"/>
-                      <path d="M30 142 L65 180" stroke="#d8c8a2" stroke-width="2.4"/>
-                      <path d="M41 153 L46 149.5 L80.5 181 L76.5 184.5 Z" stroke="#d9c38f" stroke-width="1.1"/>
-                      <path d="M116 38 C95 60 72 90 63 118" stroke="url(#fInnerPL)" stroke-width="2"/>
-                      <path d="M128 37 C107 62 82 95 70 124" stroke="url(#fInnerPL)" stroke-width="2"/>
-                      <path d="M63 118 L70 124" stroke="#a9853f" stroke-width="2"/>
-                      <path d="M65 121 C60 132 56 142 53 152 L60 151 L57 160 L58 182" stroke="#a9853f" stroke-width="2"/>
-                </g>
-                    <path d="M65 180 L86 199 L65 218 L43 199 Z" stroke="#e8d8b0" stroke-width="2.6"/>
-                  </g>
-                </svg>
-    <svg class="hex-ornament page-ornament right" viewBox="0 0 140 398" preserveAspectRatio="xMinYMid meet" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" stroke-linecap="round" stroke-linejoin="miter">
-                  <defs>
-                    <linearGradient id="fTopLinePR" x1="0" y1="13" x2="108" y2="13" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8a6d3b" stop-opacity="0.35"/><stop offset="1" stop-color="#b8975a"/></linearGradient>
-                    <linearGradient id="fOuterPR" x1="0" y1="13" x2="0" y2="142" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#9c7a3c"/><stop offset="0.6" stop-color="#b9a070"/><stop offset="1" stop-color="#d6c7a3"/></linearGradient>
-                    <linearGradient id="fInnerPR" x1="0" y1="35" x2="0" y2="125" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#a9853f" stop-opacity="0.15"/><stop offset="0.5" stop-color="#a9853f" stop-opacity="0.8"/><stop offset="1" stop-color="#b8923f"/></linearGradient>
-                    <linearGradient id="fTickFadePR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="0.5" stop-color="#fff" stop-opacity="1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
-                    <linearGradient id="fTickColorPR" x1="0" y1="0" x2="0" y2="398" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#5d6a74"/><stop offset="0.5" stop-color="#7fa9bf"/><stop offset="1" stop-color="#5d6a74"/></linearGradient>
-                    <mask id="fTickMaskPR" maskUnits="userSpaceOnUse" x="0" y="0" width="140" height="398"><rect width="140" height="398" fill="url(#fTickFadePR)"/></mask>
-                    <radialGradient id="fGlowPR"><stop offset="0" stop-color="#f0d9a0" stop-opacity="0.22"/><stop offset="1" stop-color="#f0d9a0" stop-opacity="0"/></radialGradient>
-                  </defs>
-                  <g mask="url(#fTickMaskPR)"><g class="hex-ring"><path d="M76.0 199.0L87.0 199.0M76.1 205.1L87.1 204.8M76.3 211.2L87.3 210.6M76.7 217.2L87.7 216.4M77.3 223.3L88.2 222.2M78.0 229.4L88.9 227.9M78.9 235.4L89.7 233.7M79.9 241.4L90.7 239.4M81.1 247.4L91.8 245.1M82.4 253.3L93.1 250.7M83.9 259.2L94.6 256.4M85.6 265.1L96.1 261.9M87.4 270.9L97.8 267.5M89.3 276.6L99.7 273.0M91.4 282.4L101.7 278.4M93.7 288.0L103.9 283.8M96.1 293.6L106.2 289.1M98.7 299.1L108.6 294.4M101.4 304.6L111.2 299.6M104.2 310.0L113.9 304.7M107.2 315.3L116.7 309.8M110.3 320.5L119.7 314.8M113.5 325.7L122.8 319.7M116.9 330.7L126.0 324.5M120.4 335.7L129.3 329.3M124.1 340.6L132.8 333.9M127.8 345.4L136.4 338.5M131.7 350.1L140.1 342.9M135.7 354.6L143.9 347.3M139.9 359.1L147.9 351.5M144.1 363.5L151.9 355.7M148.5 367.7L156.1 359.7M153.0 371.9L160.3 363.7M157.5 375.9L164.7 367.5M162.2 379.8L169.1 371.2M167.0 383.5L173.7 374.8M171.9 387.2L178.3 378.3M176.9 390.7L183.1 381.6M181.9 394.1L187.9 384.8M187.1 397.3L192.8 387.9M192.3 400.4L197.8 390.9M197.6 403.4L202.9 393.7M203.0 406.2L208.0 396.4M208.5 408.9L213.2 399.0M214.0 411.5L218.5 401.4M219.6 413.9L223.8 403.7M225.2 416.2L229.2 405.9M231.0 418.3L234.6 407.9M236.7 420.2L240.1 409.8M242.5 422.0L245.7 411.5M248.4 423.7L251.2 413.0M254.3 425.2L256.9 414.5M260.2 426.5L262.5 415.8M266.2 427.7L268.2 416.9M272.2 428.7L273.9 417.9M278.2 429.6L279.7 418.7M284.3 430.3L285.4 419.4M290.4 430.9L291.2 419.9M296.4 431.3L297.0 420.3M302.5 431.5L302.8 420.5M308.6 431.6L308.6 420.6M314.7 431.5L314.4 420.5M320.8 431.3L320.2 420.3M326.8 430.9L326.0 419.9M332.9 430.3L331.8 419.4M339.0 429.6L337.5 418.7M345.0 428.7L343.3 417.9M351.0 427.7L349.0 416.9M357.0 426.5L354.7 415.8M362.9 425.2L360.3 414.5M368.8 423.7L366.0 413.0M374.7 422.0L371.5 411.5M380.5 420.2L377.1 409.8M386.2 418.3L382.6 407.9M392.0 416.2L388.0 405.9M397.6 413.9L393.4 403.7M403.2 411.5L398.7 401.4M408.7 408.9L404.0 399.0M414.2 406.2L409.2 396.4M419.6 403.4L414.3 393.7M424.9 400.4L419.4 390.9M430.1 397.3L424.4 387.9M435.3 394.1L429.3 384.8M440.3 390.7L434.1 381.6M445.3 387.2L438.9 378.3M450.2 383.5L443.5 374.8M455.0 379.8L448.1 371.2M459.7 375.9L452.5 367.5M464.2 371.9L456.9 363.7M468.7 367.7L461.1 359.7M473.1 363.5L465.3 355.7M477.3 359.1L469.3 351.5M481.5 354.6L473.3 347.3M485.5 350.1L477.1 342.9M489.4 345.4L480.8 338.5M493.1 340.6L484.4 333.9M496.8 335.7L487.9 329.3M500.3 330.7L491.2 324.5M503.7 325.7L494.4 319.7M506.9 320.5L497.5 314.8M510.0 315.3L500.5 309.8M513.0 310.0L503.3 304.7M515.8 304.6L506.0 299.6M518.5 299.1L508.6 294.4M521.1 293.6L511.0 289.1M523.5 288.0L513.3 283.8M525.8 282.4L515.5 278.4M527.9 276.6L517.5 273.0M529.8 270.9L519.4 267.5M531.6 265.1L521.1 261.9M533.3 259.2L522.6 256.4M534.8 253.3L524.1 250.7M536.1 247.4L525.4 245.1M537.3 241.4L526.5 239.4M538.3 235.4L527.5 233.7M539.2 229.4L528.3 227.9M539.9 223.3L529.0 222.2M540.5 217.2L529.5 216.4M540.9 211.2L529.9 210.6M541.1 205.1L530.1 204.8M541.2 199.0L530.2 199.0M541.1 192.9L530.1 193.2M540.9 186.8L529.9 187.4M540.5 180.8L529.5 181.6M539.9 174.7L529.0 175.8M539.2 168.6L528.3 170.1M538.3 162.6L527.5 164.3M537.3 156.6L526.5 158.6M536.1 150.6L525.4 152.9M534.8 144.7L524.1 147.3M533.3 138.8L522.6 141.6M531.6 132.9L521.1 136.1M529.8 127.1L519.4 130.5M527.9 121.4L517.5 125.0M525.8 115.6L515.5 119.6M523.5 110.0L513.3 114.2M521.1 104.4L511.0 108.9M518.5 98.9L508.6 103.6M515.8 93.4L506.0 98.4M513.0 88.0L503.3 93.3M510.0 82.7L500.5 88.2M506.9 77.5L497.5 83.2M503.7 72.3L494.4 78.3M500.3 67.3L491.2 73.5M496.8 62.3L487.9 68.7M493.1 57.4L484.4 64.1M489.4 52.6L480.8 59.5M485.5 47.9L477.1 55.1M481.5 43.4L473.3 50.7M477.3 38.9L469.3 46.5M473.1 34.5L465.3 42.3M468.7 30.3L461.1 38.3M464.2 26.1L456.9 34.3M459.7 22.1L452.5 30.5M455.0 18.2L448.1 26.8M450.2 14.5L443.5 23.2M445.3 10.8L438.9 19.7M440.3 7.3L434.1 16.4M435.3 3.9L429.3 13.2M430.1 0.7L424.4 10.1M424.9 -2.4L419.4 7.1M419.6 -5.4L414.3 4.3M414.2 -8.2L409.2 1.6M408.7 -10.9L404.0 -1.0M403.2 -13.5L398.7 -3.4M397.6 -15.9L393.4 -5.7M392.0 -18.2L388.0 -7.9M386.2 -20.3L382.6 -9.9M380.5 -22.2L377.1 -11.8M374.7 -24.0L371.5 -13.5M368.8 -25.7L366.0 -15.0M362.9 -27.2L360.3 -16.5M357.0 -28.5L354.7 -17.8M351.0 -29.7L349.0 -18.9M345.0 -30.7L343.3 -19.9M339.0 -31.6L337.5 -20.7M332.9 -32.3L331.8 -21.4M326.8 -32.9L326.0 -21.9M320.8 -33.3L320.2 -22.3M314.7 -33.5L314.4 -22.5M308.6 -33.6L308.6 -22.6M302.5 -33.5L302.8 -22.5M296.4 -33.3L297.0 -22.3M290.4 -32.9L291.2 -21.9M284.3 -32.3L285.4 -21.4M278.2 -31.6L279.7 -20.7M272.2 -30.7L273.9 -19.9M266.2 -29.7L268.2 -18.9M260.2 -28.5L262.5 -17.8M254.3 -27.2L256.9 -16.5M248.4 -25.7L251.2 -15.0M242.5 -24.0L245.7 -13.5M236.7 -22.2L240.1 -11.8M231.0 -20.3L234.6 -9.9M225.2 -18.2L229.2 -7.9M219.6 -15.9L223.8 -5.7M214.0 -13.5L218.5 -3.4M208.5 -10.9L213.2 -1.0M203.0 -8.2L208.0 1.6M197.6 -5.4L202.9 4.3M192.3 -2.4L197.8 7.1M187.1 0.7L192.8 10.1M181.9 3.9L187.9 13.2M176.9 7.3L183.1 16.4M171.9 10.8L178.3 19.7M167.0 14.5L173.7 23.2M162.2 18.2L169.1 26.8M157.5 22.1L164.7 30.5M153.0 26.1L160.3 34.3M148.5 30.3L156.1 38.3M144.1 34.5L151.9 42.3M139.9 38.9L147.9 46.5M135.7 43.4L143.9 50.7M131.7 47.9L140.1 55.1M127.8 52.6L136.4 59.5M124.1 57.4L132.8 64.1M120.4 62.3L129.3 68.7M116.9 67.3L126.0 73.5M113.5 72.3L122.8 78.3M110.3 77.5L119.7 83.2M107.2 82.7L116.7 88.2M104.2 88.0L113.9 93.3M101.4 93.4L111.2 98.4M98.7 98.9L108.6 103.6M96.1 104.4L106.2 108.9M93.7 110.0L103.9 114.2M91.4 115.6L101.7 119.6M89.3 121.4L99.7 125.0M87.4 127.1L97.8 130.5M85.6 132.9L96.1 136.1M83.9 138.8L94.6 141.6M82.4 144.7L93.1 147.3M81.1 150.6L91.8 152.9M79.9 156.6L90.7 158.6M78.9 162.6L89.7 164.3M78.0 168.6L88.9 170.1M77.3 174.7L88.2 175.8M76.7 180.8L87.7 181.6M76.3 186.8L87.3 187.4M76.1 192.9L87.1 193.2" stroke="url(#fTickColorPR)" stroke-width="1.3" stroke-opacity="0.7"/></g></g>
-                  <circle cx="65" cy="199" r="34" fill="url(#fGlowPR)" stroke="none"/>
-                  <g class="hex-frame">
-                    
-                      <path d="M0 13 H108" stroke="url(#fTopLinePR)" stroke-width="2.4"/>
-                      <path d="M108 13 C80 42 45 95 30 142" stroke="url(#fOuterPR)" stroke-width="2.2"/>
-                      <path d="M30 142 L65 180" stroke="#d8c8a2" stroke-width="2.4"/>
-                      <path d="M41 153 L46 149.5 L80.5 181 L76.5 184.5 Z" stroke="#d9c38f" stroke-width="1.1"/>
-                      <path d="M116 38 C95 60 72 90 63 118" stroke="url(#fInnerPR)" stroke-width="2"/>
-                      <path d="M128 37 C107 62 82 95 70 124" stroke="url(#fInnerPR)" stroke-width="2"/>
-                      <path d="M63 118 L70 124" stroke="#a9853f" stroke-width="2"/>
-                      <path d="M65 121 C60 132 56 142 53 152 L60 151 L57 160 L58 182" stroke="#a9853f" stroke-width="2"/>
-                
-                    <g transform="translate(0 398) scale(1 -1)">
-                      <path d="M0 13 H108" stroke="url(#fTopLinePR)" stroke-width="2.4"/>
-                      <path d="M108 13 C80 42 45 95 30 142" stroke="url(#fOuterPR)" stroke-width="2.2"/>
-                      <path d="M30 142 L65 180" stroke="#d8c8a2" stroke-width="2.4"/>
-                      <path d="M41 153 L46 149.5 L80.5 181 L76.5 184.5 Z" stroke="#d9c38f" stroke-width="1.1"/>
-                      <path d="M116 38 C95 60 72 90 63 118" stroke="url(#fInnerPR)" stroke-width="2"/>
-                      <path d="M128 37 C107 62 82 95 70 124" stroke="url(#fInnerPR)" stroke-width="2"/>
-                      <path d="M63 118 L70 124" stroke="#a9853f" stroke-width="2"/>
-                      <path d="M65 121 C60 132 56 142 53 152 L60 151 L57 160 L58 182" stroke="#a9853f" stroke-width="2"/>
-                </g>
-                    <path d="M65 180 L86 199 L65 218 L43 199 Z" stroke="#e8d8b0" stroke-width="2.6"/>
-                  </g>
-                </svg>
+    <!-- 페이지 양옆 마법공학 테두리 ver.2 (위아래로 늘려 메인 화면을 감쌈, JS로 채움) -->
+    <div id="page-orn-wrap" aria-hidden="true"></div>
 
     <!-- Header Section -->
     <header class="w-full max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 pb-4 border-b border-amber-500/30">
@@ -2135,6 +2065,11 @@
             const col = piece('t', '0 0 140 142', 'none') + piece('m', '0 142 140 114', 'xMidYMid meet') + piece('b', '0 256 140 142', 'none');
             return ['left', 'right'].map(side => `<div class="box-ornament ${side}" aria-hidden="true">${col}</div>`).join('');
         }
+        // 페이지 양옆 테두리: 카드용 ver.2 테두리를 화면 높이에 맞게 그대로 씀
+        (function buildPageOrn() {
+            const wrap = document.getElementById('page-orn-wrap');
+            if (wrap) wrap.innerHTML = hexBoxOrn().replace(/class="box-ornament /g, 'class="box-ornament page-orn ');
+        })();
 
         function renderCoreBuild(cores) {
             const arrow = `<div class="hidden sm:flex items-center justify-center text-amber-400 font-black text-xl">›</div>`;
