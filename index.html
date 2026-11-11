@@ -11,7 +11,7 @@
     <!-- 로고 글자 폰트 (Cinzel) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&display=swap">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         * {
@@ -268,7 +268,16 @@
         body.reduce-motion .box-orn-piece .hex-ring, body.reduce-motion .box-orn-piece .hex-frame { animation: none; }
 
         /* MVP LOL 로고 글자 */
-        .logo-font, .logo-font * { font-family: 'Cinzel', 'Pretendard', serif !important; font-weight: 700 !important; letter-spacing: 0.02em; }
+        .logo-font, .logo-font * { font-family: 'Cinzel', 'Pretendard', serif !important; font-weight: 900 !important; letter-spacing: 0.02em; }
+        /* 로고 글자: 금속 금색 질감 (밝은 금 → 진한 금이 번갈아, 진한 테두리 + 그림자) */
+        .logo-font > span {
+            background: linear-gradient(180deg, #fff3c9 0%, #f0d38a 22%, #c99a45 48%, #8d6224 52%, #d9b062 70%, #f7e2a6 86%, #9a6d2c 100%);
+            -webkit-background-clip: text; background-clip: text;
+            color: transparent !important;
+            -webkit-text-stroke: 1px rgba(60, 40, 12, 0.85);
+            filter: drop-shadow(0 2px 0 #2b1d08) drop-shadow(0 0 10px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 18px rgba(200, 170, 110, 0.18)) !important;
+        }
+        #brand-logo > span { -webkit-text-stroke: 0.6px rgba(60, 40, 12, 0.85); filter: drop-shadow(0 1px 0 #2b1d08) drop-shadow(0 0 6px rgba(0, 0, 0, 0.7)) !important; }
         /* MVP / LOL 글자를 엠블럼 기준 위아래 정확히 가운데로 (실제 글자 높이를 재서 JS로 보정) */
         /* 엠블럼 그림 자체가 아래쪽에 무게가 있어서 글자를 살짝 내려 눈으로 보기에 가운데로 (더 내리려면 숫자 키우기) */
         .logo-font { --logo-nudge: 0.07em; }
