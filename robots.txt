@@ -2,3 +2,5 @@ User-agent: *
 Allow: /
 
 Sitemap: https://mvplol.kr/sitemap.xml
+
+#DaumWebMasterTool:273cd2b6fff8c4a300938413d63bbe92dd0879322fb1021b5778892df971c752:VC4npJliHmrJLtJDnWYFDA==
