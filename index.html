@@ -1302,11 +1302,13 @@
         }
 
         // 매치업 상세: 두 챔피언이 같은 라인에서 맞붙었을 때 승률로 우세/불리 표시
-        function laneMatchupStat(mine, opp) {
+        // 두 챔피언이 맞붙은 라인 목록 (라인마다 판수·승률), 판수 많은 순
+        // 예: 요네 vs 트페 = [미드], 요네 vs 야스오 = [미드, 탑]
+        function laneMatchupStats(mine, opp) {
             const champs = ((window.CHAMP_DATA || {}).champs) || {};
             const norm = (x) => String(x || '').replace(/\s+/g, '');
             const findChamp = (n) => champs[n] || champs[Object.keys(champs).find(k => norm(k) === norm(n))];
-            let best = null;
+            const byRole = {};
             const scan = (a, b, flip) => {
                 const c = findChamp(a);
                 if (!c || !c.roles) return;
@@ -1315,13 +1317,25 @@
                     if (!v) continue;
                     const wr = parseFloat(v.winRate);
                     if (isNaN(wr)) continue;
-                    if (!best || v.games > best.games) best = { role, games: v.games, wr: flip ? 100 - wr : wr };
+                    const cur = byRole[role];
+                    if (!cur || v.games > cur.games) byRole[role] = { role, games: v.games, wr: flip ? 100 - wr : wr };
                 }
             };
             scan(mine, opp, false);
             scan(opp, mine, true);
-            return best;
+            return Object.values(byRole).sort((x, y) => y.games - x.games);
         }
+        function laneMatchupStat(mine, opp) {
+            return laneMatchupStats(mine, opp)[0] || null;
+        }
+        // 매치업 화면에서 고른 라인 기억 (라인 탭을 누르면 그 라인 기준으로 다시 보여줌)
+        let matchupLaneOverride = null;
+        document.addEventListener('click', (e) => {
+            const b = e.target.closest('[data-matchup-lane]');
+            if (!b) return;
+            matchupLaneOverride = { mine: b.dataset.mine, opp: b.dataset.opp, role: b.dataset.matchupLane };
+            runSearch(`${b.dataset.mine} vs ${b.dataset.opp}`, false);
+        });
 
         function laneBadge(stat, mineSide) {
             if (!stat) {
@@ -1364,7 +1378,19 @@
             await loadTopFile(mine);
             const topKey = `${mine}_${opp}`.replace(/\s+/g, '');
             const guide = (window.TOP_MATCHUPS || {})[topKey] || (window.TOP_MATCHUPS || {})[dbKey] || MATCHUP_DATABASE[dbKey] || null;
-            const laneStat = laneMatchupStat(mine, opp);
+            const laneList = laneMatchupStats(mine, opp);
+            const lanePick = matchupLaneOverride && matchupLaneOverride.mine === mine && matchupLaneOverride.opp === opp
+                ? laneList.find(l => l.role === matchupLaneOverride.role) : null;
+            const laneStat = lanePick || laneList[0] || null;
+            // 두 라인 이상에서 30판 이상 맞붙은 구도면 라인을 고를 수 있게 탭 표시
+            const laneChoices = laneList.filter(l => l.games >= 30);
+            const LANE_KO = { top: '탑', jungle: '정글', mid: '미드', adc: '원딜', support: '서폿' };
+            const laneTabs = laneChoices.length > 1 ? `
+                <div class="w-full flex flex-wrap items-center justify-center gap-2 mb-4">
+                    <span class="text-xs text-slate-400 font-bold">이 구도는 라인이 여러 개예요 ·</span>
+                    ${laneChoices.map(l => `<button type="button" data-matchup-lane="${l.role}" data-mine="${escHtml(mine)}" data-opp="${escHtml(opp)}"
+                        class="px-3 py-1.5 rounded-lg text-xs font-black cursor-pointer ${laneStat && l.role === laneStat.role ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-white hover:bg-slate-700'}">${LANE_KO[l.role] || l.role} ${l.games.toLocaleString()}판</button>`).join('')}
+                </div>` : '';
 
             // 공략이 없는 구도: 아이템·스펠은 실제 통계(그 라인에서 가장 많이 가는 것)로 채움
             const statRole = (laneStat && laneStat.role) || champMainRole(mine);
@@ -1409,6 +1435,7 @@
                     <div id="detail-search-suggestions" class="absolute left-4 right-4 top-full mt-2 bg-slate-950/95 border border-amber-500/40 rounded-2xl shadow-2xl max-h-72 overflow-y-auto z-50 hidden p-2 space-y-1 backdrop-blur-md"></div>
                 </div>
 
+                ${laneTabs}
                 <div class="vs-card relative overflow-hidden w-full bg-slate-900/90 rounded-3xl px-3 py-6 sm:p-8 mb-6 border-2 border-amber-500/50 shadow-2xl flex flex-row items-start sm:items-center justify-center gap-2 sm:gap-6 md:gap-16">
                     ${hexCardOrn()}
                     <div class="flex-1 sm:flex-none min-w-0 flex flex-col items-center text-center">

@@ -68,7 +68,7 @@ else:
 
 MIN_ROLE_GAMES = 10        # 챔피언 상세(빌드/카운터)를 보여줄 최소 판수 (30판 미만은 사이트에서 '표본 적음' 안내)
 MIN_VS_GAMES = 3           # 상대별 승률을 보여줄 최소 판수
-VS_ITEM_MIN_MATCHUP = 10   # 상대별 아이템·스펠을 보여줄 최소 맞대결 판수
+VS_ITEM_MIN_MATCHUP = 30   # 상대별 아이템·스펠을 보여줄 최소 맞대결 판수
 VS_ITEM_MIN_PICK = 5       # 그 아이템·스펠을 고른 최소 판수
 MIN_TREND_GAMES = 40       # 급상승/급하락 비교에 필요한 패치별 최소 판수
 
