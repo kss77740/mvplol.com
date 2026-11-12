@@ -357,6 +357,7 @@
         }
         @media (max-width: 639px) {
             body { padding-left: 0.75rem; padding-right: 0.75rem; }
+            .vs-card > .hex-ornament { display: none; }
             .hex-ornament:not(.box-ornament) { opacity: 0.55; }
         }
     </style>
@@ -1158,6 +1159,7 @@
             const dSugg = document.getElementById('detail-search-suggestions');
             const dForm = document.getElementById('detail-search-form');
             if (!dInput || !dSugg || !dForm) return;
+            if (window.innerWidth < 640) dInput.placeholder = ctx.bottom ? '예: 이즈 레오나 징크스 쓰레쉬' : '예: 가렌 아트 / 챔피언 하나 = 상대 교체';
             const hide = () => { dSugg.classList.add('hidden'); dSugg.innerHTML = ''; };
             const acts = ctx.bottom
                 ? [['아군원딜', 'bg-indigo-600 hover:bg-indigo-700', 'mAdc'], ['아군서폿', 'bg-blue-600 hover:bg-blue-700', 'mSup'], ['상대원딜', 'bg-rose-600 hover:bg-rose-700', 'oAdc'], ['상대서폿', 'bg-orange-600 hover:bg-orange-700', 'oSup']]
@@ -1308,8 +1310,8 @@
             const laneKo = { top: '탑', jungle: '정글', mid: '미드', adc: '원딜', support: '서폿' }[stat.role] || '';
             return `
                 <div class="mt-3 flex flex-col items-center gap-1">
-                    <span class="px-4 py-1 rounded-full border-2 text-sm font-black ${cls}">라인전 ${label}</span>
-                    <span class="text-[11px] text-slate-400 font-bold">${laneKo ? laneKo + ' ' : ''}맞라인 승률 ${wr.toFixed(1)}% · ${stat.games}판${stat.games < 10 ? ' (표본 적음)' : ''}</span>
+                    <span class="px-3 sm:px-4 py-1 rounded-full border-2 text-xs sm:text-sm font-black ${cls}">라인전 ${label}</span>
+                    <span class="text-[10px] sm:text-[11px] text-slate-400 font-bold leading-snug">${laneKo ? laneKo + ' ' : ''}맞라인 승률 ${wr.toFixed(1)}% · ${stat.games}판${stat.games < 10 ? ' (표본 적음)' : ''}</span>
                 </div>`;
         }
 
@@ -1366,28 +1368,28 @@
                     <div id="detail-search-suggestions" class="absolute left-4 right-4 top-full mt-2 bg-slate-950/95 border border-amber-500/40 rounded-2xl shadow-2xl max-h-72 overflow-y-auto z-50 hidden p-2 space-y-1 backdrop-blur-md"></div>
                 </div>
 
-                <div class="vs-card relative overflow-hidden w-full bg-slate-900/90 rounded-3xl p-8 mb-6 border-2 border-amber-500/50 shadow-2xl flex flex-col md:flex-row items-center justify-center gap-6 md:gap-16">
+                <div class="vs-card relative overflow-hidden w-full bg-slate-900/90 rounded-3xl px-3 py-6 sm:p-8 mb-6 border-2 border-amber-500/50 shadow-2xl flex flex-row items-start sm:items-center justify-center gap-2 sm:gap-6 md:gap-16">
                     ${hexCardOrn()}
-                    <div class="flex flex-col items-center text-center">
-                        <div class="relative w-36 h-36 mb-4 rounded-3xl overflow-hidden border-4 border-indigo-400 shadow-2xl bg-slate-800">
+                    <div class="flex-1 sm:flex-none min-w-0 flex flex-col items-center text-center">
+                        <div class="relative w-20 h-20 sm:w-36 sm:h-36 mb-2 sm:mb-4 rounded-2xl sm:rounded-3xl overflow-hidden border-[3px] sm:border-4 border-indigo-400 shadow-2xl bg-slate-800">
                             <img src="${getChampImgUrl(mine)}" alt="${mine}" class="w-full h-full object-cover">
                         </div>
-                        <span class="text-sm text-indigo-300 font-extrabold tracking-wider mb-1">MY CHAMPION</span>
-                        <h2 class="text-3xl sm:text-4xl font-black text-white">${mine}</h2>
+                        <span class="text-[10px] sm:text-sm text-indigo-300 font-extrabold tracking-wider mb-1">MY CHAMPION</span>
+                        <h2 class="text-xl sm:text-4xl font-black text-white break-keep">${mine}</h2>
                         ${laneBadge(laneStat, true)}
                     </div>
 
-                    <div class="flex flex-col items-center justify-center my-2 md:my-0">
-                        <span class="text-6xl sm:text-7xl font-black text-yellow-400 italic tracking-widest drop-shadow-[0_0_20px_rgba(250,204,21,0.6)]">VS</span>
-                        <span class="text-xs text-white/70 font-bold mt-2">라이벌 라인전 매치업</span>
+                    <div class="flex flex-col items-center justify-center self-start mt-6 sm:mt-0 sm:self-center flex-shrink-0">
+                        <span class="text-3xl sm:text-7xl font-black text-yellow-400 italic tracking-widest drop-shadow-[0_0_20px_rgba(250,204,21,0.6)]">VS</span>
+                        <span class="hidden sm:inline text-xs text-white/70 font-bold mt-2">라이벌 라인전 매치업</span>
                     </div>
 
-                    <div class="flex flex-col items-center text-center">
-                        <div class="relative w-36 h-36 mb-4 rounded-3xl overflow-hidden border-4 border-rose-400 shadow-2xl bg-slate-800">
+                    <div class="flex-1 sm:flex-none min-w-0 flex flex-col items-center text-center">
+                        <div class="relative w-20 h-20 sm:w-36 sm:h-36 mb-2 sm:mb-4 rounded-2xl sm:rounded-3xl overflow-hidden border-[3px] sm:border-4 border-rose-400 shadow-2xl bg-slate-800">
                             <img src="${getChampImgUrl(opp)}" alt="${opp}" class="w-full h-full object-cover">
                         </div>
-                        <span class="text-sm text-rose-300 font-extrabold tracking-wider mb-1">ENEMY CHAMPION</span>
-                        <h2 class="text-3xl sm:text-4xl font-black text-white">${opp}</h2>
+                        <span class="text-[10px] sm:text-sm text-rose-300 font-extrabold tracking-wider mb-1">ENEMY CHAMPION</span>
+                        <h2 class="text-xl sm:text-4xl font-black text-white break-keep">${opp}</h2>
                         ${laneBadge(laneStat, false)}
                     </div>
                 </div>
