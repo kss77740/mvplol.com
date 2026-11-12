@@ -2398,6 +2398,14 @@
                 <p class="text-xs text-slate-400 mb-6">${meta.patch ? `패치 ${escHtml(displayPatch(meta.patch))} · 한국 서버 ${escHtml(meta.tierLabel || '')} 솔로랭크 ${LINE_NAMES[role]} 기준` : ''}</p>
                 ${Number(r.games) < 30 ? `<div class="-mt-4 mb-6 px-4 py-2.5 rounded-xl border border-amber-500/40 bg-amber-500/10 text-sm text-amber-200 font-bold">이 라인은 아직 ${Number(r.games)}판밖에 모이지 않아서 빌드·룬 숫자가 정확하지 않을 수 있어요. 데이터가 쌓이면 점점 정확해져요.</div>` : ''}
 
+                ${(r.preCore || []).length ? section('1코어 전에 먼저 사는 템', `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${r.preCore.map(it => `
+                    <div class="flex items-center gap-3 bg-slate-800/80 border border-slate-700 rounded-xl p-3">
+                        <img src="${getItemImgUrl(it.id)}" alt="${escHtml(it.name)}" class="w-10 h-10 rounded-lg border border-amber-500/50 bg-slate-900 flex-shrink-0" onerror="this.style.visibility='hidden'">
+                        <div class="min-w-0">
+                            <div class="text-sm font-black text-white truncate">${escHtml(it.name)}</div>
+                            <div class="text-[11px] text-slate-400">먼저 사는 비율 <b class="text-amber-300">${escHtml(it.pick)}</b> · 승률 ${escHtml(it.winRate)}</div>
+                        </div>
+                    </div>`).join('')}</div>`, '첫 완성템 전에 산 1,000골드 이상 하위템') : ''}
                 ${(r.cores || []).length
                     ? section('핵심 아이템 빌드 순서', renderCoreBuild(r.cores), '구매 순서 기준 · 코어별 가장 많이 산 아이템')
                     : section('핵심 아이템', items ? `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${items}</div>` : noDataText('표본 부족'), '많이 가는 순서 · 막대는 픽률')}

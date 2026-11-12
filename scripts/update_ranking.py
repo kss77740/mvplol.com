@@ -187,13 +187,21 @@ def load_game_data():
 
     # 상대에 따라 먼저 사는 '대응용 하위 아이템' (치유 감소·마법 저항·방어력)
     comps = {iid: items_raw[iid]["name"] for iid in COUNTER_COMPONENTS if iid in items_raw}
+    # 1코어 전에 먼저 사는 '핵심 하위템' 후보: 1,000골드 이상 하위 아이템 (티아맷·셰진·칠흑 단검 등)
+    parts = {}
+    for iid, it in items_raw.items():
+        if not (it.get("maps", {}).get("11") and it.get("gold", {}).get("purchasable")):
+            continue
+        tags = it.get("tags", [])
+        if it.get("into") and it["gold"].get("total", 0) >= 1000 and "Boots" not in tags and "Consumable" not in tags:
+            parts[iid] = it["name"]
 
     spells = {}
     for sp in http_get_json(f"{base}/summoner.json", riot=False)["data"].values():
         spells[sp["key"]] = {"id": sp["id"], "name": sp["name"]}
 
     return {"names": names, "items": items, "boots": boots, "runes": runes,
-            "styles": styles, "spells": spells, "tree": tree, "comps": comps}
+            "styles": styles, "spells": spells, "tree": tree, "comps": comps, "parts": parts}
 
 
 # 능력치 파편 (Data Dragon 에 없어서 직접 정의)
@@ -318,6 +326,8 @@ def add_match_to_bucket(bucket, info, game):
             _inc(d, "tlg", win)
             for comp in info["_comps"].get(p.get("participantId"), []):
                 _inc(d.setdefault("comp", {}), comp, win)
+            for part in (info.get("_parts") or {}).get(p.get("participantId"), []):
+                _inc(d.setdefault("part", {}), part, win)
         cores = (info.get("_cores") or {}).get(p.get("participantId"))
         if cores:
             for k, iid in enumerate(cores[:3]):
@@ -385,9 +395,10 @@ def core_orders(timeline, game):
     return result
 
 
-def early_components(timeline, game):
-    """선수별로 첫 완성 아이템을 사기 전에 산 대응용 하위 아이템 (망각의 구 등)"""
-    comps = game.get("comps") or {}
+def early_components(timeline, game, key="comps"):
+    """선수별로 첫 완성 아이템을 사기 전에 산 하위 아이템
+    key="comps": 대응용 하위템(망각의 구 등) / key="parts": 1,000골드 이상 핵심 하위템(티아맷 등)"""
+    comps = game.get(key) or {}
     out = {}
     try:
         frames = timeline["info"]["frames"]
@@ -487,6 +498,7 @@ def collect(state, game):
                     tl = riot_region(f"/lol/match/v5/matches/{mid}/timeline")
                     info["_cores"] = core_orders(tl, game) if tl else {}
                     info["_comps"] = early_components(tl, game) if tl else None
+                    info["_parts"] = early_components(tl, game, "parts") if tl else None
                 add_match_to_bucket(cur, info, game)
                 added += 1
             else:
@@ -711,6 +723,17 @@ def build_champ_data(bucket, prev, game):
                 cores.append([{"id": iid, "name": game["items"].get(iid, iid), "pick": fmt(v[0] / total_k),
                                "winRate": fmt(_wr(v)), "games": v[0]} for iid, v in opts])
 
+            # 1코어 전에 먼저 사는 핵심 하위템 (예: 트런들 티아맷): 타임라인 있는 판 30판 이상, 30% 이상이 산 것
+            pre_core = []
+            tlg = (d.get("tlg") or [0, 0])[0]
+            if tlg >= 30:
+                for iid, v in sorted((d.get("part") or {}).items(), key=lambda kv: kv[1][0], reverse=True):
+                    if v[0] / tlg < 0.30:
+                        break
+                    pre_core.append({"id": iid, "name": (game.get("parts") or {}).get(iid, iid),
+                                     "pick": fmt(v[0] / tlg), "winRate": fmt(_wr(v)), "games": v[0]})
+                pre_core = pre_core[:2]
+
             # 가장 많이 쓰는 룬 페이지 (꼬마 룬, 능력치 파편까지)
             rune_pages = []
             for key, v in _top(d.get("pages"), 2):
@@ -761,7 +784,7 @@ def build_champ_data(bucket, prev, game):
                 "secondary": secondaries[0] if secondaries else None, "secondaries": secondaries,
                 "spells": spells_list[0] if spells_list else None, "spellsList": spells_list,
                 "hard": hard, "easy": easy, "vs": vs_all,
-                "cores": cores, "runePages": rune_pages, "runeStats": rune_stats,
+                "cores": cores, "preCore": pre_core, "runePages": rune_pages, "runeStats": rune_stats,
             }
 
     # 인기 구도: 같은 라인에서 가장 많이 만난 조합
