@@ -1372,15 +1372,22 @@
             const st = (((window.CHAMP_DATA || {}).champs || {})[mine] || {}).roles?.[statRole];
             const statItem = st && ((st.cores && st.cores[0] && st.cores[0][0]) || (st.items && st.items[0]));
             const statSpell = st && st.spellsList && st.spellsList[0];
-            const data = guide || {
+            // 같은 라인 맞상대 기준 통계 (탑 vs 탑, 미드 vs 미드 따로): 이 상대를 만났을 때 실제로 간 첫 코어·스펠
+            const normName = (x) => String(x || '').replace(/\s+/g, '');
+            const vsEntry = st && (st.vs || []).find(v => normName(v.name) === normName(opp));
+            const vsItem = vsEntry && vsEntry.it;     // [아이템id, 이름, 판수, 승률]
+            const vsSpell = vsEntry && vsEntry.sp;    // ["점멸/점화", 판수, 승률]
+            const vsItemNote = vsItem ? `${statLaneKo} ${opp} 상대로 ${mine}이(가) 첫 코어로 가장 많이 간 아이템 · ${vsItem[2]}판 · 승률 ${vsItem[3]}` : '';
+            const vsSpellNote = vsSpell ? `${statLaneKo} ${opp} 상대로 가장 많이 든 스펠 · ${vsSpell[1]}판 · 승률 ${vsSpell[2]}` : '';
+            const data = guide ? { ...guide, statItemLine: vsItem ? `통계: ${vsItem[1]} (${vsItemNote})` : '', statSpellLine: vsSpell ? `통계: ${vsSpell[0]} (${vsSpellNote})` : '' } : {
                 lvl1: `${mine}의 견제 스킬 범위를 유지하며 ${opp}의 주도권을 파악하세요.`,
                 lvl3: `${opp}의 주요 스킬이 빠진 직후를 노려 교전 타이밍을 포착하세요.`,
                 lvl6: `${mine}과 ${opp}의 궁극기 타이밍 맞대결 및 갱승 유도를 준비하세요.`,
-                item: statItem ? statItem.name : '',
-                itemId: statItem ? statItem.id : '',
-                itemNote: statItem ? `${statLaneKo} ${mine}이(가) 첫 코어로 가장 많이 가는 아이템 · 픽 ${statItem.pick} · 승률 ${statItem.winRate}` : '',
-                spell: statSpell ? statSpell.list.map(x => x.name).join(' / ') : '점멸 / 점화',
-                spellNote: statSpell ? `${statLaneKo} ${mine}이(가) 가장 많이 드는 스펠 · 픽 ${statSpell.pick} · 승률 ${statSpell.winRate}` : ''
+                item: vsItem ? vsItem[1] : (statItem ? statItem.name : ''),
+                itemId: vsItem ? vsItem[0] : (statItem ? statItem.id : ''),
+                itemNote: vsItem ? vsItemNote : (statItem ? `${statLaneKo} ${mine}이(가) 첫 코어로 가장 많이 가는 아이템 · 픽 ${statItem.pick} · 승률 ${statItem.winRate}` : ''),
+                spell: vsSpell ? vsSpell[0].replace('/', ' / ') : (statSpell ? statSpell.list.map(x => x.name).join(' / ') : '점멸 / 점화'),
+                spellNote: vsSpell ? vsSpellNote : (statSpell ? `${statLaneKo} ${mine}이(가) 가장 많이 드는 스펠 · 픽 ${statSpell.pick} · 승률 ${statSpell.winRate}` : '')
             };
             detailDynamicContent.innerHTML = `
                 <div class="w-full bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl mb-8 relative z-30">
@@ -1461,6 +1468,7 @@
                                 <div class="min-w-0">
                                     <span class="text-white font-bold text-sm block mb-1 leading-snug">${escHtml(data.item)}</span>
                                     <span class="text-[11px] text-slate-400 leading-relaxed">${escHtml(data.itemNote || '상대방의 유지력과 딜교환에 맞춘 핵심 장비 및 빌드업 팁입니다.')}</span>
+                                    ${data.statItemLine ? `<span class="block mt-1.5 text-[11px] text-emerald-300 font-bold leading-relaxed">${escHtml(data.statItemLine)}</span>` : ''}
                                 </div>
                             </div>` : noDataText('아직 아이템 통계가 모이지 않았어요.')}
                         </div>
@@ -1478,6 +1486,7 @@
                                 <div class="min-w-0">
                                     <span class="text-white font-bold text-base block mb-1">${data.spell || '점멸 / 점화'}</span>
                                     <span class="text-xs text-slate-300 leading-relaxed">${escHtml(data.spellNote || '초반 교전 킬 각 및 라인 복귀력 극대화 스펠 조합')}</span>
+                                    ${data.statSpellLine ? `<span class="block mt-1.5 text-[11px] text-emerald-300 font-bold leading-relaxed">${escHtml(data.statSpellLine)}</span>` : ''}
                                 </div>
                             </div>
                         </div>

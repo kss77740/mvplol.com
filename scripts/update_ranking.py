@@ -68,6 +68,8 @@ else:
 
 MIN_ROLE_GAMES = 10        # 챔피언 상세(빌드/카운터)를 보여줄 최소 판수 (30판 미만은 사이트에서 '표본 적음' 안내)
 MIN_VS_GAMES = 3           # 상대별 승률을 보여줄 최소 판수
+VS_ITEM_MIN_MATCHUP = 10   # 상대별 아이템·스펠을 보여줄 최소 맞대결 판수
+VS_ITEM_MIN_PICK = 5       # 그 아이템·스펠을 고른 최소 판수
 MIN_TREND_GAMES = 40       # 급상승/급하락 비교에 필요한 패치별 최소 판수
 
 ROLE_MAP = {"TOP": "top", "JUNGLE": "jungle", "MIDDLE": "mid", "BOTTOM": "adc", "UTILITY": "support"}
@@ -320,7 +322,15 @@ def add_match_to_bucket(bucket, info, game):
             continue
         for me, opp in ((a, b), (b, a)):
             d = detail[role][str(me["championId"])]
-            _inc(d.setdefault("vs", {}), opp["championId"], bool(me.get("win")))
+            mwin = bool(me.get("win"))
+            ocid = str(opp["championId"])
+            _inc(d.setdefault("vs", {}), ocid, mwin)
+            # 상대별 아이템·스펠: 이 상대를 만났을 때 실제로 간 첫 코어 아이템과 스펠 조합
+            me_cores = (info.get("_cores") or {}).get(me.get("participantId"))
+            if me_cores:
+                _inc(d.setdefault("vsItem", {}).setdefault(ocid, {}), me_cores[0], mwin)
+            mpair = "_".join(sorted([str(me.get("summoner1Id")), str(me.get("summoner2Id"))]))
+            _inc(d.setdefault("vsSpell", {}).setdefault(ocid, {}), mpair, mwin)
 
     banned = set()
     for team in info.get("teams", []):
@@ -610,8 +620,26 @@ def build_champ_data(bucket, prev, game):
                 if v[0] < MIN_VS_GAMES:
                     continue
                 oname, oid = names.get(ocid, (ocid, None))
-                vs_rows.append({"name": oname, "id": oid, "games": v[0], "winRate": fmt(_wr(v)), "_s": _smooth(v)})
-            pick4 = lambda r: {k: r[k] for k in ("name", "id", "games", "winRate")}
+                row = {"name": oname, "id": oid, "games": v[0], "winRate": fmt(_wr(v)), "_s": _smooth(v)}
+                # 상대별 아이템·스펠 기준: 같은 라인에서 맞붙은 판만, 맞대결 10판 이상일 때,
+                # 승률이 아니라 '가장 많이 고른 것'(판수 적을 때 승률은 들쭉날쭉해서), 그 선택이 5판 이상일 때만
+                enough = v[0] >= VS_ITEM_MIN_MATCHUP
+                # 이 상대 상대로 가장 많이 간 첫 코어 아이템 [아이템id, 이름, 판수, 승률]
+                vi = (d.get("vsItem") or {}).get(ocid) or {}
+                if vi and enough:
+                    iid, iv = max(vi.items(), key=lambda kv: kv[1][0])
+                    if iv[0] >= VS_ITEM_MIN_PICK:
+                        row["it"] = [iid, game["items"].get(iid, iid), iv[0], fmt(_wr(iv))]
+                # 이 상대 상대로 가장 많이 든 스펠 조합 ["점멸/점화", 판수, 승률]
+                vsp = (d.get("vsSpell") or {}).get(ocid) or {}
+                if vsp and enough:
+                    pk, pv = max(vsp.items(), key=lambda kv: kv[1][0])
+                    if pv[0] >= VS_ITEM_MIN_PICK:
+                        sp = [game["spells"].get(i, {"id": "", "name": "?"}) for i in pk.split("_")]
+                        sp.sort(key=lambda x: 0 if x["id"] == "SummonerFlash" else 1)
+                        row["sp"] = ["/".join(x["name"] for x in sp), pv[0], fmt(_wr(pv))]
+                vs_rows.append(row)
+            pick4 = lambda r: {k: r[k] for k in ("name", "id", "games", "winRate", "it", "sp") if k in r}
             vs_rows.sort(key=lambda r: r["_s"])
             # 어려운 상대 / 쉬운 상대 각각 최대 3명
             # 승률 50% 미만 = 어려운 상대, 50% 초과 = 쉬운 상대
