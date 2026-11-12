@@ -347,6 +347,18 @@
         body.theme-lol :is([class^="border-amber-400"], [class*=" border-amber-400"]) { border-color: rgba(200, 170, 110, 0.7) !important; }
         body.theme-lol .focus\:ring-yellow-400:focus, body.theme-lol .ring-amber-400 { --tw-ring-color: rgba(200, 170, 110, 0.55) !important; }
         body.theme-lol :is([class^="bg-amber-500/"], [class*=" bg-amber-500/"]) { background-color: rgba(200, 170, 110, 0.12) !important; }
+        /* ───── 모바일(태블릿 포함, 1024px 미만): 검색이 맨 위, 카드는 그 아래, 상세페이지 위 카드 4개는 숨김 ───── */
+        @media (max-width: 1023px) {
+            #main-view { padding-top: 1rem; }
+            #main-view > #side-left { order: 2; }
+            #main-view > #side-right { order: 3; }
+            #extension-zone { display: none !important; }
+            #back-bar { margin-bottom: 1rem; }
+        }
+        @media (max-width: 639px) {
+            body { padding-left: 0.75rem; padding-right: 0.75rem; }
+            .hex-ornament:not(.box-ornament) { opacity: 0.55; }
+        }
     </style>
 </head>
 <body class="theme-lol flex flex-col justify-between min-h-screen px-4 py-6 md:px-8">
@@ -357,7 +369,7 @@
     <!-- 페이지 양옆 마법공학 테두리 ver.2 (위아래로 늘려 메인 화면을 감쌈, JS로 채움) -->
 
     <!-- Header Section -->
-    <header class="w-full max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 pb-4 border-b border-amber-500/30">
+    <header class="w-full max-w-7xl mx-auto flex flex-row justify-between items-center gap-3 pb-4 border-b border-amber-500/30">
         <a href="#" id="brand-logo" class="logo-font text-2xl sm:text-3xl font-black text-white hover:opacity-95 transition-opacity cursor-pointer flex items-center justify-center gap-2">
             <span class="leading-none">MVP</span>
             <img src="image/5level.webp" alt="명예 5렙 상자" class="w-8 h-8 object-contain drop-shadow-[0_0_8px_rgba(250,204,21,0.7)] flex-shrink-0 -ml-1.5">
@@ -365,10 +377,10 @@
         </a>
 
         <nav class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-base sm:text-lg font-bold" aria-label="주요 메뉴">
-            <button type="button" data-page="bug" class="px-4 py-2.5 rounded-xl text-white/95 hover:text-white hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-2 cursor-pointer shadow">
+            <button type="button" data-page="bug" class="px-3 py-2 sm:px-4 sm:py-2.5 text-sm sm:text-base rounded-xl text-white/95 hover:text-white hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-2 cursor-pointer shadow">
                 버그 문의
             </button>
-            <button type="button" data-page="settings" aria-label="설정" title="설정" class="w-11 h-11 rounded-xl text-white/90 hover:text-amber-300 hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center justify-center cursor-pointer shadow">
+            <button type="button" data-page="settings" aria-label="설정" title="설정" class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl text-white/90 hover:text-amber-300 hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center justify-center cursor-pointer shadow">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             </button>
         </nav>
@@ -534,8 +546,8 @@
                                 id="search-input-1"
                                 type="text"
                                 autocomplete="off"
-                                placeholder="챔피언 검색 또는 구도 입력 (예: 트타, 바루스 / 리신 제드)"
-                                class="glass-input w-full py-3.5 px-16 text-center font-bold text-sm sm:text-base rounded-2xl outline-none search-shadow placeholder:text-slate-400 placeholder:font-normal focus:ring-4 focus:ring-yellow-400 transition-all border-2 border-amber-400/60"
+                                placeholder="챔피언 검색 또는 구도 입력 (예: 트타, 바루스 / 리신 제드)" data-mobile-placeholder="예: 가렌 아트 / 리신 제드"
+                                class="glass-input w-full py-3.5 px-11 sm:px-16 text-center font-bold text-sm sm:text-base rounded-2xl outline-none search-shadow placeholder:text-slate-400 placeholder:font-normal focus:ring-4 focus:ring-yellow-400 transition-all border-2 border-amber-400/60"
                             />
                             <button
                                 type="submit"
@@ -587,8 +599,8 @@
                                 id="search-input-2"
                                 type="text"
                                 autocomplete="off"
-                                placeholder="예: 이즈 레오나 징크스 쓰레쉬 (4개 연속 입력 가능)"
-                                class="glass-input w-full py-3.5 px-16 text-center font-bold text-sm sm:text-base rounded-2xl outline-none search-shadow placeholder:text-slate-400 placeholder:font-normal focus:ring-4 focus:ring-yellow-400 transition-all border-2 border-amber-400/60"
+                                placeholder="예: 이즈 레오나 징크스 쓰레쉬 (4개 연속 입력 가능)" data-mobile-placeholder="예: 이즈 레오나 징크스 쓰레쉬"
+                                class="glass-input w-full py-3.5 px-11 sm:px-16 text-center font-bold text-sm sm:text-base rounded-2xl outline-none search-shadow placeholder:text-slate-400 placeholder:font-normal focus:ring-4 focus:ring-yellow-400 transition-all border-2 border-amber-400/60"
                             />
                             <button
                                 type="submit"
@@ -2247,9 +2259,9 @@
                 </div>`;
             const section = (title, inner, sub = '') => `
                 <div class="mb-6">
-                    <div class="flex items-end justify-between mb-2">
+                    <div class="flex flex-wrap items-end justify-between gap-x-3 mb-2">
                         <h3 class="text-base font-black text-yellow-300">${title}</h3>
-                        <span class="text-[10px] text-slate-500">${sub}</span>
+                        <span class="text-[10px] text-slate-500 hidden sm:inline">${sub}</span>
                     </div>
                     ${inner}
                 </div>`;
@@ -2922,6 +2934,20 @@
         window.addEventListener('load', centerLogoText);
         window.addEventListener('resize', centerLogoText);
         centerLogoText();
+    })();
+    </script>
+
+    <script>
+    // 폰처럼 좁은 화면에서는 검색창 안내 문구를 짧게 (잘리지 않게)
+    (function () {
+        function fitPlaceholders() {
+            document.querySelectorAll('[data-mobile-placeholder]').forEach(function (el) {
+                if (!el.dataset.fullPlaceholder) el.dataset.fullPlaceholder = el.placeholder;
+                el.placeholder = window.innerWidth < 640 ? el.dataset.mobilePlaceholder : el.dataset.fullPlaceholder;
+            });
+        }
+        fitPlaceholders();
+        window.addEventListener('resize', fitPlaceholders);
     })();
     </script>
 </body>
