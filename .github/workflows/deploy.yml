@@ -61,6 +61,9 @@ jobs:
           # 너무 작으면(빌드 실패) 배포 중단 → 기존 사이트가 그대로 유지됨
           [ "$SIZE" -gt 15000 ]
           grep -q "bg-slate-900" site/tw.css
+          # 브라우저가 예전 tw.css를 기억하고 쓰지 않도록, 배포마다 주소에 버전 붙이기
+          sed -i "s|href=\"tw.css\"|href=\"tw.css?v=${GITHUB_SHA::8}\"|" site/index.html
+          grep -q "tw.css?v=" site/index.html
 
       - uses: actions/configure-pages@v5
 
