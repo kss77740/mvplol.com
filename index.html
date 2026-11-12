@@ -1363,15 +1363,25 @@
             const dbKey = `${mine}_${opp}`;
             await loadTopFile(mine);
             const topKey = `${mine}_${opp}`.replace(/\s+/g, '');
-            const data = (window.TOP_MATCHUPS || {})[topKey] || (window.TOP_MATCHUPS || {})[dbKey] || MATCHUP_DATABASE[dbKey] || {
+            const guide = (window.TOP_MATCHUPS || {})[topKey] || (window.TOP_MATCHUPS || {})[dbKey] || MATCHUP_DATABASE[dbKey] || null;
+            const laneStat = laneMatchupStat(mine, opp);
+
+            // 공략이 없는 구도: 아이템·스펠은 실제 통계(그 라인에서 가장 많이 가는 것)로 채움
+            const statRole = (laneStat && laneStat.role) || champMainRole(mine);
+            const statLaneKo = { top: '탑', jungle: '정글', mid: '미드', adc: '원딜', support: '서폿' }[statRole] || '';
+            const st = (((window.CHAMP_DATA || {}).champs || {})[mine] || {}).roles?.[statRole];
+            const statItem = st && ((st.cores && st.cores[0] && st.cores[0][0]) || (st.items && st.items[0]));
+            const statSpell = st && st.spellsList && st.spellsList[0];
+            const data = guide || {
                 lvl1: `${mine}의 견제 스킬 범위를 유지하며 ${opp}의 주도권을 파악하세요.`,
                 lvl3: `${opp}의 주요 스킬이 빠진 직후를 노려 교전 타이밍을 포착하세요.`,
                 lvl6: `${mine}과 ${opp}의 궁극기 타이밍 맞대결 및 갱승 유도를 준비하세요.`,
-                item: `3152`,
-                spell: `점멸 / 점화`
+                item: statItem ? statItem.name : '',
+                itemId: statItem ? statItem.id : '',
+                itemNote: statItem ? `${statLaneKo} ${mine}이(가) 첫 코어로 가장 많이 가는 아이템 · 픽 ${statItem.pick} · 승률 ${statItem.winRate}` : '',
+                spell: statSpell ? statSpell.list.map(x => x.name).join(' / ') : '점멸 / 점화',
+                spellNote: statSpell ? `${statLaneKo} ${mine}이(가) 가장 많이 드는 스펠 · 픽 ${statSpell.pick} · 승률 ${statSpell.winRate}` : ''
             };
-
-            const laneStat = laneMatchupStat(mine, opp);
             detailDynamicContent.innerHTML = `
                 <div class="w-full bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl mb-8 relative z-30">
                     <form id="detail-search-form" class="w-full relative" role="search">
@@ -1422,6 +1432,7 @@
                     <h3 class="text-xl font-black text-yellow-300 mb-6 flex items-center gap-3">
                         30초 로딩 창 라인전 핵심 노하우
                     </h3>
+                    ${guide ? '' : `<p class="-mt-3 mb-5 px-4 py-2.5 rounded-xl border border-amber-500/40 bg-amber-500/10 text-sm text-amber-100 font-bold">이 구도 전용 공략은 아직 준비 중이에요. 지금은 기본 팁과 실제 통계만 보여드려요.</p>`}
                     <div class="space-y-5 text-base sm:text-lg">
                         <div class="p-5 bg-slate-800/90 rounded-2xl border border-slate-700 shadow-md">
                             <span class="text-yellow-400 font-black text-lg block mb-2">1레벨 타이밍 구도</span>
@@ -1444,13 +1455,14 @@
                             <h4 class="text-base font-black text-emerald-400 mb-4 flex items-center gap-2">
                                 상대 맞춤 카운터 템트리 추천
                             </h4>
+                            ${data.item ? `
                             <div class="flex items-center gap-4 bg-slate-800/90 p-4 rounded-2xl border border-slate-700">
-                                <img src="${getItemImgUrl(getItemIdFromText(data.item))}" alt="추천 아이템" class="w-16 h-16 rounded-xl border border-amber-500/50 shadow-md object-cover bg-slate-900 flex-shrink-0" onerror="this.src='https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/3152.png'">
+                                <img src="${getItemImgUrl(data.itemId || getItemIdFromText(data.item))}" alt="추천 아이템" class="w-16 h-16 rounded-xl border border-amber-500/50 shadow-md object-cover bg-slate-900 flex-shrink-0" onerror="this.style.visibility='hidden'">
                                 <div class="min-w-0">
-                                    <span class="text-white font-bold text-sm block mb-1 leading-snug">${data.item}</span>
-                                    <span class="text-[11px] text-slate-400 leading-relaxed">상대방의 유지력과 딜교환에 맞춘 핵심 장비 및 빌드업 팁입니다.</span>
+                                    <span class="text-white font-bold text-sm block mb-1 leading-snug">${escHtml(data.item)}</span>
+                                    <span class="text-[11px] text-slate-400 leading-relaxed">${escHtml(data.itemNote || '상대방의 유지력과 딜교환에 맞춘 핵심 장비 및 빌드업 팁입니다.')}</span>
                                 </div>
-                            </div>
+                            </div>` : noDataText('아직 아이템 통계가 모이지 않았어요.')}
                         </div>
                     </div>
 
@@ -1465,7 +1477,7 @@
                                 </div>
                                 <div class="min-w-0">
                                     <span class="text-white font-bold text-base block mb-1">${data.spell || '점멸 / 점화'}</span>
-                                    <span class="text-xs text-slate-300 leading-relaxed">초반 교전 킬 각 및 라인 복귀력 극대화 스펠 조합</span>
+                                    <span class="text-xs text-slate-300 leading-relaxed">${escHtml(data.spellNote || '초반 교전 킬 각 및 라인 복귀력 극대화 스펠 조합')}</span>
                                 </div>
                             </div>
                         </div>
