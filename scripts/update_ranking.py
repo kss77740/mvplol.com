@@ -70,6 +70,9 @@ MIN_ROLE_GAMES = 10        # 챔피언 상세(빌드/카운터)를 보여줄 최
 MIN_VS_GAMES = 3           # 상대별 승률을 보여줄 최소 판수
 VS_ITEM_MIN_MATCHUP = 30   # 상대별 아이템·스펠을 보여줄 최소 맞대결 판수
 VS_ITEM_MIN_PICK = 5       # 그 아이템·스펠을 고른 최소 판수
+# 대응용 하위 아이템: 망각의 구·처형인의 대검·덤불 조끼(치유 감소), 음전자 망토·망령의 두건·헥스드링커(마법 저항),
+# 쇠사슬 조끼·파수꾼의 갑옷(방어력). 첫 코어 완성 전에 샀는지를 상대별로 셈
+COUNTER_COMPONENTS = ("3916", "3123", "3076", "1057", "3211", "3155", "1031", "3082")
 MIN_TREND_GAMES = 40       # 급상승/급하락 비교에 필요한 패치별 최소 판수
 
 ROLE_MAP = {"TOP": "top", "JUNGLE": "jungle", "MIDDLE": "mid", "BOTTOM": "adc", "UTILITY": "support"}
@@ -182,12 +185,15 @@ def load_game_data():
             slots.append(row)
         tree.append({"id": style["id"], "name": style["name"], "icon": style["icon"], "slots": slots})
 
+    # 상대에 따라 먼저 사는 '대응용 하위 아이템' (치유 감소·마법 저항·방어력)
+    comps = {iid: items_raw[iid]["name"] for iid in COUNTER_COMPONENTS if iid in items_raw}
+
     spells = {}
     for sp in http_get_json(f"{base}/summoner.json", riot=False)["data"].values():
         spells[sp["key"]] = {"id": sp["id"], "name": sp["name"]}
 
     return {"names": names, "items": items, "boots": boots, "runes": runes,
-            "styles": styles, "spells": spells, "tree": tree}
+            "styles": styles, "spells": spells, "tree": tree, "comps": comps}
 
 
 # 능력치 파편 (Data Dragon 에 없어서 직접 정의)
@@ -308,6 +314,10 @@ def add_match_to_bucket(bucket, info, game):
             _inc(d.setdefault("pages", {}), page, win)   # 룬 페이지 전체 (꼬마 룬 + 파편)
         except (KeyError, IndexError, TypeError):
             pass
+        if info.get("_comps") is not None:   # 타임라인이 있는 판만
+            _inc(d, "tlg", win)
+            for comp in info["_comps"].get(p.get("participantId"), []):
+                _inc(d.setdefault("comp", {}), comp, win)
         cores = (info.get("_cores") or {}).get(p.get("participantId"))
         if cores:
             for k, iid in enumerate(cores[:3]):
@@ -329,6 +339,10 @@ def add_match_to_bucket(bucket, info, game):
             me_cores = (info.get("_cores") or {}).get(me.get("participantId"))
             if me_cores:
                 _inc(d.setdefault("vsItem", {}).setdefault(ocid, {}), me_cores[0], mwin)
+            if info.get("_comps") is not None:
+                _inc(d.setdefault("vsTl", {}), ocid, mwin)
+                for comp in info["_comps"].get(me.get("participantId"), []):
+                    _inc(d.setdefault("vsComp", {}).setdefault(ocid, {}), comp, mwin)
             mpair = "_".join(sorted([str(me.get("summoner1Id")), str(me.get("summoner2Id"))]))
             _inc(d.setdefault("vsSpell", {}).setdefault(ocid, {}), mpair, mwin)
 
@@ -369,6 +383,30 @@ def core_orders(timeline, game):
         if order:
             result[pid] = order
     return result
+
+
+def early_components(timeline, game):
+    """선수별로 첫 완성 아이템을 사기 전에 산 대응용 하위 아이템 (망각의 구 등)"""
+    comps = game.get("comps") or {}
+    out = {}
+    try:
+        frames = timeline["info"]["frames"]
+    except (KeyError, TypeError):
+        return {}
+    done = set()
+    for fr in frames:
+        for ev in fr.get("events", []):
+            if ev.get("type") != "ITEM_PURCHASED":
+                continue
+            pid = ev.get("participantId")
+            iid = str(ev.get("itemId"))
+            if pid in done:
+                continue
+            if iid in game["items"]:
+                done.add(pid)          # 첫 완성 아이템을 샀으면 거기까지만 봄
+            elif iid in comps:
+                out.setdefault(pid, set()).add(iid)
+    return {pid: sorted(v) for pid, v in out.items()}
 
 
 def is_valid_match(info):
@@ -448,6 +486,7 @@ def collect(state, game):
                 if FETCH_TIMELINE and time_left() > 60:
                     tl = riot_region(f"/lol/match/v5/matches/{mid}/timeline")
                     info["_cores"] = core_orders(tl, game) if tl else {}
+                    info["_comps"] = early_components(tl, game) if tl else None
                 add_match_to_bucket(cur, info, game)
                 added += 1
             else:
@@ -638,8 +677,21 @@ def build_champ_data(bucket, prev, game):
                         sp = [game["spells"].get(i, {"id": "", "name": "?"}) for i in pk.split("_")]
                         sp.sort(key=lambda x: 0 if x["id"] == "SummonerFlash" else 1)
                         row["sp"] = ["/".join(x["name"] for x in sp), pv[0], fmt(_wr(pv))]
+                # 이 상대일 때만 유독 먼저 사는 대응 아이템 (예: 워윅 상대 망각의 구)
+                #   기준: 타임라인 있는 맞대결 30판 이상, 이 상대일 때 25% 이상 + 평소의 2배 이상
+                vt = ((d.get("vsTl") or {}).get(ocid) or [0, 0])[0]
+                tlg = (d.get("tlg") or [0, 0])[0]
+                if vt >= VS_ITEM_MIN_MATCHUP and tlg:
+                    cps = []
+                    for comp, cv in ((d.get("vsComp") or {}).get(ocid) or {}).items():
+                        rate = cv[0] / vt
+                        base_rate = ((d.get("comp") or {}).get(comp) or [0, 0])[0] / tlg
+                        if rate >= 0.25 and rate >= 2 * base_rate:
+                            cps.append([comp, (game.get("comps") or {}).get(comp, comp), round(rate * 100), round(base_rate * 100)])
+                    if cps:
+                        row["cp"] = sorted(cps, key=lambda x: -x[2])[:2]
                 vs_rows.append(row)
-            pick4 = lambda r: {k: r[k] for k in ("name", "id", "games", "winRate", "it", "sp") if k in r}
+            pick4 = lambda r: {k: r[k] for k in ("name", "id", "games", "winRate", "it", "sp", "cp") if k in r}
             vs_rows.sort(key=lambda r: r["_s"])
             # 어려운 상대 / 쉬운 상대 각각 최대 3명
             # 승률 50% 미만 = 어려운 상대, 50% 초과 = 쉬운 상대

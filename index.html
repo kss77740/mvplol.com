@@ -1404,6 +1404,18 @@
             const vsItem = vsEntry && vsEntry.it;     // [아이템id, 이름, 판수, 승률]
             const vsSpell = vsEntry && vsEntry.sp;    // ["점멸/점화", 판수, 승률]
             const vsItemNote = vsItem ? `${statLaneKo} ${opp} 상대로 ${mine}이(가) 첫 코어로 가장 많이 간 아이템 · ${vsItem[2]}판 · 승률 ${vsItem[3]}` : '';
+            // 이 상대일 때만 유독 먼저 사는 대응 아이템 (예: 워윅 상대 망각의 구) [id, 이름, 이 상대일 때 %, 평소 %]
+            const vsComps = (vsEntry && vsEntry.cp) || [];
+            const compHtml = vsComps.length ? `
+                <div class="mb-3 px-4 py-3 rounded-2xl border border-emerald-400/40 bg-emerald-500/10">
+                    <div class="text-xs font-black text-emerald-300 mb-2">${escHtml(opp)} 상대로는 이걸 먼저 사요</div>
+                    ${vsComps.map(c => `
+                    <div class="flex items-center gap-3 mt-1.5">
+                        <img src="${getItemImgUrl(c[0])}" alt="${escHtml(c[1])}" class="w-9 h-9 rounded-lg border border-emerald-400/50 bg-slate-900 flex-shrink-0" onerror="this.style.visibility='hidden'">
+                        <div class="text-sm leading-snug"><b class="text-white">${escHtml(c[1])}</b>
+                            <span class="block text-[11px] text-slate-300">첫 코어 전에 사는 비율 ${c[2]}% · 평소 ${c[3]}%</span></div>
+                    </div>`).join('')}
+                </div>` : '';
             const vsSpellNote = vsSpell ? `${statLaneKo} ${opp} 상대로 가장 많이 든 스펠 · ${vsSpell[1]}판 · 승률 ${vsSpell[2]}` : '';
             const data = guide ? { ...guide, statItemLine: vsItem ? `통계: ${vsItem[1]} (${vsItemNote})` : '', statSpellLine: vsSpell ? `통계: ${vsSpell[0]} (${vsSpellNote})` : '' } : {
                 lvl1: `${mine}의 견제 스킬 범위를 유지하며 ${opp}의 주도권을 파악하세요.`,
@@ -1489,6 +1501,7 @@
                             <h4 class="text-base font-black text-emerald-400 mb-4 flex items-center gap-2">
                                 상대 맞춤 카운터 템트리 추천
                             </h4>
+                            ${compHtml}
                             ${data.item ? `
                             <div class="flex items-center gap-4 bg-slate-800/90 p-4 rounded-2xl border border-slate-700">
                                 <img src="${getItemImgUrl(data.itemId || getItemIdFromText(data.item))}" alt="추천 아이템" class="w-16 h-16 rounded-xl border border-amber-500/50 shadow-md object-cover bg-slate-900 flex-shrink-0" onerror="this.style.visibility='hidden'">
