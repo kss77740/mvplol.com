@@ -346,6 +346,31 @@
         body.theme-lol :is([class^="border-amber-400"], [class*=" border-amber-400"]) { border-color: rgba(200, 170, 110, 0.7) !important; }
         body.theme-lol .focus\:ring-yellow-400:focus, body.theme-lol .ring-amber-400 { --tw-ring-color: rgba(200, 170, 110, 0.55) !important; }
         body.theme-lol :is([class^="bg-amber-500/"], [class*=" bg-amber-500/"]) { background-color: rgba(200, 170, 110, 0.12) !important; }
+        /* 모바일 룬 표: 3칸을 가로로 나란히, 아이콘 작게, 고른 룬만 승률·픽률 표시 (PC는 그대로) */
+        @media (max-width: 767px) {
+            .rune-box.v3-box { padding: 1.9rem 0.4rem 0.8rem !important; }
+            #rune-tabs { flex-wrap: nowrap !important; }
+            .rune-tab { min-width: 0 !important; flex: 1 1 0; flex-wrap: wrap; justify-content: center !important; gap: 4px 12px !important; padding: 8px 6px !important; }
+            .rune-tab-ic { flex-basis: 100%; justify-content: center; }
+            .rune-tab-ic img:not(.rounded-full) { width: 18px; height: 18px; }
+            .rune-tab-ic img.rounded-full { width: 30px; height: 30px; }
+            .rune-tab-g { display: none; }
+            .rune-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; row-gap: 0 !important; }
+            .rune-grid > .rune-col + .rune-col { border-left: 1px solid rgba(51, 65, 85, 0.8); }
+            .rune-col { gap: 0.5rem !important; padding: 0 2px !important; }
+            .rune-col-in { gap: 0.35rem !important; }
+            .rune-row { gap: 1px !important; }
+            .rune-cell { width: auto !important; flex: 1 1 0; min-width: 0; max-width: 30px; }
+            .rune-ic { width: 20px !important; height: 20px !important; padding: 0 !important; }
+            .rune-ic.rune-key { width: 24px !important; height: 24px !important; }
+            .rune-st { font-size: 8px !important; margin-top: 2px !important; line-height: 10px !important; }
+            .rune-st .rune-g { display: none; }
+            .rune-cell:not(.is-on) .rune-st { visibility: hidden; }
+            .rune-spacer { display: block !important; height: 46px !important; }
+            .rune-spacer.nostats { height: 24px !important; }
+            .rune-lbl { font-size: 11px !important; gap: 3px !important; }
+            .rune-lbl img { width: 14px; height: 14px; }
+        }
         /* ───── 모바일(태블릿 포함, 1024px 미만): 검색이 맨 위, 카드는 그 아래, 상세페이지 위 카드 4개는 숨김 ───── */
         @media (max-width: 1023px) {
             #main-view { padding-top: 1rem; }
@@ -2164,25 +2189,25 @@
             const cell = (icon, name, on, rec, size) => {
                 const n = runeNum(rec, S.total);
                 return `
-                    <div class="flex flex-col items-center w-[58px] flex-shrink-0">
+                    <div class="rune-cell ${on ? 'is-on' : ''} flex flex-col items-center w-[58px] flex-shrink-0">
                         <img src="${base}${icon}" alt="${escHtml(name)}" title="${escHtml(name)}" onerror="this.style.visibility='hidden'"
-                            class="${size} rounded-full ${on ? 'ring-2 ring-amber-400 bg-slate-950' : 'opacity-35 grayscale'}">
+                            class="rune-ic ${size.includes('w-11') ? 'rune-key' : ''} ${size} rounded-full ${on ? 'ring-2 ring-amber-400 bg-slate-950' : 'opacity-35 grayscale'}">
                         ${stats ? `
-                        <div class="mt-1 text-[11px] leading-tight text-center">
+                        <div class="rune-st mt-1 text-[11px] leading-tight text-center">
                             <div class="font-bold ${on ? 'text-sky-400' : 'text-slate-500'}">${n.wr}</div>
                             <div class="font-black ${on ? 'text-white' : 'text-slate-500'}">${n.pick}</div>
-                            <div class="text-[10px] text-slate-600">${n.g.toLocaleString()}</div>
+                            <div class="rune-g text-[10px] text-slate-600">${n.g.toLocaleString()}</div>
                         </div>` : ''}
                     </div>`;
             };
             const treeRows = (st, slots, src) => slots.map((row, i) => `
-                <div class="flex items-start justify-center gap-1">
+                <div class="rune-row flex items-start justify-center gap-1">
                     ${row.map(r => cell(r.icon, r.name, chosen.has(r.id), S[src][String(r.id)], i === 0 && src === 'prim' ? 'w-11 h-11' : 'w-9 h-9')).join('')}
                 </div>`).join('');
 
             const shards = tree.shards || {};
             const shardRows = (tree.shardRows || []).map((row, i) => `
-                <div class="flex items-start justify-center gap-1">
+                <div class="rune-row flex items-start justify-center gap-1">
                     ${row.map(id => {
                         const sh = shards[String(id)] || { name: id, icon: '' };
                         return cell(sh.icon, sh.name, page.shards[i] === Number(id), S.shard[`${i}:${id}`], 'w-8 h-8 p-0.5');
@@ -2190,17 +2215,17 @@
                 </div>`).join('');
 
             const col = (inner, label, icon) => `
-                <div class="flex flex-col justify-between gap-4 py-1">
-                    <div class="flex flex-col gap-4">${inner}</div>
-                    <div class="flex items-center justify-center gap-1.5 text-sm font-bold text-slate-300">
+                <div class="rune-col flex flex-col justify-between gap-4 py-1">
+                    <div class="rune-col-in flex flex-col gap-4">${inner}</div>
+                    <div class="rune-lbl flex items-center justify-center gap-1.5 text-sm font-bold text-slate-300">
                         ${icon ? `<img src="${base}${icon}" alt="" class="w-5 h-5" onerror="this.style.visibility='hidden'">` : ''}${escHtml(label)}
                     </div>
                 </div>`;
             // 보조 룬·파편 칸은 핵심 룬 줄 높이만큼 비워서 줄을 맞춤
-            const spacer = `<div class="hidden md:block ${stats ? 'h-[88px]' : 'h-11'}"></div>`;
+            const spacer = `<div class="rune-spacer ${stats ? '' : 'nostats'} hidden md:block ${stats ? 'h-[88px]' : 'h-11'}"></div>`;
             return `
-                <div class="v3-box bg-slate-800/80 p-3">
-                    <div class="grid grid-cols-1 md:grid-cols-3 md:divide-x divide-slate-700/80 gap-y-6">
+                <div class="rune-box v3-box bg-slate-800/80 p-3">
+                    <div class="rune-grid grid grid-cols-1 md:grid-cols-3 md:divide-x divide-slate-700/80 gap-y-6">
                         ${col(treeRows(prim, prim.slots, 'prim'), prim.name, prim.icon)}
                         ${col(spacer + treeRows(sub, sub.slots.slice(1), 'sub'), sub.name, sub.icon)}
                         ${col(spacer + shardRows, '능력치 파편', '')}
@@ -2219,12 +2244,12 @@
                 const img = (o, cls) => o ? `<img src="${base}${o.icon}" alt="${escHtml(o.name)}" title="${escHtml(o.name)}" class="${cls}" onerror="this.style.visibility='hidden'">` : '';
                 return `
                     <button type="button" data-rune-idx="${i}" class="rune-tab flex-1 min-w-[260px] flex items-center justify-between gap-3 px-4 py-3 rounded-lg border cursor-pointer transition-colors ${i === 0 ? 'bg-slate-700/70 border-amber-400/60' : 'bg-slate-900/60 border-slate-700 hover:bg-slate-800'}">
-                        <div class="flex items-center gap-2">
+                        <div class="rune-tab-ic flex items-center gap-2">
                             ${img(prim, 'w-6 h-6 opacity-80')}${img(key, 'w-10 h-10 rounded-full bg-slate-950')}${img(sub, 'w-6 h-6 opacity-80')}
                         </div>
                         <div class="text-center leading-tight">
                             <div class="text-sm font-black text-white">${pg.pick}</div>
-                            <div class="text-[11px] text-slate-400">${Number(pg.games || 0).toLocaleString()} 게임</div>
+                            <div class="rune-tab-g text-[11px] text-slate-400">${Number(pg.games || 0).toLocaleString()} 게임</div>
                             <div class="text-[11px] text-slate-400">픽률</div>
                         </div>
                         <div class="text-center leading-tight">
