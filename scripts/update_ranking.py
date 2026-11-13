@@ -353,6 +353,8 @@ def add_match_to_bucket(bucket, info, game):
                 _inc(d.setdefault("vsTl", {}), ocid, mwin)
                 for comp in info["_comps"].get(me.get("participantId"), []):
                     _inc(d.setdefault("vsComp", {}).setdefault(ocid, {}), comp, mwin)
+                for part in (info.get("_parts") or {}).get(me.get("participantId"), []):
+                    _inc(d.setdefault("vsPart", {}).setdefault(ocid, {}), part, mwin)
             mpair = "_".join(sorted([str(me.get("summoner1Id")), str(me.get("summoner2Id"))]))
             _inc(d.setdefault("vsSpell", {}).setdefault(ocid, {}), mpair, mwin)
 
@@ -702,8 +704,16 @@ def build_champ_data(bucket, prev, game):
                             cps.append([comp, (game.get("comps") or {}).get(comp, comp), round(rate * 100), round(base_rate * 100)])
                     if cps:
                         row["cp"] = sorted(cps, key=lambda x: -x[2])[:2]
+                    # 이 상대일 때 1코어 전에 먼저 산 핵심 하위템 (30% 이상) [id, 이름, %, 승률]
+                    pps = []
+                    for part, pv in sorted(((d.get("vsPart") or {}).get(ocid) or {}).items(), key=lambda kv: kv[1][0], reverse=True):
+                        if pv[0] / vt < 0.30:
+                            break
+                        pps.append([part, (game.get("parts") or {}).get(part, part), round(pv[0] / vt * 100), fmt(_wr(pv))])
+                    if pps:
+                        row["pp"] = pps[:2]
                 vs_rows.append(row)
-            pick4 = lambda r: {k: r[k] for k in ("name", "id", "games", "winRate", "it", "sp", "cp") if k in r}
+            pick4 = lambda r: {k: r[k] for k in ("name", "id", "games", "winRate", "it", "sp", "cp", "pp") if k in r}
             vs_rows.sort(key=lambda r: r["_s"])
             # 어려운 상대 / 쉬운 상대 각각 최대 3명
             # 승률 50% 미만 = 어려운 상대, 50% 초과 = 쉬운 상대

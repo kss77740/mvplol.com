@@ -1416,6 +1416,22 @@
                             <span class="block text-[11px] text-slate-300">첫 코어 전에 사는 비율 ${c[2]}% · 평소 ${c[3]}%</span></div>
                     </div>`).join('')}
                 </div>` : '';
+            // 1코어 전에 먼저 사는 핵심 하위템: 이 상대 기준(pp) → 없으면 그 라인 평소 기준(preCore)
+            const vsParts = (vsEntry && vsEntry.pp) || [];
+            const laneParts = (st && st.preCore) || [];
+            const partList = vsParts.length
+                ? vsParts.map(x => ({ id: x[0], name: x[1], note: `${opp} 상대로 먼저 사는 비율 ${x[2]}% · 승률 ${x[3]}` }))
+                : laneParts.map(x => ({ id: x.id, name: x.name, note: `평소 먼저 사는 비율 ${x.pick} · 승률 ${x.winRate}` }));
+            const partHtml = partList.length ? `
+                <div class="mb-3 px-4 py-3 rounded-2xl border border-amber-500/40 bg-amber-500/10">
+                    <div class="text-xs font-black text-amber-300 mb-2">1코어 전에 먼저 사는 템${vsParts.length ? '' : ` (${statLaneKo} ${escHtml(mine)} 평소)`}</div>
+                    ${partList.map(x => `
+                    <div class="flex items-center gap-3 mt-1.5">
+                        <img src="${getItemImgUrl(x.id)}" alt="${escHtml(x.name)}" class="w-9 h-9 rounded-lg border border-amber-500/50 bg-slate-900 flex-shrink-0" onerror="this.style.visibility='hidden'">
+                        <div class="text-sm leading-snug"><b class="text-white">${escHtml(x.name)}</b>
+                            <span class="block text-[11px] text-slate-300">${escHtml(x.note)}</span></div>
+                    </div>`).join('')}
+                </div>` : '';
             const vsSpellNote = vsSpell ? `${statLaneKo} ${opp} 상대로 가장 많이 든 스펠 · ${vsSpell[1]}판 · 승률 ${vsSpell[2]}` : '';
             const data = guide ? { ...guide, statItemLine: vsItem ? `통계: ${vsItem[1]} (${vsItemNote})` : '', statSpellLine: vsSpell ? `통계: ${vsSpell[0]} (${vsSpellNote})` : '' } : {
                 lvl1: `${mine}의 견제 스킬 범위를 유지하며 ${opp}의 주도권을 파악하세요.`,
@@ -1502,6 +1518,7 @@
                                 상대 맞춤 카운터 템트리 추천
                             </h4>
                             ${compHtml}
+                            ${partHtml}
                             ${data.item ? `
                             <div class="flex items-center gap-4 bg-slate-800/90 p-4 rounded-2xl border border-slate-700">
                                 <img src="${getItemImgUrl(data.itemId || getItemIdFromText(data.item))}" alt="추천 아이템" class="w-16 h-16 rounded-xl border border-amber-500/50 shadow-md object-cover bg-slate-900 flex-shrink-0" onerror="this.style.visibility='hidden'">
