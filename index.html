@@ -1302,6 +1302,33 @@
         }
 
         // 매치업 상세: 두 챔피언이 같은 라인에서 맞붙었을 때 승률로 우세/불리 표시
+        // 챔피언별 자세한 통계(빌드·룬·상대별 기록)는 champ/<영문이름>.js 로 나뉘어 있어서 필요할 때만 받음
+        const champDetailLoads = {};
+        function loadChampDetail(name) {
+            const data = window.CHAMP_DATA;
+            const c = data && data.champs && data.champs[name];
+            if (!c || !c.roles) return Promise.resolve();
+            // 예전 형식(한 파일에 다 들어 있음)이면 받을 필요 없음
+            if (c._full || Object.values(c.roles).some(r => r && r.vs)) { c._full = true; return Promise.resolve(); }
+            if (!champDetailLoads[name]) {
+                champDetailLoads[name] = new Promise(resolve => {
+                    const sc = document.createElement('script');
+                    sc.src = `champ/${encodeURIComponent(c.f || c.id || name)}.js?v=${encodeURIComponent((data.meta || {}).v || '')}`;
+                    sc.onload = () => {
+                        const d = (window.CHAMP_DETAIL || {})[name];
+                        if (d && d.roles) {
+                            for (const [k, v] of Object.entries(d.roles)) c.roles[k] = Object.assign(c.roles[k] || {}, v);
+                            c._full = true;
+                        }
+                        resolve();
+                    };
+                    sc.onerror = () => { delete champDetailLoads[name]; resolve(); };
+                    document.head.appendChild(sc);
+                });
+            }
+            return champDetailLoads[name];
+        }
+
         // 두 챔피언이 맞붙은 라인 목록 (라인마다 판수·승률), 판수 많은 순
         // 예: 요네 vs 트페 = [미드], 요네 vs 야스오 = [미드, 탑]
         function laneMatchupStats(mine, opp) {
@@ -1375,7 +1402,7 @@
             setSideChamp(mine);
 
             const dbKey = `${mine}_${opp}`;
-            await loadTopFile(mine);
+            await Promise.all([loadTopFile(mine), loadChampDetail(mine), loadChampDetail(opp)]);
             const topKey = `${mine}_${opp}`.replace(/\s+/g, '');
             const guide = (window.TOP_MATCHUPS || {})[topKey] || (window.TOP_MATCHUPS || {})[dbKey] || MATCHUP_DATABASE[dbKey] || null;
             const laneList = laneMatchupStats(mine, opp);
@@ -2167,7 +2194,8 @@
         }
 
         // ───────────── 챔피언 상세페이지 ─────────────
-        window.openChampPage = function(name, role, pushHistory = true) {
+        window.openChampPage = async function(name, role, pushHistory = true) {
+            await loadChampDetail(name);
             const data = window.CHAMP_DATA;
             const champ = data && data.champs ? data.champs[name] : null;
             if (champ) {

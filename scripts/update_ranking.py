@@ -853,15 +853,35 @@ def build_champ_data(bucket, prev, game):
 
 def write_champ_data(bucket, prev, game):
     data = build_champ_data(bucket, prev, game)
+    now = datetime.now(KST)
     data["meta"] = {"patch": display_patch(bucket["patch"]), "games": bucket["games"], "tierLabel": TIER_LABEL,
-                    "updatedAt": datetime.now(KST).strftime("%Y-%m-%d")}
+                    "updatedAt": now.strftime("%Y-%m-%d"), "v": now.strftime("%Y%m%d%H%M")}
+
+    # 사이트가 처음 뜰 때 받는 파일을 가볍게: champ_data.js 에는 요약(라인별 판수·승률·픽률·밴률)만,
+    # 빌드·룬·상대별 기록 같은 자세한 내용은 챔피언별 파일(champ/<영문이름>.js)로 나눠서 필요할 때만 받음
+    detail_dir = os.path.join(os.path.dirname(CHAMP_OUTPUT_PATH), "champ")
+    os.makedirs(detail_dir, exist_ok=True)
+    for old in os.listdir(detail_dir):
+        if old.endswith(".js"):
+            os.remove(os.path.join(detail_dir, old))
+    summary = {}
+    for i, (name, c) in enumerate(data["champs"].items()):
+        fid = "".join(ch for ch in str(c.get("id") or f"c{i}") if ch.isalnum()) or f"c{i}"
+        with open(os.path.join(detail_dir, f"{fid}.js"), "w", encoding="utf-8") as f:
+            f.write("window.CHAMP_DETAIL=window.CHAMP_DETAIL||{};"
+                    f"window.CHAMP_DETAIL[{json.dumps(name, ensure_ascii=False)}]="
+                    f"{json.dumps({'roles': c['roles']}, ensure_ascii=False, separators=(',', ':'))};\n")
+        summary[name] = {"id": c.get("id"), "f": fid, "roles": {
+            role: {k: r.get(k) for k in ("games", "winRate", "pickRate", "banRate")} for role, r in c["roles"].items()}}
+    data["champs"] = summary
+
     content = (
         "// 자동 생성 파일입니다. 직접 수정하지 마세요. (scripts/update_ranking.py)\n"
         f"window.CHAMP_DATA = {json.dumps(data, ensure_ascii=False, separators=(',', ':'))};\n"
     )
     with open(CHAMP_OUTPUT_PATH, "w", encoding="utf-8") as f:
         f.write(content)
-    log(f"champ_data.js 저장 완료 (챔피언 {len(data['champs'])}명, 인기 구도 {len(data['popular'])}개)")
+    log(f"champ_data.js 저장 완료 (챔피언 {len(data['champs'])}명, 인기 구도 {len(data['popular'])}개, 챔피언별 파일 {len(summary)}개)")
 
 
 # ───────────────────────── 실행 ─────────────────────────

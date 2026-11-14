@@ -41,6 +41,11 @@ jobs:
             for f in ranking_data.js champ_data.js; do
               git show "FETCH_HEAD:$f" > "$f" 2>/dev/null || rm -f "$f"
             done
+            # 챔피언별 자세한 통계 파일 (champ/*.js)
+            rm -rf champ
+            git checkout FETCH_HEAD -- champ 2>/dev/null || true
+            git reset -q 2>/dev/null || true
+            ls champ 2>/dev/null | wc -l | xargs echo "챔피언별 파일:"
           fi
           rm -rf .git .github scripts data
 
