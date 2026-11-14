@@ -11,6 +11,7 @@ Mvp.lol 챔피언 랭킹 자동 계산 스크립트
 - 외부 라이브러리 없이 파이썬 기본 기능만 사용합니다.
 """
 
+import http.client
 import json
 import os
 import sys
@@ -135,6 +136,10 @@ def http_get_json(url, riot=True, retries=4):
                 return None
             raise
         except (urllib.error.URLError, TimeoutError):
+            time.sleep(2 * (attempt + 1))
+        except (ValueError, http.client.HTTPException, ConnectionError, OSError) as e:
+            # 응답이 중간에 끊겨 JSON이 깨진 경우 등 → 잠깐 쉬고 다시 시도 (실행 전체가 죽지 않게)
+            log(f"응답 오류({type(e).__name__}) → 다시 시도")
             time.sleep(2 * (attempt + 1))
     return None
 
@@ -454,73 +459,79 @@ def collect(state, game):
     due = len(never) + sum(1 for p in checked if sched[p][0] <= now)
     log(f"이번에 볼 차례인 유저 {due}명 (처음 보는 유저 {len(never)}명)")
 
-    for puuid in order:
-        if time_left() <= 60:
-            break
-        checked_players += 1
-        prev_sched = sched.get(puuid)
-        since = start_ts
-        if prev_sched:
-            since = max(start_ts, int(prev_sched[2]) - 600)   # 지난번 확인 이후 경기만
-
-        q = urllib.parse.urlencode({"queue": QUEUE_ID, "startTime": since, "count": MATCHES_PER_PLAYER})
-        ids = riot_region(f"/lol/match/v5/matches/by-puuid/{puuid}/ids?{q}") or []
-        new_ids = [m for m in ids if m not in seen]
-        gap = PLAYER_MIN_GAP_H if new_ids else min(PLAYER_MAX_GAP_H, (prev_sched[1] * 2) if prev_sched else 6)
-        t = time.time()
-        sched[puuid] = [t + gap * 3600, gap, t]
-
-        for mid in new_ids:
+    try:
+        for puuid in order:
             if time_left() <= 60:
                 break
-            if mid in seen:
-                continue
-            seen[mid] = None
-            match = riot_region(f"/lol/match/v5/matches/{mid}")
-            info = (match or {}).get("info")
-            if not is_valid_match(info):
-                continue
-
-            patch = patch_of(info.get("gameVersion"))
-            if not patch:
-                continue
-            cur = state["current"]
-
-            if cur is None:
-                state["current"] = cur = empty_bucket(patch)
-            elif patch_key(patch) > patch_key(cur["patch"]):
-                # 새 패치 시작 → 지금까지 모은 걸 '이전 패치'로 넘기고 새로 집계
-                log(f"새 패치 감지: {cur['patch']} → {patch}")
-                state["previous"] = cur
-                state["current"] = cur = empty_bucket(patch)
-                state["oldCutoff"] = 0
-
-            if patch == cur["patch"]:
-                if FETCH_TIMELINE and time_left() > 60:
-                    tl = riot_region(f"/lol/match/v5/matches/{mid}/timeline")
-                    info["_cores"] = core_orders(tl, game) if tl else {}
-                    info["_comps"] = early_components(tl, game) if tl else None
-                    info["_parts"] = early_components(tl, game, "parts") if tl else None
-                add_match_to_bucket(cur, info, game)
-                added += 1
-            else:
-                # 지난 패치 경기: 이전 패치 집계에 보태고, 다음부터 그 시점 이전은 안 봄
-                prev = state.get("previous")
-                if prev and prev["patch"] == patch:
-                    add_match_to_bucket(prev, info, game)
-                end_ts = int(info.get("gameEndTimestamp", info.get("gameCreation", 0)) / 1000)
-                state["oldCutoff"] = max(state.get("oldCutoff", 0), end_ts)
-                start_ts = max(start_ts, state["oldCutoff"])
-
-        if time_left() <= 60 and new_ids and new_ids[-1] not in seen:
-            # 시간이 다 돼서 이 유저 경기를 다 못 봤으면 다음 실행에서 다시 보게 일정 되돌림
+            checked_players += 1
+            prev_sched = sched.get(puuid)
+            since = start_ts
             if prev_sched:
-                sched[puuid] = prev_sched
-            else:
-                sched.pop(puuid, None)
+                since = max(start_ts, int(prev_sched[2]) - 600)   # 지난번 확인 이후 경기만
 
-        if checked_players % 25 == 0:
-            log(f"유저 {checked_players}명 확인, 새 경기 {added}판 (이번 패치 누적 {state['current']['games'] if state['current'] else 0}판)")
+            q = urllib.parse.urlencode({"queue": QUEUE_ID, "startTime": since, "count": MATCHES_PER_PLAYER})
+            ids = riot_region(f"/lol/match/v5/matches/by-puuid/{puuid}/ids?{q}") or []
+            new_ids = [m for m in ids if m not in seen]
+            gap = PLAYER_MIN_GAP_H if new_ids else min(PLAYER_MAX_GAP_H, (prev_sched[1] * 2) if prev_sched else 6)
+            t = time.time()
+            sched[puuid] = [t + gap * 3600, gap, t]
+
+            for mid in new_ids:
+                if time_left() <= 60:
+                    break
+                if mid in seen:
+                    continue
+                seen[mid] = None
+                match = riot_region(f"/lol/match/v5/matches/{mid}")
+                info = (match or {}).get("info")
+                if not is_valid_match(info):
+                    continue
+
+                patch = patch_of(info.get("gameVersion"))
+                if not patch:
+                    continue
+                cur = state["current"]
+
+                if cur is None:
+                    state["current"] = cur = empty_bucket(patch)
+                elif patch_key(patch) > patch_key(cur["patch"]):
+                    # 새 패치 시작 → 지금까지 모은 걸 '이전 패치'로 넘기고 새로 집계
+                    log(f"새 패치 감지: {cur['patch']} → {patch}")
+                    state["previous"] = cur
+                    state["current"] = cur = empty_bucket(patch)
+                    state["oldCutoff"] = 0
+
+                if patch == cur["patch"]:
+                    if FETCH_TIMELINE and time_left() > 60:
+                        tl = riot_region(f"/lol/match/v5/matches/{mid}/timeline")
+                        info["_cores"] = core_orders(tl, game) if tl else {}
+                        info["_comps"] = early_components(tl, game) if tl else None
+                        info["_parts"] = early_components(tl, game, "parts") if tl else None
+                    add_match_to_bucket(cur, info, game)
+                    added += 1
+                else:
+                    # 지난 패치 경기: 이전 패치 집계에 보태고, 다음부터 그 시점 이전은 안 봄
+                    prev = state.get("previous")
+                    if prev and prev["patch"] == patch:
+                        add_match_to_bucket(prev, info, game)
+                    end_ts = int(info.get("gameEndTimestamp", info.get("gameCreation", 0)) / 1000)
+                    state["oldCutoff"] = max(state.get("oldCutoff", 0), end_ts)
+                    start_ts = max(start_ts, state["oldCutoff"])
+
+            if time_left() <= 60 and new_ids and new_ids[-1] not in seen:
+                # 시간이 다 돼서 이 유저 경기를 다 못 봤으면 다음 실행에서 다시 보게 일정 되돌림
+                if prev_sched:
+                    sched[puuid] = prev_sched
+                else:
+                    sched.pop(puuid, None)
+
+            if checked_players % 25 == 0:
+                log(f"유저 {checked_players}명 확인, 새 경기 {added}판 (이번 패치 누적 {state['current']['games'] if state['current'] else 0}판)")
+
+    except Exception as e:   # 예상 못 한 오류가 나도 지금까지 모은 건 저장되게
+        import traceback
+        log(f"수집 중 오류로 이번 수집을 여기서 멈춤: {type(e).__name__}: {e}")
+        traceback.print_exc()
 
     state["players"] = sched
     state["seen"] = list(seen)[-80000:]  # 파일이 너무 커지지 않게 최근 8만 개만 기억
