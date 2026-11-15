@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
     steps:
       - name: 사이트 코드 가져오기 (main)
         uses: actions/checkout@v4
@@ -76,5 +76,15 @@ jobs:
         with:
           path: site
 
+      # GitHub 쪽이 잠깐 불안정해서 배포가 실패하는 경우가 있어서, 실패하면 1분 쉬고 한 번 더
       - id: deployment
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+
+      - name: 배포 실패 시 잠깐 기다리기
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 60
+
+      - id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@v4
