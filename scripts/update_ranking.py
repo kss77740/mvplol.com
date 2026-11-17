@@ -192,6 +192,15 @@ def load_game_data():
 
     # 상대에 따라 먼저 사는 '대응용 하위 아이템' (치유 감소·마법 저항·방어력)
     comps = {iid: items_raw[iid]["name"] for iid in COUNTER_COMPONENTS if iid in items_raw}
+    # 완성템마다 재료로 들어가는 하위템 전부 (예: 굶주린 히드라 → 티아맷·롱소드…)
+    def _materials(iid, seen=None):
+        seen = seen if seen is not None else set()
+        for sub in items_raw.get(iid, {}).get("from", []) or []:
+            if sub not in seen:
+                seen.add(sub)
+                _materials(sub, seen)
+        return seen
+    builds_from = {iid: sorted(_materials(iid)) for iid in items}
     # 1코어 전에 먼저 사는 '핵심 하위템' 후보: 1,000골드 이상 하위 아이템 (티아맷·셰진·칠흑 단검 등)
     parts = {}
     for iid, it in items_raw.items():
@@ -206,7 +215,7 @@ def load_game_data():
         spells[sp["key"]] = {"id": sp["id"], "name": sp["name"]}
 
     return {"names": names, "items": items, "boots": boots, "runes": runes,
-            "styles": styles, "spells": spells, "tree": tree, "comps": comps, "parts": parts}
+            "styles": styles, "spells": spells, "tree": tree, "comps": comps, "parts": parts, "buildsFrom": builds_from}
 
 
 # 능력치 파편 (Data Dragon 에 없어서 직접 정의)
@@ -331,8 +340,10 @@ def add_match_to_bucket(bucket, info, game):
             _inc(d, "tlg", win)
             for comp in info["_comps"].get(p.get("participantId"), []):
                 _inc(d.setdefault("comp", {}), comp, win)
-            for part in (info.get("_parts") or {}).get(p.get("participantId"), []):
-                _inc(d.setdefault("part", {}), part, win)
+        if info.get("_parts") is not None:   # 첫 코어 재료를 뺀 '먼저 사는 템' (2026-11-18부터 새로 셈)
+            _inc(d, "ptg", win)
+            for part in info["_parts"].get(p.get("participantId"), []):
+                _inc(d.setdefault("part2", {}), part, win)
         cores = (info.get("_cores") or {}).get(p.get("participantId"))
         if cores:
             for k, iid in enumerate(cores[:3]):
@@ -358,8 +369,10 @@ def add_match_to_bucket(bucket, info, game):
                 _inc(d.setdefault("vsTl", {}), ocid, mwin)
                 for comp in info["_comps"].get(me.get("participantId"), []):
                     _inc(d.setdefault("vsComp", {}).setdefault(ocid, {}), comp, mwin)
-                for part in (info.get("_parts") or {}).get(me.get("participantId"), []):
-                    _inc(d.setdefault("vsPart", {}).setdefault(ocid, {}), part, mwin)
+            if info.get("_parts") is not None:
+                _inc(d.setdefault("vsPtl", {}), ocid, mwin)
+                for part in info["_parts"].get(me.get("participantId"), []):
+                    _inc(d.setdefault("vsPart2", {}).setdefault(ocid, {}), part, mwin)
             mpair = "_".join(sorted([str(me.get("summoner1Id")), str(me.get("summoner2Id"))]))
             _inc(d.setdefault("vsSpell", {}).setdefault(ocid, {}), mpair, mwin)
 
@@ -422,9 +435,13 @@ def early_components(timeline, game, key="comps"):
                 continue
             if iid in game["items"]:
                 done.add(pid)          # 첫 완성 아이템을 샀으면 거기까지만 봄
+                if key == "parts" and pid in out:
+                    # 첫 완성템의 재료로 그냥 들어간 하위템은 빼기
+                    # (가렌 티아맷 → 굶주린 히드라 는 '먼저 사는 템'이 아니라 그냥 재료)
+                    out[pid] -= set((game.get("buildsFrom") or {}).get(iid, []))
             elif iid in comps:
                 out.setdefault(pid, set()).add(iid)
-    return {pid: sorted(v) for pid, v in out.items()}
+    return {pid: sorted(v) for pid, v in out.items() if v}
 
 
 def is_valid_match(info):
@@ -715,12 +732,14 @@ def build_champ_data(bucket, prev, game):
                             cps.append([comp, (game.get("comps") or {}).get(comp, comp), round(rate * 100), round(base_rate * 100)])
                     if cps:
                         row["cp"] = sorted(cps, key=lambda x: -x[2])[:2]
-                    # 이 상대일 때 1코어 전에 먼저 산 핵심 하위템 (30% 이상) [id, 이름, %, 승률]
+                # 이 상대일 때 1코어 전에 먼저 산 핵심 하위템 (맞대결 30판 이상, 30% 이상) [id, 이름, %, 승률]
+                vpt = ((d.get("vsPtl") or {}).get(ocid) or [0, 0])[0]
+                if vpt >= VS_ITEM_MIN_MATCHUP:
                     pps = []
-                    for part, pv in sorted(((d.get("vsPart") or {}).get(ocid) or {}).items(), key=lambda kv: kv[1][0], reverse=True):
-                        if pv[0] / vt < 0.30:
+                    for part, pv in sorted(((d.get("vsPart2") or {}).get(ocid) or {}).items(), key=lambda kv: kv[1][0], reverse=True):
+                        if pv[0] / vpt < 0.30:
                             break
-                        pps.append([part, (game.get("parts") or {}).get(part, part), round(pv[0] / vt * 100), fmt(_wr(pv))])
+                        pps.append([part, (game.get("parts") or {}).get(part, part), round(pv[0] / vpt * 100), fmt(_wr(pv))])
                     if pps:
                         row["pp"] = pps[:2]
                 vs_rows.append(row)
@@ -746,13 +765,13 @@ def build_champ_data(bucket, prev, game):
 
             # 1코어 전에 먼저 사는 핵심 하위템 (예: 트런들 티아맷): 타임라인 있는 판 30판 이상, 30% 이상이 산 것
             pre_core = []
-            tlg = (d.get("tlg") or [0, 0])[0]
-            if tlg >= 30:
-                for iid, v in sorted((d.get("part") or {}).items(), key=lambda kv: kv[1][0], reverse=True):
-                    if v[0] / tlg < 0.30:
+            ptg = (d.get("ptg") or [0, 0])[0]
+            if ptg >= 30:
+                for iid, v in sorted((d.get("part2") or {}).items(), key=lambda kv: kv[1][0], reverse=True):
+                    if v[0] / ptg < 0.30:
                         break
                     pre_core.append({"id": iid, "name": (game.get("parts") or {}).get(iid, iid),
-                                     "pick": fmt(v[0] / tlg), "winRate": fmt(_wr(v)), "games": v[0]})
+                                     "pick": fmt(v[0] / ptg), "winRate": fmt(_wr(v)), "games": v[0]})
                 pre_core = pre_core[:2]
 
             # 가장 많이 쓰는 룬 페이지 (꼬마 룬, 능력치 파편까지)
@@ -892,6 +911,12 @@ def main():
     game = load_game_data()
     names = game["names"]
     state = load_state()
+    # 예전 방식(첫 코어 재료까지 섞여 세던) '먼저 사는 템' 기록은 지움
+    for bkey in ("current", "previous"):
+        for role_d in ((state.get(bkey) or {}).get("detail") or {}).values():
+            for cd in role_d.values():
+                cd.pop("part", None)
+                cd.pop("vsPart", None)
 
     added = collect(state, game)
     save_state(state)
