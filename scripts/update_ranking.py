@@ -811,7 +811,8 @@ def build_champ_data(bucket, prev, game):
                     _acc(rune_stats["sub"], x, v)
                 for i, x in enumerate(shard_ids):
                     _acc(rune_stats["shard"], f"{i}:{x}", v)
-            vs_all = [pick4(r) for r in sorted(vs_rows, key=lambda r: r["games"], reverse=True)[:30]]
+            # 상대 목록 전부 (예전엔 판수 많은 30명만 → 블라디미르처럼 덜 만나는 상대는 구도 통계가 빠졌음)
+            vs_all = [pick4(r) for r in sorted(vs_rows, key=lambda r: r["games"], reverse=True)]
 
             entry = champs.setdefault(name, {"id": ddid, "roles": {}})
             entry["roles"][role] = {
