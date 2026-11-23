@@ -1142,6 +1142,39 @@
             if (!searchInput2.contains(e.target) && !searchSuggestions2.contains(e.target)) searchSuggestions2.classList.add('hidden');
         });
 
+        // 라인별 매치업 파일 (AI 사무실이 만든 파일): 종류 → [폴더, 파일 앞글자, 전역 변수]
+        const LANE_FILES = {
+            top: ['top', 'top', 'TOP_MATCHUPS'], mid: ['mid', 'mid', 'MID_MATCHUPS'], jungle: ['jungle', 'jungle', 'JUNGLE_MATCHUPS'],
+            adc: ['adc', 'adc', 'ADC_MATCHUPS'], support: ['support', 'support', 'SUPPORT_MATCHUPS'],
+            adcsup: ['bot', 'adcsup', 'BOT_ADCSUP'], supadc: ['bot', 'supadc', 'BOT_SUPADC'], duo: ['bot', 'duo', 'BOT_DUO']
+        };
+        // 구도의 라인 → 파일 종류 (바텀에서 원딜 vs 상대 서폿처럼 역할이 다르면 교차 파일)
+        function matchupKind(role, opp) {
+            const oppRole = champMainRole(opp);
+            if (role === 'adc' && oppRole === 'support') return 'adcsup';
+            if (role === 'support' && oppRole === 'adc') return 'supadc';
+            return LANE_FILES[role] ? role : 'top';
+        }
+        const laneFileLoads = {};
+        function loadLaneFile(kind, name) {
+            const lf = LANE_FILES[kind] || LANE_FILES.top;
+            const k = kind + '|' + name;
+            if (!laneFileLoads[k]) {
+                laneFileLoads[k] = new Promise(resolve => {
+                    const s = document.createElement('script');
+                    const directMap = {
+                        "아트록스": "aatrox", "아칼리": "akali", "베인": "vayne", "탈론": "talon", "제드": "zed",
+                        "트런들": "trundle", "사일러스": "sylas", "야스오": "yasuo", "이즈리얼": "ezreal", "레오나": "leona", "징크스": "jinx", "쓰레쉬": "thresh"
+                    };
+                    const key = name.replace(/\s+/g, '');
+                    const fileId = directMap[key] || (champDataList[name] ? champDataList[name].toLowerCase() : key);
+                    s.src = lf[0] + '/' + lf[1] + '_' + encodeURIComponent(fileId) + '.js';
+                    s.onload = resolve; s.onerror = resolve;
+                    document.head.appendChild(s);
+                });
+            }
+            return laneFileLoads[k];
+        }
         const topFileLoads = {};
         function loadTopFile(name) {
             if (!topFileLoads[name]) {
@@ -1402,13 +1435,22 @@
             setSideChamp(mine);
 
             const dbKey = `${mine}_${opp}`;
-            await Promise.all([loadTopFile(mine), loadChampDetail(mine), loadChampDetail(opp)]);
+            await Promise.all([loadChampDetail(mine), loadChampDetail(opp)]);
             const topKey = `${mine}_${opp}`.replace(/\s+/g, '');
-            const guide = (window.TOP_MATCHUPS || {})[topKey] || (window.TOP_MATCHUPS || {})[dbKey] || MATCHUP_DATABASE[dbKey] || null;
             const laneList = laneMatchupStats(mine, opp);
             const lanePick = matchupLaneOverride && matchupLaneOverride.mine === mine && matchupLaneOverride.opp === opp
                 ? laneList.find(l => l.role === matchupLaneOverride.role) : null;
             const laneStat = lanePick || laneList[0] || null;
+            // 그 구도의 라인 파일을 불러옴 (탑이면 top/, 미드면 mid/ …). 라인 정보가 없으면 내 주 라인
+            const guideKind = matchupKind((laneStat && laneStat.role) || champMainRole(mine) || 'top', opp);
+            await loadLaneFile(guideKind, mine);
+            const laneDb = window[(LANE_FILES[guideKind] || LANE_FILES.top)[2]] || {};
+            let guide = laneDb[topKey] || laneDb[dbKey] || null;
+            if (!guide && guideKind !== 'top' && !laneStat) {   // 라인을 모를 땐 탑 파일도 찾아봄
+                await loadLaneFile('top', mine);
+                guide = (window.TOP_MATCHUPS || {})[topKey] || (window.TOP_MATCHUPS || {})[dbKey] || null;
+            }
+            if (!guide) guide = MATCHUP_DATABASE[dbKey] || null;
             // 두 라인 이상에서 30판 이상 맞붙은 구도면 라인을 고를 수 있게 탭 표시
             const laneChoices = laneList.filter(l => l.games >= 30);
             const LANE_KO = { top: '탑', jungle: '정글', mid: '미드', adc: '원딜', support: '서폿' };
